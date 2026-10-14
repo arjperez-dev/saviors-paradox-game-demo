@@ -13,7 +13,7 @@ The five bosses: bodies as a composite of parts, phases as state objects, and th
 | `events/boss_phase_changed` | emits | `lib/features/bosses/application/step_boss.dart` |
 | `events/boss_defeated` | emits | `lib/features/bosses/application/step_boss.dart` |
 | `events/sound_effect_cued` | emits | `lib/features/bosses/application/step_boss.dart` |
-| `ports/combatant` | implements | `lib/features/bosses/application/boss_part_combatants.dart` |
+| `ports/combatant` | implements | `lib/features/bosses/application/boss_part_combatant.dart` |
 | `state/akeris_state` | consumes | — |
 | `events/boss_room_entered` | consumes | — |
 | `events/hit_landed` | consumes | — |

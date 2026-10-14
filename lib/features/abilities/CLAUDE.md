@@ -15,7 +15,7 @@ The ten abilities as strategies, the three equipped slots and the choice after e
 | `events/sound_effect_cued` | emits | `lib/features/abilities/application/step_ability_set.dart` |
 | `ports/loadout_modifier_source` | implements | `lib/features/abilities/application/ability_loadout_modifiers.dart` |
 | `ports/revival_source` | implements | `lib/features/abilities/application/reassemble_revival.dart` |
-| `ports/combatant` | implements | `lib/features/abilities/application/summon_combatants.dart` |
+| `ports/combatant` | implements | `lib/features/abilities/application/summon_combatant.dart` |
 | `ports/run_memento_source` | implements | `lib/features/abilities/infrastructure/ability_set_memento_source.dart` |
 | `events/player_command` | consumes | — |
 | `events/boss_defeated` | consumes | — |

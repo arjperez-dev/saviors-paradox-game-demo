@@ -13,7 +13,7 @@ What hurts, hinders or breaks in a zone: black water, open graves, poison pools,
 | `events/torch_laid_down` | emits | `lib/features/hazards/application/step_hazards.dart` |
 | `events/torch_dropped` | emits | `lib/features/hazards/application/step_hazards.dart` |
 | `events/sound_effect_cued` | emits | `lib/features/hazards/application/step_hazards.dart` |
-| `ports/combatant` | implements | `lib/features/hazards/application/hazard_combatants.dart` |
+| `ports/combatant` | implements | `lib/features/hazards/application/hazard_combatant.dart` |
 | `ports/loadout_modifier_source` | implements | `lib/features/hazards/application/torch_in_hand.dart` |
 | `ports/run_memento_source` | implements | `lib/features/hazards/infrastructure/hazards_memento_source.dart` |
 | `state/akeris_state` | consumes | — |

@@ -10,7 +10,7 @@ The twenty normal enemies: kinds as flyweights, one brain strategy per kind, the
 |---|---|---|
 | `events/enemy_defeated` | emits | `lib/features/enemies/application/step_enemy_brains.dart` |
 | `events/sound_effect_cued` | emits | `lib/features/enemies/application/step_enemy_brains.dart` |
-| `ports/combatant` | implements | `lib/features/enemies/application/enemy_combatants.dart` |
+| `ports/combatant` | implements | `lib/features/enemies/application/enemy_combatant.dart` |
 | `ports/run_memento_source` | implements | `lib/features/enemies/infrastructure/enemies_memento_source.dart` |
 | `state/akeris_state` | consumes | — |
 | `state/zone_state` | consumes | — |
