@@ -1,8 +1,10 @@
 # Design patterns
 
-- **Status:** approved 2026-09-30
+- **Status:** approved 2026-10-14 (step 5.2: §11, the memento is captured per originator and `save` is
+  the caretaker; before, approved 2026-09-30, version 1)
 - **Sources:** `VISION.md` §Client constraints (Decorator, Flyweight, DDD tactical patterns, optimal
-  performance), §Mechanics, §Bosses, §Abilities, §Content scope · `architecture.md`
+  performance), §Mechanics, §Bosses, §Abilities, §Content scope · `architecture.md` ·
+  `lib/core/contracts/ports/run_memento_source.dart` (step 5.2)
 - **Read by:** the architect and the planner; the implementer and the tester when a task cites it.
 
 Which pattern solves which problem of this game. **Each problem below has one pattern, and the code
@@ -27,7 +29,7 @@ function. The values in the examples are placeholders; real numbers come from th
 | §8 | Particles, projectiles, rocks and afterimages created every frame | **Object Pool** | `core/rendering`, `combat`, `bosses` |
 | §9 | Bosses made of parts that are hit, torn and broken separately | **Composite** | `bosses` |
 | §10 | Enemies, biomes and zones built valid from data and a seed | **Factory, Abstract Factory, Builder** | `enemies`, `dungeon` |
-| §11 | Saving a run and restoring it exactly | **Memento** | `run`, `save` |
+| §11 | Saving a run and restoring it exactly | **Memento** | every feature with run state (the originators); `save` (the caretaker) |
 | §12 | Rules like "can climb here" or "sees Akeris" | **Specification** | every feature |
 | §13 | Flame, files and audio behind the game's own interfaces | **Adapter, Facade** | `infrastructure/` of every feature |
 
@@ -327,10 +329,40 @@ interface, so the combat code never asks which it hit.
 
 ## 11. Memento — saving a run
 
-`Run.capture()` returns a `RunMemento`: an immutable value holding everything needed to restore the
-run exactly — seed, zone, position in the zone map, what is carried, abilities, XP and coins.
-`Run.restore(memento)` rebuilds it. `save` stores mementos without knowing their inside, through the
-`SaveSlotStore` repository; the file format belongs to `save/infrastructure/`.
+A run's state is spread over its features, and no feature may gather the others' (`architecture.md`
+§2.3): `run` is a process manager, not the owner of everything. So the memento is captured **per
+originator**. Every feature with run state — `abilities`, `akeris`, `arsenal`, `dungeon`, `enemies`,
+`hazards`, `inventory`, `map`, `run` — implements `RunMementoSource` (`core/contracts/ports/`): a
+`key` that names its part, `capture()` that returns an opaque `RunMementoPart`, and `restore(part)`
+that rebuilds its aggregate exactly. `save` is the **caretaker**: on autosave and on manual save it
+calls every source's `capture()` and stores the parts, without knowing their inside, through its
+`SaveSlotStore` repository; on load it gives each part back to the source with the same key. The
+file format belongs to `save/infrastructure/`; what a part's payload means belongs to its originator
+alone, so a feature changes what it saves without touching `save`.
+
+```dart
+// lib/features/arsenal/application/arsenal_memento_source.dart — one originator
+final class ArsenalMementoSource implements RunMementoSource {
+  ArsenalMementoSource(this._arsenal);
+
+  final Arsenal _arsenal; // aggregate root
+
+  @override
+  String get key => 'arsenal';
+
+  @override
+  RunMementoPart capture() =>
+      RunMementoPart(key: key, payload: _arsenal.capture().encode()); // ArsenalMemento, a domain value
+
+  @override
+  void restore(RunMementoPart part) =>
+      _arsenal.restore(ArsenalMemento.decode(part.payload));
+}
+```
+
+The aggregate's own memento (`ArsenalMemento`) is an immutable domain value; the source in
+`application/` is the only place that encodes it for the contract. The composition root hands `save`
+the list of sources; the order of the parts does not matter, their keys do.
 
 ## 12. Specification — questions as objects
 

@@ -1,8 +1,11 @@
 # Architecture
 
-- **Status:** approved 2026-09-30
+- **Status:** approved 2026-10-14 (step 5.2: §2.1 lists the twenty features the architect fixed, §2.3 is
+  the acyclic context map by rings, §2.4 adds `WorldBox` and the shared ids; before, approved 2026-09-30,
+  version 1)
 - **Sources:** `VISION.md` §Client constraints (OOP, DDD, Clean Code, Decorator, Flyweight, optimal
-  performance), §Mechanics, §Content scope · `docs/CONTRACT_SPEC.md` §1–§4
+  performance), §Mechanics, §Content scope · `docs/CONTRACT_SPEC.md` §1–§4 · the architect's step 5.2
+  session (the root `CLAUDE.md`, `lib/core/contracts/`, `.factory/registry/architect/project/`)
 - **Read by:** the architect for the module map, the contracts and every `CLAUDE.md`; the planner
   for every `Implementation`; the implementer and the tester when a task cites it.
 
@@ -52,8 +55,9 @@ place.
 **How the factory sees this tree.** Each folder under `lib/features/` is a module of kind `feature`;
 `core/loop`, `core/rendering`, `core/input` and `core/localization` are modules of kind `shared` —
 importable by every feature, holding no game rule, and built early so their code is on `main` before
-any feature imports it (`docs/CONTRACT_SPEC.md` §4.1). `core/contracts/` is the contracts root,
-written only by the architect, `kernel/` included. `core/app/` is the composition root, the shared
+any feature imports it (`docs/CONTRACT_SPEC.md` §4.1). `core/contracts/` is the contracts root
+(`contracts_root` in the root `CLAUDE.md`; `docs/CONTRACT_SPEC.md` §2 shows `lib/contracts/` only as its
+Dart example), written only by the architect, `kernel/` included. `core/app/` is the composition root, the shared
 files the integrator edits. A factory *feature* — a branch of work — may touch several of these
 modules; a folder under `lib/features/` is a module, whatever the factory calls a feature.
 
@@ -72,26 +76,35 @@ an onomatopoeia — and that is intended. Each context's words are in `00-game/g
 
 ### 2.1 The features
 
-A proposal from the vision; the architect fixes the final map.
+Twenty features, fixed by the architect in step 5.2 (2026-10-14) and listed as modules in the root
+`CLAUDE.md`. Each sits in one of the six rings of §2.3.
 
-| Feature | Owns | Main aggregates |
-|---|---|---|
-| `akeris` | movement, postures, health, the equipped loadout | `Akeris` |
-| `combat` | hits, blocks, counters, damage, status effects | `Engagement` (one exchange of attacks), `StatusEffects` |
-| `arsenal` | weapons, shields, their levels and XP upgrades | `Arsenal` |
-| `chain` | the chain blades: throw, hook, swing, climb, anchor, snatch | `ChainPair` |
-| `abilities` | the ten abilities, the three equipped slots, drops and swaps | `AbilitySet` |
-| `inventory` | potions, scrolls, the cursed challenge, quick and full inventory | `Satchel` |
-| `enemies` | the twenty normal enemies, their brains and spawns | `Enemy` |
-| `bosses` | the five bosses, their parts and phases | `Boss` |
-| `dungeon` | zone generation, rooms, hazards, boss rooms, the map | `Zone` |
-| `run` | the incursion: zones in order, scaling, XP, coins, death, victory | `Run` |
-| `narrative` | spirits, dialogue, memory of past runs, cinematics | `SpiritMemory`, `Dialogue` |
-| `save` | the three save slots, autosave, manual save | `SaveSlot` |
-| `settings` | volumes, language | `Settings` |
-| `home` | the home screen, slot selection, the locked shop | — (presentation) |
-| `hud` | health, shields, potions, abilities, minimap on screen | — (presentation) |
-| `audio` | music per zone, sound effects, spirit voices | `Soundscape` |
+| Feature | Ring | Owns | Main aggregates |
+|---|---|---|---|
+| `dungeon` | 1 | zone generation, rooms, altars, boss rooms and their seal and stage, the collision world and its hook points | `Zone` |
+| `combat` | 1 | hits, blocks, counters, reflects, damage, status effects, hitstop; the registry of combatants | `Engagement` (one exchange of attacks), `StatusEffects` |
+| `akeris` | 2 | movement, postures, health, the resolved loadout, noise, death | `Akeris` |
+| `chain` | 2 | the chain blades: throw, hook, swing, climb, anchor, snatch; what they do to Akeris's body (`ChainPull`) | `ChainPair` |
+| `hazards` | 3 | what a biome does to those in it: chasms, poison pools, webs, wind, spores, the torch of zone 4 | `Hazard` |
+| `enemies` | 3 | the twenty normal enemies, their brains, spawns and defeats | `Enemy` |
+| `bosses` | 3 | the five bosses, their parts, phases and stage changes | `Boss` |
+| `arsenal` | 3 | weapons, shields, their levels, breaks and repairs; XP, because only it spends XP | `Arsenal` |
+| `inventory` | 3 | potions, scrolls, the cursed challenge, rage, taking from altars | `Satchel` |
+| `abilities` | 4 | the ten abilities, the three equipped slots, the choice after a boss, revival | `AbilitySet` |
+| `run` | 5 | the incursion as a **process manager**: zones in order, scaling, coins, the way down, death, victory; it credits XP drops to `arsenal` | `Run` |
+| `narrative` | 5 | spirits, dialogue, the memory of past runs | `SpiritMemory`, `Dialogue` |
+| `settings` | 6 | volumes, language | `Settings` |
+| `audio` | 6 | music per zone, sound effects, spirit voices | `Soundscape` |
+| `cinematics` | 6 | the intro and the outro: their shots, cards and cues | `Cinematic` |
+| `pause` | 6 | the pause menu: resume, the full inventory, manual save, quit to title | — (presentation) |
+| `map` | 6 | the zone map on M and the minimap: what has been explored, kept with the run | `ZoneMap` |
+| `save` | 6 | the three save slots, autosave, manual save; the **caretaker** of every feature's memento | `SaveSlot` |
+| `hud` | 6 | health, shields, potions, abilities, boss health, dialogue boxes on screen | — (presentation) |
+| `home` | 6 | the home screen, slot selection, new game, the locked shop | — (presentation) |
+
+Against version 1 (2026-09-30): `hazards`, `map`, `pause` and `cinematics` are features of their own
+(before, inside `dungeon`, `dungeon`, `hud` and `narrative`); XP moves from `run` to `arsenal`
+(operator, 2026-10-14).
 
 ### 2.2 The rules between features
 
@@ -105,20 +118,88 @@ A proposal from the vision; the architect fixes the final map.
 
 ### 2.3 The context map
 
-Who depends on whom, and through what. **Upstream** publishes; **downstream** consumes and
-translates. No two features depend on each other in both directions.
+Who may know whom. The twenty features sit in **six rings**, and **a feature knows only features in
+its own ring or in an inner one**; inside a ring the order below holds. No two features know each
+other: the map is **acyclic**. The architect fixed it in step 5.2 (2026-10-14) from the contracts;
+the root `CLAUDE.md` lists the modules, this section the edges. "Knows" means: reads its `state/`,
+hears its `events/`, calls a port it offers, or implements a port it declares — always through
+`core/contracts/`, never by import (§2.2).
 
-| Upstream | Downstream | Through |
+| Ring | Features, inner first | Why here |
 |---|---|---|
-| `akeris` | `combat`, `chain`, `dungeon`, `hud`, `audio` | `state/akeris_state`, `events/akeris_*` |
-| `arsenal`, `inventory`, `abilities` | `akeris` | `ports/loadout_modifier_source` — each publishes the modifiers Akeris is decorated with (`design-patterns.md` §1) |
-| `combat` | `akeris`, `enemies`, `bosses`, `run`, `hud`, `audio` | `events/hit_landed`, `events/attack_blocked`, `events/counter_triggered`… |
-| `enemies`, `bosses` | `combat`, `run`, `audio` | `state/enemy_state`, `events/enemy_defeated`, `events/boss_defeated` |
-| `bosses` | `abilities` | `events/boss_defeated` carries the dropped ability id |
-| `dungeon` | `akeris`, `enemies`, `bosses`, `chain`, `hud` | `ports/collision_world`, `state/zone_state`, `events/room_entered` |
-| `run` | `dungeon`, `enemies`, `save`, `narrative` | `state/run_state`, `events/zone_entered`, `events/run_ended` |
-| `save` | `home` | `ports/save_slots` |
-| `settings` | `audio`, `core/localization` | `state/settings_state` |
+| 1 | `dungeon`, `combat` | the world, and the resolution of hits: everything else happens in a zone and can be hit. `combat` knows `dungeon` (the collision world); `dungeon` knows nobody |
+| 2 | `akeris`, `chain` | the player's body and its chains. `chain` knows `akeris` (it implements his `ChainBlades`); `akeris` knows nothing of `chain` |
+| 3 | `hazards`, `enemies`, `bosses`, `arsenal`, `inventory` | what Akeris meets and carries. `inventory` knows `arsenal` and `enemies`; the rest know only rings 1 and 2 |
+| 4 | `abilities` | the bosses' gifts: knows `bosses`, `akeris`, `combat` |
+| 5 | `run`, `narrative` | the process manager and the story told over it. `narrative` knows `run` |
+| 6 | `settings`, `audio`, `cinematics`, `pause`, `map`, `save`, `hud`, `home` | the shell: it reads, plays, draws and stores. `audio` knows `settings`; `cinematics` knows `audio`; `save` knows `pause` and `map`; `home` knows `save`, `pause`, `cinematics`, `run` and `settings` |
+
+**Three ways to know.**
+
+1. **Facts flow outward.** An outer feature reads an inner one's `state/` snapshot and hears its
+   `events/`. An inner feature never reads or hears an outer one.
+2. **Services are ports the inner feature offers.** `dungeon` offers `CollisionWorld`,
+   `ZoneGenerator`, `BossRoomSeal`, `BossRoomStage` and `Altars`; `combat` offers `AttackResolver`,
+   `CombatantRegistry` and `StatusEffectControl`; `arsenal` offers `XpAccount` and `ShieldRepairs`;
+   `akeris` offers `AkerisHealth` and `AkerisStagger`. The caller, outer, knows the implementer.
+3. **Client-owned ports when an inner feature needs an outer one.** The inner feature declares the
+   port from its own need, the outer one implements it, and `core/app/` connects them. `combat`
+   declares `Combatant`, and every body — `akeris`, `enemies`, `bosses`, `hazards`, the bodies
+   `abilities` conjures — implements it; `akeris` declares `ChainBlades` (implemented by `chain`),
+   `LoadoutModifierSource` (by `arsenal`, `inventory`, `abilities`, `hazards`), `PotionSupply` (by
+   `inventory`) and `RevivalSource` (by `abilities`); `pause` declares `ManualSave` (by `save`). The
+   implementer knows the client's need; the client knows nobody.
+
+**Two roles that keep the map acyclic.**
+
+- **`run` is a process manager.** It owns no world object. It drives the incursion by hearing what
+  happened — `WayDownReached`, `BossDefeated`, `EnemyDefeated`, `AbilityChosen`, `AkerisDied` — and
+  calling inner ports — `ZoneGenerator`, `BossRoomSeal`, `XpAccount`. XP lives in `arsenal`, which
+  spends it; `run` only credits the drops. Nothing inner knows `run`.
+- **`save` is the caretaker.** Every feature with run state implements `RunMementoSource`; `save`
+  calls each one's `capture()` and `restore()`, and stores the parts without knowing their inside.
+  No feature gathers the others' state (`design-patterns.md` §11).
+
+**Two families that cross the rings without an edge.**
+
+- `PlayerCommand` is emitted by `core/input`; `pause` emits the same family for its menu. The
+  features that act on it — `akeris`, `abilities`, `arsenal`, `dungeon`, `hazards`, `map`,
+  `narrative`, `settings`, `cinematics`, `home` — know `core/input`, never `pause`.
+- `SoundEffectCued` is emitted by every feature that makes a sound, with an id of
+  `07-audio/sfx/sfx.md` and a position; only `audio` hears it. `HitstopStarted`, `PauseOpened` and
+  `PauseClosed` are heard by `core/loop`, which holds or resumes the step.
+
+**The edges, feature by feature.** What each one knows, and through what. Each feature also
+publishes `SoundEffectCued` where its reference gives a sound, and every feature that acts
+subscribes through `EventSource` and publishes through `EventSink`, both implemented by `core/loop`.
+
+| Feature | Knows | Through |
+|---|---|---|
+| `dungeon` | — | offers `CollisionWorld` (with its `HookPoint`s), `ZoneGenerator`, `BossRoomSeal`, `BossRoomStage`, `Altars`; owns `ZoneState`; emits `ZoneEntered`, `RoomEntered`, `BossRoomEntered`, `WayDownReached`, `ItemTaken` |
+| `combat` | `dungeon` | calls `CollisionWorld`; declares `Combatant`; offers `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`; emits `HitLanded`, `AttackBlocked`, `CounterTriggered`, `ProjectileReflected`, `StatusEffectApplied`, `StatusEffectEnded`, `HitstopStarted` |
+| `akeris` | `combat`, `dungeon` | implements `Combatant`; calls `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`, `CollisionWorld`; hears `HitLanded`, `AttackBlocked`, `CounterTriggered`, `StatusEffectApplied`, `StatusEffectEnded`, `ZoneEntered`; declares `ChainBlades`, `LoadoutModifierSource`, `PotionSupply`, `RevivalSource`; owns `AkerisState`; offers `AkerisHealth`, `AkerisStagger`; emits `AkerisDied`, `AkerisLanded`, `FastDescentLanded`, `NoiseMade`, `PotionDrunk` |
+| `chain` | `akeris`, `combat`, `dungeon` | implements `ChainBlades` (answers with `ChainPull`); calls `AttackResolver`, `CombatantRegistry`, `CollisionWorld`; hears `HitLanded`; emits `ChainThrown`, `ChainHooked`, `ChainAnchored` |
+| `hazards` | `akeris`, `combat`, `dungeon` | implements `Combatant`, `LoadoutModifierSource` (`CarriedTorch`); calls `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`, `CollisionWorld`; reads `AkerisState`, `ZoneState`; hears `HitLanded`, `NoiseMade`; emits `HazardBroken`, `TorchTaken`, `TorchDropped`, `TorchLaidDown` |
+| `enemies` | `akeris`, `combat`, `dungeon` | implements `Combatant`; calls `AttackResolver`, `CombatantRegistry`, `CollisionWorld`; reads `AkerisState`, `ZoneState`; hears `HitLanded`, `AttackBlocked`, `CounterTriggered`, `StatusEffectApplied`, `NoiseMade`; emits `EnemyDefeated` |
+| `bosses` | `akeris`, `combat`, `dungeon` | implements `Combatant`; calls `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`, `CollisionWorld`, `BossRoomStage` (with a `StageChange`); reads `AkerisState`; hears `HitLanded`, `AttackBlocked`, `BossRoomEntered`; owns `BossState`; emits `BossWoke`, `BossPhaseChanged`, `BossDefeated` |
+| `arsenal` | `akeris`, `combat`, `dungeon` | implements `LoadoutModifierSource` (`HeldWeapon`, `StrappedShield`); calls `AkerisStagger`; hears `AttackBlocked`, `ItemTaken`; owns `ArsenalState`; offers `XpAccount`, `ShieldRepairs`; emits `WeaponUpgraded`, `ShieldBroken`, `ShieldRepairRequested`, `ShieldRepaired` |
+| `inventory` | `akeris`, `arsenal`, `enemies`, `combat`, `dungeon` | implements `LoadoutModifierSource` (`AttackBoost`, `Rage`, `Curse`), `PotionSupply`; calls `AkerisHealth`, `ShieldRepairs`, `Altars`; hears `PotionDrunk`, `EnemyDefeated`, `ShieldRepairRequested`, `HitLanded`, `ItemTaken`, `ZoneEntered`; owns `SatchelState`; emits `ScrollRead`, `CurseStarted`, `CurseProgressed`, `CurseFulfilled`, `RageStarted`, `RageEnded` |
+| `abilities` | `akeris`, `bosses`, `combat` | implements `Combatant` (its conjured bodies), `LoadoutModifierSource` (`VenomEdgeActive`, `StoneOrbitActive`), `RevivalSource`; calls `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`; reads `AkerisState`; hears `BossDefeated`, `FastDescentLanded`; owns `AbilitySetState`; emits `AbilityChoiceOffered`, `AbilityChosen`, `AbilityTriggered` |
+| `run` | `dungeon`, `akeris`, `arsenal`, `enemies`, `bosses`, `abilities` | calls `ZoneGenerator`, `BossRoomSeal`, `XpAccount`; reads `AkerisState`, `ArsenalState`; hears `WayDownReached`, `AkerisDied`, `EnemyDefeated`, `BossDefeated`, `AbilityChosen`; owns `RunState`; offers `RunStarter`; emits `RunStarted`, `RunEnded` |
+| `narrative` | `run`, `akeris`, `dungeon` | hears `RunStarted`; reads `AkerisState`, `ZoneState`; emits `DialogueOpened`, `DialogueClosed`, `SpiritWhispered` |
+| `settings` | — | owns `SettingsState`, read by `audio`, `home` and `core/localization` |
+| `audio` | `settings`, and every feature that sounds | reads `SettingsState`; hears `SoundEffectCued`, `BossWoke`, `BossDefeated`, `ZoneEntered`, `RunEnded`, `SpiritWhispered`, `PauseOpened`, `PauseClosed`; offers `Soundscape` |
+| `cinematics` | `audio` | calls `Soundscape`; offers `CinematicPlayer`; owns `CinematicState` |
+| `pause` | `akeris`, `arsenal`, `inventory`, `abilities` | reads `AkerisState`, `ArsenalState`, `SatchelState`, `AbilitySetState`; declares `ManualSave`; emits `PauseOpened`, `PauseClosed`, `QuitToTitleRequested` and its menu's `PlayerCommand`s |
+| `map` | `dungeon`, `akeris` | reads `ZoneState`, `AkerisState`; hears `RoomEntered`; implements `RunMementoSource` |
+| `save` | `pause`, `map`, `run`, `arsenal`, `dungeon` and every other originator | calls every `RunMementoSource` (`abilities`, `akeris`, `arsenal`, `dungeon`, `enemies`, `hazards`, `inventory`, `map`, `run`); implements `ManualSave`; reads `RunState`, `ArsenalState`; hears `BossRoomEntered`, `RunEnded`, `QuitToTitleRequested`; offers `SaveSlots` |
+| `hud` | `akeris`, `arsenal`, `inventory`, `abilities`, `bosses`, `run`, `narrative` | reads `AkerisState`, `ArsenalState`, `SatchelState`, `AbilitySetState`, `BossState`, `RunState`; hears `DialogueOpened`, `DialogueClosed` |
+| `home` | `save`, `run`, `cinematics`, `pause`, `settings` | calls `SaveSlots`, `RunStarter`, `CinematicPlayer`; reads `SettingsState`; hears `RunEnded`, `QuitToTitleRequested` |
+
+Against version 1 (2026-09-30): the two-way edges `akeris ⇄ combat`, `enemies ⇄ combat` and
+`akeris → chain → akeris` are gone (client-owned ports); `run` no longer publishes to `dungeon`,
+`enemies` and `save` but hears them and calls their ports; `save` collects the memento instead of
+`run` capturing it (operator, 2026-10-14).
 
 ### 2.4 The shared kernel
 
@@ -135,6 +216,8 @@ because a change to it reaches every feature: like every contract, only the arch
 | `Seed` | a deterministic source of randomness, split per zone, room and entity |
 | `EntityId` | the identity of anything that lives in a zone |
 | `Result<T, F>` | a sealed success-or-failure for expected failures |
+| `WorldBox` | an axis-aligned rectangle in world units, as a centre and two half sizes: hurtboxes, hitboxes, sweeps |
+| `ZoneNumber`, `Biome`, `Element`, `Facing`, `Language`, `ScrollKind`; `AbilityId`, `BossId`, `EnemyKindId`, `ShieldId`, `WeaponId` | the enumerations and identifiers every context names the same way, with no rule attached |
 
 Anything with a game rule is not kernel. `Health` belongs to the contexts that have health; `Damage`
 to `combat`, which publishes it in its events.

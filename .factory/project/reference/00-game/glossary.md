@@ -1,7 +1,10 @@
 # Glossary
 
-- **Status:** approved 2026-09-30 (step 3.6 changes *special shield* and adds *altar*, *broken shield* and *repair*)
-- **Sources:** `VISION.md` (every section) · `08-engineering/architecture.md` §2 (the features)
+- **Status:** approved 2026-10-14 (step 5.2: adds the architect's terms *Combatant*, *WorldBox*, *HookPoint*,
+  *RaisedShield*, *StageChange*, *ChainPull* and *Snapshot*, and corrects *ability drop*; before, approved
+  2026-09-30, step 3.6 changed *special shield* and added *altar*, *broken shield* and *repair*)
+- **Sources:** `VISION.md` (every section) · `08-engineering/architecture.md` §2 (the features and their
+  rings) · the contracts in `lib/core/contracts/` (the code names of what crosses a feature's edge)
 - **Read by:** everyone. It is the game's **ubiquitous language** (`08-engineering/architecture.md`
   §2): the same word, the same meaning, in conversation, in the references and in the code
   (`08-engineering/coding-standards.md` §2). A task that names domain types cites it.
@@ -68,8 +71,10 @@ operator before using it in a contract.
 | chain blades | `ChainPair` | the pair of hook blades, one in each hand, each on its own chain; always carried. Also *hook blades* | espadas-gancho |
 | throw | — | a chain blade thrown where the mouse aims; the throws alternate hands | lanzamiento |
 | pull | — | the chain drags Akeris to an enemy | tirón |
+| chain pull | `ChainPull` | what the chains are doing to Akeris's body right now, as `chain` answers `akeris`: nothing (`NoPull`), a pull toward a point (`PullToward`), hanging from a hook point at a length (`HangFrom`), or a climb to a point (`ClimbTo`). The *pull* above is one of its cases | tirón de la cadena |
 | snatch | — | the chain takes an object from an enemy: the knight's shield, the skeleton's skull | arrebatar |
 | hook | — | the chain fastens to a boss part, a ring or a wall | enganchar |
+| hook point | `HookPoint` | a place in the zone the chain or the free hand can take: a ring, a wall or a vine (`HookPointKind`); `dungeon` offers them through its collision world. Never the floor: that is the *anchor* | punto de enganche |
 | swing | — | hanging from a ceiling ring by the chain, A/D to swing, Space to let go | balanceo |
 | free hand | — | while hanging from a ring, the hand not on the chain. It holds its hook blade, and the wheel swaps it for the shield; right click throws or blocks with it (`controls.md` §3.1) | mano libre |
 | anchor | — | the chain driven into the floor; the only escape from the golem's levitation | anclaje |
@@ -88,7 +93,7 @@ operator before using it in a contract.
 | cursed challenge | `CursedChallenge` | the cursed scroll's test: kill 10 enemies without taking damage; any damage kills Akeris | desafío maldito |
 | rage | — | the cursed challenge's reward: an attack boost for 3 min, or until the zone changes | furia |
 | ability | `Ability` | one of 10, two per boss; 3 equipped, on Q, E and R | habilidad |
-| ability drop | — | a boss gives one of its 2 abilities at random; after it, one equipped ability may be swapped | botín de habilidad |
+| ability drop | `AbilityChoiceOffered`, `AbilityChosen` | after a boss dies the game pauses on a choice between its 2 abilities (two cards; A/D, Enter); the one chosen goes to the first empty slot, or to Q when all three are full. Abilities change only there (`VISION.md` §Mechanics) | botín de habilidad |
 | XP | `Xp` | dropped by enemies by type; spent in the full inventory to upgrade weapons and shields | experiencia |
 | coin | `Coins` | dropped by enemies; lost on death; the shop is locked in the demo | moneda |
 | quick inventory | — | the weapons, potions and abilities on screen; only the weapons are switched from it, with the wheel or keys 1–5 | inventario rápido |
@@ -98,13 +103,16 @@ operator before using it in a contract.
 
 | Term | Code name | Meaning | Español |
 |---|---|---|---|
+| combatant | `Combatant` | any body an attack can hit: Akeris, an enemy, a boss, a hazard, a body an ability conjures. It gives `combat` its id, its side, its hurtbox, its raised shield, whether it is invulnerable and which elements it is immune to; `combat` declares the port and every body implements it | combatiente |
+| world box | `WorldBox` | an axis-aligned rectangle in world units, as a centre and two half sizes; a hurtbox, a hitbox, a sweep. Shared kernel | caja |
+| raised shield | `RaisedShield` | the shield a combatant is holding up and for how long it has been up; from it `combat` decides a block, a perfect block or a reflect | escudo alzado |
 | hit | `HitLanded` | a resolved collision between an attack and a body, with damage | golpe |
 | engagement | `Engagement` | one exchange of attacks between Akeris and one enemy | enfrentamiento |
 | blockable, unblockable | — | whether an attack can be stopped by the shield; every attack is one or the other | bloqueable, imbloqueable |
 | status effect | `StatusEffects` (the set on one body) | levitation (golem), slow (web), poison, freeze (the ice shield; lowers defence), burn (the fire shield; loses health), stun | estado alterado |
 | hitstop | — | the game holding still for an instant when a hit lands, instead of shaking the screen | pausa de impacto |
 
-## 5. On screen (`rendering`, `hud`)
+## 5. On screen (`rendering`, `hud`, `map`)
 
 | Term | Code name | Meaning | Español |
 |---|---|---|---|
@@ -117,7 +125,7 @@ operator before using it in a contract.
 | su | — | sandbox unit: Akeris standing is 192 su (`02-art-direction/ART_DIRECTION.md` §3) | — |
 | map, minimap | — | the zone map on M, revealed as explored; the circular minimap in the HUD | mapa, minimapa |
 
-## 6. Places (`dungeon`)
+## 6. Places (`dungeon`, `hazards`)
 
 | Zone | Code name | Biome | Español |
 |---|---|---|---|
@@ -173,3 +181,10 @@ operator before using it in a contract.
 | phase | `BossPhase` | one stage of a boss fight: the golem's rage, the skeleton reassembled… | fase |
 | part | `BossPart` | a piece of a boss the chain can hook or break: a wing, a slab, a horn | parte |
 | finisher | — | the last blow that ends a boss: chain into the golem's eye, the horn and neck of the dragon | remate |
+| stage change | `StageChange` | a change a boss asks of its room's stage, and `dungeon` performs: the golem's slabs sink, the ends of its floor sink, the giant bat's middle torches go out, the dragon's bridge falls | cambio de escenario |
+
+## 8. Between features (`core/contracts`)
+
+| Term | Code name | Meaning | Español |
+|---|---|---|---|
+| snapshot | `…Snapshot` | the suffix of a companion part of a `state/` contract: `ShieldSnapshot`, `WeaponSlotSnapshot`, `AbilitySlotSnapshot`, `AltarSnapshot`, `RoomSnapshot`, `SpiritSnapshot`. A feature's whole published state is `…State`; each immutable piece a reader may hold alone is a `…Snapshot`. Both are built once per step and never modified (`08-engineering/architecture.md` §4, §6) | instantánea |
