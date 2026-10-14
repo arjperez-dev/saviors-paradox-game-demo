@@ -1,0 +1,4 @@
+enum SpiritRole {
+  lore,
+  warning,
+}

@@ -1,0 +1,4 @@
+enum RunOutcome {
+  won,
+  lost,
+}

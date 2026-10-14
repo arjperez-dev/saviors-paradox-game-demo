@@ -1,0 +1,4 @@
+enum SaveSlotFailure {
+  missing,
+  corrupt,
+}
