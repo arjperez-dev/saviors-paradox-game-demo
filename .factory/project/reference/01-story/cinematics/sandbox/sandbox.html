@@ -1,0 +1,2135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intro Sandbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  /* Una sola hoja de papel: la cinemática ocupa el centro y los mandos quedan debajo, escritos a mano. */
+  :root {
+    --paper: #d4ccbe;
+    --ink: #1a1715;
+    --ink-soft: #4a433c;
+    --wash: rgba(26, 23, 21, .07);
+    --press: rgba(26, 23, 21, .14);
+    --hand: 'Patrick Hand', 'Segoe Print', 'Comic Sans MS', cursive;
+    color-scheme: light;
+  }
+  html, body { height: 100%; }
+  body {
+    background: var(--paper); color: var(--ink); font-family: var(--hand);
+    margin: 0; box-sizing: border-box; padding-inline: 16px; padding-block: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  #wrap { width: min(100%, calc((100vh - 230px) * 16 / 9)); max-width: 100%; aspect-ratio: 16 / 9; position: relative; }
+  canvas { width: 100%; height: 100%; display: block; outline: none; background: #0a0806; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
+  button {
+    font: inherit; font-size: 18px; color: var(--ink); background: transparent;
+    border: 2px solid var(--ink); border-radius: 14px 9px 16px 8px; padding: 1px 12px; cursor: pointer;
+  }
+  button:hover { background: var(--wash); }
+  button:focus-visible { outline: 2px dashed var(--ink); outline-offset: 2px; }
+  button[aria-pressed="true"] { background: var(--press); }
+  button:disabled { opacity: .45; cursor: not-allowed; border-style: dashed; }
+  input[type=range] { width: min(520px, 90vw); accent-color: var(--ink); }
+  .keys { font-size: 17px; color: var(--ink-soft); text-align: center; max-width: 120ch; margin: 0; line-height: 1.5; }
+  kbd { font-family: inherit; border: 1.5px solid var(--ink-soft); border-radius: 6px 4px 7px 4px; padding: 0 5px; color: var(--ink); }
+  #state { min-width: 34ch; text-align: left; font-size: 18px; }
+  #check { font-size: 17px; color: var(--ink-soft); min-height: 1.4em; text-align: center; max-width: 120ch; }
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="c" tabindex="0" aria-label="Sandbox de la intro: diez planos en 45 segundos. Akeris duerme solo junto a un fuego en unas ruinas; sueña, borroso: cortocircuitos de un Akeris que baja por la mazmorra, la Cámara del Tiempo y su Guardián, una silueta que cae; el reloj tomado y la estela que se vuelve morada; un reloj gigante en el cielo y un rayo que borra el mundo; el Akeris del futuro y la tarjeta; el despertar; negro; y la carrera hasta la entrada del templo, que acaba en la pantalla de inicio. Nueva partida pone el descenso.""></canvas></div>
+<div class="bar">
+  <span id="state">0,0 s · plano 1</span>
+  <button id="bPlay" aria-pressed="false">Reproducir (Espacio)</button>
+  <button id="bRestart">Reiniciar (R)</button>
+  <button id="bNew" title="Desde la pantalla de inicio: el descenso (unos 4 s) y la zona 1">Nueva partida (G)</button>
+  <input id="scrub" type="range" min="0" max="45" step="0.01" value="0" aria-label="Tiempo de la intro">
+</div>
+<div class="bar" id="shots"></div>
+<div class="bar">
+  <button id="bLang">Idioma: español (L)</button>
+  <button id="bHand" aria-pressed="true">Quedarse en el inicio: sí</button>
+  <button id="bMute" aria-pressed="false">Música: sí (M)</button>
+  <button id="bStill">Nada tiembla: comprobar (N)</button>
+  <button id="bTests">Pruebas (P)</button>
+  <button id="bOutro" disabled title="El final (outro.md) se juega en el juego, en la sala del dragón: ábrelo en el sandbox de la zona 5 (04-zones/zone-5-dragon-battlements/sandbox/sandbox.html), botón «Final (tras el dragón)»">Final: en el sandbox de la zona 5, «Final (tras el dragón)»</button>
+</div>
+<p id="check"></p>
+<p class="keys">
+  <b>La intro</b> (<code>01-story/cinematics/intro.md</code>, la segunda versión del guion del operador, 2026-10-13; la animación, propuesta): diez planos, 45 s, sin voz; una tarjeta por clave · suena al abrir el juego y acaba en la pantalla de inicio · <kbd>Espacio</kbd> reproduce o para · <kbd>1</kbd>–<kbd>9</kbd> y <kbd>0</kbd> saltan al plano (el 0, al 10) · <kbd>R</kbd> vuelve al principio · <kbd>L</kbd> cambia el idioma de la tarjeta · la barra mueve el tiempo<br>
+  <b>El sueño</b> (planos 2–7) se ve borroso, lavado y con los bordes deshechos en blanco, como un recuerdo; los <b>cortocircuitos</b> (3 y 7) son cuadros quietos de 0,2–0,6 s con un destello y una franja de estática entre ellos, sacada de una semilla · <b>Nueva partida</b> (<kbd>G</kbd>): desde el inicio, Akeris baja por la escalera hacia lo oscuro (unos 4 s, <code>music.descent</code>) y empieza la zona 1; Continuar y Cargar no lo tienen<br>
+  <b>Saltar (S4):</b> mantén <kbd>Enter</kbd> o <kbd>Esc</kbd> 5 s; el anillo se llena mientras lo mantienes y se vacía si lo sueltas · al saltar, la imagen va a negro, la música se corta en 0,4 s (<code>07-audio/music/music.md</code> §3) y se cae en la pantalla de inicio · no vuelve a sonar tras morir (S5)<br>
+  <b>La música</b> es <code>music.intro</code>, sintetizada aquí con el código de <code>07-audio/sandbox/sandbox.html</code> (la misma que <code>07-audio/music/cinematics/intro.wav</code>) y sincronizada con los planos · <b>Nada tiembla:</b> dibuja el fotograma dos veces y compara los píxeles (el sueño difuminado, la estática y el temblor del plano 6 son función del tiempo) · <b>Final:</b> el outro llega en la siguiente tarea
+</p>
+<script>
+'use strict';
+/* ======================================================================
+   Intro Sandbox (paso CI1–CI2) — la cinemática de la intro de 01-story/cinematics/intro.md, plano a plano.
+   Regla: NADA tiembla. Cada trazo tiene su irregularidad de lápiz fijada por una semilla propia y se dibuja
+   igual en todos los fotogramas; un trazo que desaparece desaparece entero. Cada fotograma es función del
+   tiempo de la intro y nada más: saltar a un instante da siempre el mismo dibujo.
+   ====================================================================== */
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+/* ======================================================================
+   Copiado de 06-ui/sandbox/sandbox.html (aprobado): las primitivas de lápiz, el rig de Akeris (03-characters/akeris),
+   su capa, su estela y su equipo, y la boca de la mazmorra y el título de la pantalla de inicio (06-ui/title).
+   ====================================================================== */
+const INK = '#1a1715', PAPER = '#d4ccbe';
+const rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = u => { u = clamp(u); return u * u * (3 - 2 * u); };
+const EASE = { o: u => 1 - Math.pow(1 - clamp(u), 3), io: smooth, l: u => clamp(u) };
+
+/* ---------- azar con semilla: la misma semilla da siempre el mismo trazo ---------- */
+function mulberry(s) { let a = s >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+let R = mulberry(1);
+const seed = s => { R = mulberry(((s * 2654435761) >>> 0) ^ 0x9e3779b9); };
+const r01 = () => R(), rnd = () => R() * 2 - 1;
+
+/* ---------- primitivas de lápiz (dibujan en G) ---------- */
+let G = ctx;
+const mid = (a, b) => ({x: (a.x + b.x) / 2, y: (a.y + b.y) / 2});
+function sline(a, b, w = 2.9, col = INK, id) {
+  if (id != null) seed(id);
+  const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
+  const bow = rnd() * Math.min(1.3, l * .025), sl = rnd() * .06;
+  const mx = a.x + dx * (.5 + sl) + nx * bow, my = a.y + dy * (.5 + sl) + ny * bow;
+  G.strokeStyle = col; G.lineWidth = w; G.beginPath();
+  G.moveTo(a.x + rnd() * .3, a.y + rnd() * .3); G.quadraticCurveTo(mx, my, b.x + rnd() * .3, b.y + rnd() * .3); G.stroke();
+  if (w >= 2) {                       // segundo repaso, fino y claro, que se pasa un poco del extremo
+    const o = rnd() * 1.1, ov = 1.5 + r01() * 2.5;
+    G.save(); G.globalAlpha *= .3; G.lineWidth = w * .4; G.beginPath();
+    G.moveTo(a.x - dx / l * ov + nx * o, a.y - dy / l * ov + ny * o);
+    G.quadraticCurveTo(mx + nx * o * .6, my + ny * o * .6, b.x + dx / l * ov * .4 + nx * o, b.y + dy / l * ov * .4 + ny * o);
+    G.stroke(); G.restore();
+  }
+}
+function closedCurve(p) {
+  G.beginPath(); const n = p.length; const m = mid(p[n - 1], p[0]); G.moveTo(m.x, m.y);
+  for (let i = 0; i < n; i++) { const q = p[i], m2 = mid(q, p[(i + 1) % n]); G.quadraticCurveTo(q.x, q.y, m2.x, m2.y); }
+  G.closePath();
+}
+function scircle(c, r, fill, w = 2.6, col = INK, id, sx = 1, sy = 1) {
+  if (id != null) seed(id);
+  const n = 16, o = r01() * 6.28, pts = [];
+  for (let k = 0; k < n; k++) { const a = o + k / n * 6.2832, rr = r + rnd() * Math.min(.8, r * .06); pts.push({x: c.x + Math.cos(a) * rr * sx, y: c.y + Math.sin(a) * rr * sy}); }
+  closedCurve(pts);
+  if (fill) { G.fillStyle = fill; G.fill(); }
+  if (w) { G.lineWidth = w; G.strokeStyle = col; G.stroke(); }
+}
+function spath(pts, j = .5) { G.beginPath(); pts.forEach((p, i) => { const x = p.x + rnd() * j, y = p.y + rnd() * j; i ? G.lineTo(x, y) : G.moveTo(x, y); }); G.closePath(); }
+function bbox(pts) { let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; for (const p of pts) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); } return {x0, x1, y0, y1}; }
+function hatchRect(x0, y0, x1, y1, gap, col, lw = 1, slope = .6) {
+  G.strokeStyle = col; G.lineWidth = lw; G.beginPath(); const h = y1 - y0;
+  for (let x = x0 - h * slope; x < x1 + h * slope; x += gap) { G.moveTo(x + rnd() * .8, y1 + 2); G.lineTo(x + h * slope + rnd() * .8, y0 - 2); }
+  G.stroke();
+}
+function hatch(pts, gap, col, lw = 1) { const b = bbox(pts); G.save(); spath(pts, 0); G.clip(); hatchRect(b.x0, b.y0, b.x1, b.y1, gap, col, lw); G.restore(); }
+function poly(pts, fill, w = 1.8, j = .3, col = INK) { spath(pts, j); if (fill) { G.fillStyle = fill; G.fill(); } if (w) { G.lineWidth = w; G.strokeStyle = col; G.lineJoin = 'round'; G.stroke(); } }
+function drawChain(a, b, ten = 1, lw = 1.4, col = INK) {
+  const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy); if (len < 5) return;
+  const c = {x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 + (1 - ten) * len * .3};
+  const q = t => ({x: (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * c.x + t * t * b.x, y: (1 - t) * (1 - t) * a.y + 2 * (1 - t) * t * c.y + t * t * b.y});
+  const n = Math.max(2, Math.floor(len / 7));
+  G.save(); G.strokeStyle = col; G.lineWidth = lw; let prev = q(0);
+  for (let i = 1; i <= n; i++) {           // eslabones alternos: uno de frente, otro de canto
+    const p = q(i / n), m = mid(prev, p), ang = Math.atan2(p.y - prev.y, p.x - prev.x);
+    G.save(); G.translate(m.x, m.y); G.rotate(ang); G.beginPath();
+    if (i % 2) G.ellipse(0, 0, 4.6, 2.4, 0, 0, Math.PI * 2); else { G.moveTo(-4.4, 0); G.lineTo(4.4, 0); }
+    G.stroke(); G.restore(); prev = p;
+  }
+  G.restore();
+}
+/* ======================================================================
+   EL PERSONAJE: esqueleto, poses, marcha con cinemática inversa
+   ====================================================================== */
+const L = {torso: 72, thigh: 46, shin: 46, up: 32, low: 30, head: 17};
+const LEG = L.thigh + L.shin;
+const KEYS = ['lean', 'hd', 'aU', 'aL', 'sw', 'bU', 'bL', 'fT', 'fS', 'kT', 'kS', 'hy', 'hx', 'rot', 'pv', 'cu', 'sl', 'sh'];
+
+// pierna de dos huesos: del pie (relativo a la cadera, x hacia delante) a los ángulos del muslo y la espinilla
+function ik(fx, fy) {
+  const d = Math.hypot(fx, fy) || 1, D = Math.min(d, LEG - .5);
+  const tx = fx * D / d, ty = fy * D / d;
+  const t = Math.atan2(ty, tx) - Math.acos(D / LEG);
+  const kx = L.thigh * Math.cos(t), ky = L.thigh * Math.sin(t);
+  return [deg(t), deg(Math.atan2(ty - ky, tx - kx))];
+}
+function legExtent(p) { const s = a => Math.sin(rad(a)); return Math.max(L.thigh * s(p.fT) + L.shin * s(p.fS), L.thigh * s(p.kT) + L.shin * s(p.kS)); }
+function full(p) {
+  const o = {}; for (const k of KEYS) o[k] = p[k] ?? 0; if (p.sl == null) o.sl = 1;
+  if (p.feet) { const hy = p.hy; [o.fT, o.fS] = ik(p.feet[0], hy); [o.kT, o.kS] = ik(p.feet[1], hy); }
+  if (p.hy == null) o.hy = legExtent(o);
+  return o;
+}
+const wrapRad = a => Math.atan2(Math.sin(a), Math.cos(a));
+function mixP(a, b, t) { const o = {}; for (const k of KEYS) o[k] = a[k] + (b[k] - a[k]) * t; return o; }
+
+/* Poses: ángulos en grados mirando a la derecha, y hacia abajo (90 = abajo, 0 = delante, -90 = arriba).
+   Las poses en el suelo fijan los pies (feet: [delante, detrás]) y la altura de la cadera (hy);
+   la pierna se resuelve sola, así los dos pies pisan el suelo de verdad. */
+const POSE_DEF = {
+  idle:       {lean: -80, hd: 3,   aU: 50,  aL: -10, sw: -50,  bU: 118, bL: 98,  feet: [28, -24], hy: 84},
+  crouch:     {lean: -45, hd: -30, aU: 75,  aL: 22,  sw: 2,    bU: 100, bL: 40,  feet: [30, -42], hy: 50},
+  squat:      {lean: -60, hd: -18, aU: 125, aL: 155, sw: 172,  bU: 150, bL: 128, feet: [22, -20], hy: 58},
+  land:       {lean: -58, hd: -20, aU: 88,  aL: 100, sw: 118,  bU: 112, bL: 92,  feet: [32, -28], hy: 54},
+  skid:       {lean: -104,hd: -10, aU: 40,  aL: -20, sw: -40,  bU: 160, bL: 130, feet: [58, -18], hy: 72},
+  // escudo en el brazo libre (sh: 0 = de canto y bajado, 1 = de frente); el arma queda atrás, lista
+  block:      {lean: -84, hd: 6,   aU: 115, aL: 150, sw: 160,  bU: 25,  bL: -55, feet: [34, -34], hy: 76, sh: 1},
+  blockHit:   {lean: -100,hd: 10,  aU: 125, aL: 160, sw: 168,  bU: 40,  bL: -62, feet: [42, -24], hy: 70, sh: 1},
+  hurt:       {lean: -112,hd: 20,  aU: 140, aL: 165, sw: 160,  bU: 160, bL: 175, feet: [40, -10], hy: 74},
+  windup:     {lean: -95, hd: 0,   aU: -110,aL: -140,sw: -160, bU: 60,  bL: 20,  feet: [24, -28], hy: 82},
+  slash:      {lean: -60, hd: -6,  aU: 20,  aL: 40,  sw: 50,   bU: 150, bL: 170, feet: [46, -40], hy: 70},
+  lowCock:    {lean: -72, hd: -4,  aU: 120, aL: 150, sw: 165,  bU: 70,  bL: 30,  feet: [28, -32], hy: 72},
+  upslash:    {lean: -86, hd: 0,   aU: -60, aL: -80, sw: -100, bU: 120, bL: 140, feet: [30, -30], hy: 78},
+  thrustCock: {lean: -86, hd: 0,   aU: 160, aL: 15,  sw: 2,    bU: 60,  bL: 10,  feet: [20, -34], hy: 76},
+  thrust:     {lean: -55, hd: -8,  aU: 5,   aL: 0,   sw: 0,    bU: 170, bL: 180, feet: [58, -46], hy: 62},
+  rise:       {lean: -82, hd: -6,  aU: -30, aL: -70, sw: -95,  bU: -110,bL: -95, fT: 85, fS: 100, kT: 115, kS: 150},
+  apex:       {lean: -80, hd: 0,   aU: 30,  aL: -30, sw: -55,  bU: -60, bL: -20, fT: 10, fS: 100, kT: 55,  kS: 135},
+  fall:       {lean: -90, hd: 6,   aU: 25,  aL: -15, sw: -45,  bU: -120,bL: -150,fT: 65, fS: 95,  kT: 100, kS: 125},
+  dive:       {lean: -100,hd: 18,  aU: 85,  aL: 95,  sw: 92,   bU: -135,bL: -165,fT: 20, fS: 115, kT: 95,  kS: 165},
+  airWindup:  {lean: -90, hd: 0,   aU: -110,aL: -140,sw: -160, bU: 60,  bL: 20,  fT: 20, fS: 110, kT: 100, kS: 150},
+  airChop:    {lean: -65, hd: -4,  aU: -40, aL: -20, sw: 15,   bU: 150, bL: 170, fT: 30, fS: 110, kT: 100, kS: 150},
+  swing:      {lean: -90, hd: -14, aU: -92, aL: -92, sw: -90,  bU: -84, bL: -94, fT: 92, fS: 104, kT: 84, kS: 100},
+  mantle1:    {lean: -38, hd: -22, aU: 70,  aL: 96,  sw: 100,  bU: 76,  bL: 102, fT: -30, fS: 70, kT: 88, kS: 112},
+  // bola al rodar: espalda curvada (cu), espada vista de canto (sl) y el centro de giro (pv) a media altura del tronco
+  tuck:       {lean: -35, hd: 100, aU: 70,  aL: 150, sw: 170,  bU: 60,  bL: 160, fT: -60, fS: 70, kT: -45, kS: 85, hy: 34, hx: -30, pv: 55, cu: 16, sl: .42},
+  // ---- poses del paso 3.5 ----
+  // golpe por encima (W + clic): la espada sube recta sobre la cabeza y cae vertical delante
+  overCock:   {lean: -100,hd: -6,  aU: -105,aL: -118,sw: -112, bU: 70,  bL: 30,  feet: [24, -30], hy: 84},
+  overStrike: {lean: -52, hd: -8,  aU: 18,  aL: 40,  sw: 52,   bU: 150, bL: 170, feet: [52, -44], hy: 62},
+  // salto alto (mantener Espacio, G2 revisada): rodillas recogidas y brazos arriba
+  riseHigh:   {lean: -86, hd: -14, aU: -120,aL: -104,sw: -96,  bU: -128,bL: -112,fT: 50,  fS: 150, kT: 95, kS: 172},
+  // beber: la mano va al zurrón de la cadera, sube el frasco a la cara y echa la cabeza atrás
+  drinkReach: {lean: -80, hd: 6,   aU: 104, aL: 60,  sw: -70,  bU: 112, bL: 96,  feet: [28, -24], hy: 84},
+  drink:      {lean: -94, hd: -24, aU: 8,   aL: -118,sw: -152, bU: 108, bL: 92,  feet: [26, -26], hy: 85},
+  // levitar: sin control, los miembros flojos y la capa flotando
+  levitate:   {lean: -64, hd: 28,  aU: -30, aL: 30,  sw: 64,   bU: -150,bL: -104,fT: 96,  fS: 124, kT: 66, kS: 102},
+  // anclarse: las dos manos tiran de la cadena clavada en el suelo
+  anchor:     {lean: -104,hd: 24,  aU: 76,  aL: 92,  sw: 92,   bU: 72,  bL: 88,  fT: 62,  fS: 104, kT: 112, kS: 124},
+  // morir: de rodillas, luego de bruces
+  // de rodillas: el pie delantero apoyado, la rodilla trasera en el suelo y su espinilla tendida detrás
+  kneel:      {lean: -62, hd: 34,  aU: 100, aL: 118, sw: 22,   bU: 100, bL: 96,  fT: -3, fS: 105, kT: 66, kS: 180, hy: 42, cu: 6},
+  fallen:     {lean: -4,  hd: 18,  aU: 8,   aL: 0,   sw: -4,   bU: 150, bL: 170, fT: 176, fS: 182, kT: 170, kS: 178, hy: 12, hx: -44},
+  // atraído hacia el enemigo por la cadena: el cuerpo tendido hacia delante
+  pullFly:    {lean: -24, hd: -12, aU: -4,  aL: -4,  sw: -2,   bU: 160, bL: 172, fT: 150, fS: 164, kT: 128, kS: 152},
+  // giro en área: el brazo en alto hace girar la hoja en su cadena
+  spin:       {lean: -88, hd: 2,   aU: -78, aL: -88, sw: -90,  bU: 122, bL: 100, feet: [32, -32], hy: 80},
+  // ---- poses del paso 3.6 (armas de las ranuras libres) ----
+  // lanza en el aire: la punta clavada hacia abajo y delante
+  airStab:    {lean: -78, hd: 8,   aU: 48,  aL: 66,  sw: 70,   bU: -120,bL: -150,fT: 30, fS: 110, kT: 100, kS: 150},
+  // martillo por encima: se echa atrás con la cabeza del martillo a la espalda y la descarga contra el suelo
+  hamCock:    {lean: -106,hd: -8,  aU: -128,aL: -160,sw: -192, bU: 40,  bL: 0,   feet: [22, -34], hy: 82},
+  hamSlam:    {lean: -46, hd: -10, aU: 36,  aL: 62,  sw: 82,   bU: 150, bL: 172, feet: [54, -46], hy: 58},
+};
+const POSE = {}; for (const k in POSE_DEF) POSE[k] = full(POSE_DEF[k]);
+/* Paso 3.6: variantes de pose por arma. Solo cambia el brazo del arma, para que un arma larga no atraviese el suelo:
+   la lanza golpea más plana y se alza detrás al bloquear; el martillo por encima cae con el mango casi horizontal. */
+const POSE_W = {
+  spear: {slash: {aL: 30, sw: 20}, overStrike: {aL: 30, sw: 24}, block: {sw: -118}, blockHit: {sw: -112}, thrustCock: {sw: -4}},
+  hammer: {hamSlam: {aL: 48, sw: 20}, slash: {sw: 38}, block: {aL: 120, sw: -140}, blockHit: {aL: 128, sw: -134}},
+};
+for (const w in POSE_W) for (const k in POSE_W[w]) POSE_W[w][k] = {...POSE[k], ...POSE_W[w][k]};
+const PW = (k, w = weapon) => (POSE_W[w] && POSE_W[w][k]) || POSE[k];
+// al balancearse, el cuerpo gira alrededor de la mano que agarra la cadena
+let SW_PV = 0;
+function prepSwingPose() { const J0 = skeleton(POSE.swing, {x: 0, y: 0}, 1); POSE.swing.hx -= J0.hand.x; SW_PV = -J0.hand.y; POSE.swing.pv = SW_PV; }
+// en el muro: los pies apoyados en la pared, el cuerpo echado hacia atrás colgando de la cadena
+function wallPose(ph, aim) {
+  const fx = 36, f1 = [fx - 8 * Math.max(0, Math.cos(ph)), 38 + 24 * Math.sin(ph)], f2 = [fx - 8 * Math.max(0, Math.cos(ph + Math.PI)), 38 - 24 * Math.sin(ph)];
+  const [fT, fS] = ik(f1[0], f1[1]), [kT, kS] = ik(f2[0], f2[1]);
+  return {lean: -102, hd: -28, aU: aim + 10 * Math.sin(ph), aL: aim - 8 - 14 * Math.sin(ph), sw: aim, bU: aim - 10 - 12 * Math.sin(ph + Math.PI), bL: aim - 20,
+    fT, fS, kT, kS, hy: 70, hx: -20, rot: 0, pv: 0, cu: 4, sl: 1, sh: 0};
+}
+
+/* Ciclo de marcha: los pies siguen una trayectoria (apoyo pegado al suelo, vuelo en arco)
+   y la cinemática inversa pone las rodillas. La fase avanza con la distancia recorrida: sin patinar.
+   r: 0 andar → 1 correr; cr: 1 agachado. */
+function gaitParams(r, cr) {
+  const st = lerp(lerp(.6, .38, r), .62, cr);
+  const xc = lerp(lerp(34, 30, r), 28, cr), xt = lerp(lerp(-30, -60, r), -26, cr);
+  return {st, xc, xt, S: (xc - xt) / st};
+}
+function gaitPose(q, r, cr) {
+  const {st, xc, xt} = gaitParams(r, cr);
+  const base = lerp(lerp(86, 72, r), 50, cr);
+  const bob = lerp(lerp(-3 * Math.cos(4 * Math.PI * q), -6 * Math.cos(4 * Math.PI * (q - st / 2)), r), -1.5 * Math.cos(4 * Math.PI * q), cr);
+  const hy = base + bob, lift = lerp(lerp(16, 26, r), 9, cr), kick = lerp(34 * r, 0, cr);
+  const foot = p => {
+    p = ((p % 1) + 1) % 1;
+    if (p < st) { const u = p / st; return [lerp(xc, xt, u), hy]; }
+    const u = (p - st) / (1 - st), s = Math.sin(Math.PI * u);
+    const curl = Math.sin(Math.PI * Math.min(1, u * 1.5)) * (1 - u);
+    return [lerp(xt, xc, smooth(u)) - kick * .5 * curl, hy - lift * s - kick * 1.2 * curl];
+  };
+  const [f1x, f1y] = foot(q), [f2x, f2y] = foot(q + .5);
+  const [fT, fS] = ik(f1x, f1y), [kT, kS] = ik(f2x, f2y);
+  const c = Math.cos(2 * Math.PI * q);
+  const bU = lerp(lerp(95 + 24 * c, 92 + 50 * c, r), 100 + 10 * c, cr);
+  const bL = bU - lerp(lerp(18, 85, r), 50, cr);
+  const aU = lerp(lerp(80 - 10 * c, 108 - 12 * c, r), 72, cr);
+  const aL = lerp(lerp(52, 138, r), 24, cr), sw = lerp(lerp(40, 168, r), 4, cr);
+  const lean = lerp(lerp(-84, -66, r), -44, cr) + 2 * r * Math.cos(4 * Math.PI * q);
+  const hd = lerp(lerp(2, -14, r), -30, cr);
+  return {lean, hd, aU, aL, sw, bU, bL, fT, fS, kT, kS, hy, hx: 0, rot: 0, pv: 0, cu: lerp(lerp(0, 4, r), 7, cr), sl: 1, sh: 0};
+}
+
+/* Esqueleto: de la pose a las articulaciones en el mundo. root = el punto entre los pies. */
+function skeleton(p, root, d) {
+  const P = (o, a, l) => ({x: o.x + d * Math.cos(rad(a)) * l, y: o.y + Math.sin(rad(a)) * l});
+  const hip = {x: root.x + d * p.hx, y: root.y - p.hy};
+  const neck = P(hip, p.lean, L.torso), head = P(neck, p.lean + p.hd, L.head + 3), sh = P(neck, p.lean + 180, 6);
+  const elbow = P(sh, p.aU, L.up), hand = P(elbow, p.aL, L.low), belb = P(sh, p.bU, L.up), bhand = P(belb, p.bL, L.low);
+  const fk = P(hip, p.fT, L.thigh), ff = P(fk, p.fS, L.shin), kk = P(hip, p.kT, L.thigh), kf = P(kk, p.kS, L.shin);
+  const J = {hip, neck, head, sh, elbow, hand, belb, bhand, fk, ff, kk, kf};
+  let swA = p.sw, lean = p.lean + p.hd;
+  if (Math.abs(p.rot) > .01) {                    // voltereta: todo el cuerpo gira alrededor del centro de la bola
+    const c = {x: root.x, y: root.y - p.pv}, a = rad(p.rot) * d, ca = Math.cos(a), sa = Math.sin(a);
+    for (const k in J) { const q = J[k], x = q.x - c.x, y = q.y - c.y; J[k] = {x: c.x + x * ca - y * sa, y: c.y + x * sa + y * ca}; }
+    swA += p.rot; lean += p.rot;
+  }
+  const sd = {x: d * Math.cos(rad(swA)), y: Math.sin(rad(swA))}, sp = {x: -sd.y * d, y: sd.x * d};
+  const sl = p.sl;
+  J.B = (u, v) => ({x: J.hand.x + sd.x * u * sl + sp.x * v, y: J.hand.y + sd.y * u * sl + sp.y * v});
+  { const tx = J.neck.x - J.hip.x, ty = J.neck.y - J.hip.y, tl = Math.hypot(tx, ty) || 1; J.back = {x: d * ty / tl, y: -d * tx / tl}; J.cu = p.cu; }
+  J.dir = d; J.lean = lean; J.swAng = Math.atan2(sd.y, sd.x); J.shOpen = p.sh;
+  const u = {x: d * Math.cos(rad(lean)), y: Math.sin(rad(lean))}, fw = {x: -u.y * d, y: u.x * d};
+  J.eye = {x: J.head.x + fw.x * L.head * .42 + u.x * 3, y: J.head.y + fw.y * L.head * .42 + u.y * 3};
+  J.fw = fw; J.cape = {x: J.neck.x - u.x * 3 - d * 2, y: J.neck.y - u.y * 3 + 3};
+  return J;
+}
+/* ---------- capa con estados ----------
+   La capa no es física libre: cada estado de Akeris le da una forma objetivo (ángulo de salida,
+   curvatura y un vaivén lento) y cada tramo se acerca a ella con un resorte amortiguado y una
+   velocidad de giro limitada. La punta sigue a la raíz con retraso, pero nunca da latigazos.
+   Ángulos en grados en el espacio del personaje: 0 = delante, 90 = abajo, 180 = detrás. */
+const CAPE_MODES = {
+  quieto:   {base: 108, curve: 2.5, amp: 2.5},
+  andar:    {base: 128, curve: 2,   amp: 3.5},
+  correr:   {base: 162, curve: -1,  amp: 4},
+  agachado: {base: 150, curve: 4,   amp: 2},
+  frenazo:  {base: 70,  curve: 5,   amp: 1},
+  subir:    {base: 102, curve: 3,   amp: 2},
+  caer:     {base: 212, curve: -3,  amp: 3},
+  picado:   {base: 262, curve: -1,  amp: 2},
+  aterrizar:{base: 128, curve: 6,   amp: 1},
+  atacar:   {base: 150, curve: 2,   amp: 1.5},
+  bloquear: {base: 118, curve: 3,   amp: 1.5},
+  rodar:    {base: 150, curve: 14,  amp: 0},
+  escalar:  {base: 122, curve: 3,   amp: 2},
+  balanceo: {base: 158, curve: 2,   amp: 3},
+  flotar:   {base: 238, curve: -4,  amp: 7},
+  tendido:  {base: 176, curve: 1,   amp: .5},
+};
+const CAPE_MAX_SPEED = 420;                          // grados por segundo: tope que evita los latigazos
+function makeCape(n = 12, seg = 12) { return {seg, n, th: new Array(n).fill(0), vel: new Array(n).fill(0), pts: Array.from({length: n}, () => ({x: 0, y: 0})), init: false}; }
+const wrap180 = a => ((a % 360) + 540) % 360 - 180;
+function capeTargets(mode, d, t, extra = 0) {        // ángulos objetivo en el mundo, tramo a tramo
+  const M = CAPE_MODES[mode] || CAPE_MODES.quieto, out = [];
+  for (let i = 0; i < 12; i++) {
+    const a = M.base + extra + M.curve * i + Math.sin(t * 1.6 - i * .5) * M.amp * (i / 11);
+    out.push(d > 0 ? a : 180 - a);
+  }
+  return out;
+}
+function placeCape(c, anc, floorY) {
+  let x = anc.x, y = anc.y;
+  for (let i = 0; i < c.n; i++) {
+    c.pts[i].x = x; c.pts[i].y = Math.min(y, floorY - 2 - i * 2.2);   // la tela se apoya en el suelo, no lo atraviesa
+    x += Math.cos(rad(c.th[i])) * c.seg; y += Math.sin(rad(c.th[i])) * c.seg;
+  }
+}
+function stepCape(c, anc, targets, dt, floorY) {
+  if (!c.init) { for (let i = 0; i < c.n; i++) { c.th[i] = targets[i]; c.vel[i] = 0; } c.init = true; }
+  for (let i = 0; i < c.n; i++) {
+    const w = lerp(13, 5.5, i / (c.n - 1));           // la raíz responde antes que la punta
+    const goal = i ? c.th[i - 1] + wrap180(targets[i] - targets[i - 1]) : targets[i];   // cada tramo cuelga del anterior
+    const err = wrap180(goal - c.th[i]);
+    c.vel[i] += (w * w * err - 2 * w * c.vel[i]) * dt;
+    c.vel[i] = clamp(c.vel[i], -CAPE_MAX_SPEED, CAPE_MAX_SPEED);
+    c.th[i] += c.vel[i] * dt;
+  }
+  placeCape(c, anc, floorY);
+}
+function chaikin(P, it) {
+  let a = P.map(p => ({x: p.x, y: p.y}));
+  for (let k = 0; k < it; k++) {
+    const b = [a[0]];
+    for (let i = 0; i < a.length - 1; i++) { const p = a[i], q = a[i + 1]; b.push({x: p.x * .75 + q.x * .25, y: p.y * .75 + q.y * .25}, {x: p.x * .25 + q.x * .75, y: p.y * .25 + q.y * .75}); }
+    b.push(a[a.length - 1]); a = b;
+  }
+  return a;
+}
+prepSwingPose();
+const TAT = (() => { seed(4242); return Array.from({length: 40}, () => r01()); })();
+const HOLES = [{i: 4, off: .35, r: 2.6}, {i: 6, off: .55, r: 3.4}, {i: 8, off: .25, r: 2.4}, {i: 9, off: .7, r: 3}];
+function drawCape(f, d) {
+  const n = f.cape.pts.length, Q = chaikin(f.cape.pts, 2), m = Q.length;
+  const top = [], bot = [], N = [], TG = [], WD = [];
+  for (let i = 0; i < m; i++) {
+    const a = Q[Math.max(0, i - 1)], b = Q[Math.min(m - 1, i + 1)];
+    let tx = b.x - a.x, ty = b.y - a.y; const l = Math.hypot(tx, ty) || 1; tx /= l; ty /= l;
+    const nx = d * ty, ny = -d * tx, w = 3 + i / (m - 1) * (n - 1) * 3.1;
+    N.push({x: nx, y: ny}); TG.push({x: tx, y: ty}); WD.push(w);
+    top.push({x: Q[i].x - nx * w * .3, y: Q[i].y - ny * w * .3}); bot.push({x: Q[i].x + nx * w, y: Q[i].y + ny * w});
+  }
+  const pts = [...top], e = m - 1;
+  for (let k = 1; k <= 5; k++) {                    // borde final desgarrado
+    const u = k / 6, bx = top[e].x + (bot[e].x - top[e].x) * u, by = top[e].y + (bot[e].y - top[e].y) * u, Ln = (k % 2 ? 14 : 3) + TAT[k] * 10;
+    pts.push({x: bx + TG[e].x * Ln, y: by + TG[e].y * Ln});
+  }
+  for (let i = e; i >= 0; i--) {                    // borde inferior con jirones
+    pts.push(bot[i]);
+    if (i % 4 === 2 && i > m * .22) { const Ln = 4 + TAT[6 + (i >> 2)] * 10; pts.push({x: bot[i].x + N[i].x * Ln + TG[i].x * Ln * .6, y: bot[i].y + N[i].y * Ln + TG[i].y * Ln * .6}); }
+  }
+  seed(f.sid + 50); spath(pts, .25); G.fillStyle = '#3d3934'; G.fill();
+  G.strokeStyle = 'rgba(8,6,5,.5)'; G.lineWidth = 1; G.beginPath();   // rayado que viaja con la tela
+  for (let i = 2; i < m - 3; i += 2) { const a = top[i], b = bot[Math.min(m - 1, i + 3)]; G.moveTo(a.x, a.y); G.lineTo(a.x + (b.x - a.x) * .9, a.y + (b.y - a.y) * .9); }
+  G.stroke();
+  seed(f.sid + 51); spath(pts, .25); G.lineWidth = 1.8; G.strokeStyle = INK; G.lineJoin = 'round'; G.stroke();
+  HOLES.forEach((h, k) => {
+    const i = Math.round(Math.min(1, h.i / (n - 1)) * e), w = WD[i], c = {x: Q[i].x + N[i].x * w * h.off, y: Q[i].y + N[i].y * w * h.off};
+    G.save(); G.translate(c.x, c.y); G.rotate(Math.atan2(TG[i].y, TG[i].x)); G.scale(1.6, 1);
+    scircle({x: 0, y: 0}, h.r, PAPER, 1.1, INK, f.sid + 60 + k); G.restore();
+  });
+}
+/* ---------- ojo, estela y espada ---------- */
+let streakPurple = false;
+let streakBoost = 1;                                 // furia (paso 3.6): la estela arde más ancha
+// Akeris del futuro (paso 3.7): su estela es defectuosa: se corta a trozos, algunos tramos se desplazan y otros pierden el rojo vivo.
+// El defecto va fijo a lo largo de la estela (semilla): se mueve con ella, nunca parpadea.
+let streakDefect = false;
+const DEFECT = (() => { seed(4242); return Array.from({length: 24}, (_, k) => ({gap: k > 1 && r01() < .24, off: k > 2 && r01() < .32 ? (r01() < .5 ? -1 : 1) * (1.5 + r01() * 2.5) : 0, dim: k > 0 && r01() < .38})); })();
+function drawStreak(f, d) {
+  const h = f.eyeHist; if (h.length < 4) return;
+  const pts = [];
+  for (let k = 0; k < 20; k++) { const e = h[Math.min(k, h.length - 1)]; pts.push({x: e.x - d * k * 5.2, y: e.y - k * .8 + Math.sin(k * .45 - T * 4 + 1) * k * .25}); }
+  const prof = t => t < .12 ? .45 + t / .12 * .55 : 1 - (t - .12) / .88 * .92;
+  const cols = streakPurple ? ['#3a1768', '#8a4fe0', 'rgba(140,70,230,.85)'] : ['#6e0a10', '#d8141d', 'rgba(200,0,20,.8)'];
+  const pass = (col, w, blur, core) => {
+    G.strokeStyle = col; G.shadowBlur = blur;
+    for (let k = 0; k < pts.length - 1; k++) {
+      const m = streakDefect ? DEFECT[k] : null; if (m && (m.gap || (core && m.dim))) continue;
+      const o = m ? m.off : 0, t = k / (pts.length - 1), a = pts[k], b = pts[k + 1], c = pts[Math.min(k + 2, pts.length - 1)];
+      G.lineWidth = w * prof(t); G.beginPath(); G.moveTo(a.x, a.y + o); G.quadraticCurveTo(b.x, b.y + o, (b.x + c.x) / 2, (b.y + c.y) / 2 + o); G.stroke();
+    }
+  };
+  G.save(); G.lineCap = streakDefect ? 'butt' : 'round'; G.shadowColor = cols[2]; pass(cols[0], 4.4 * streakBoost, 9 * streakBoost, false); pass(cols[1], 2.2 * streakBoost, 0, true); G.restore();
+}
+function drawEye(J) {
+  G.save(); G.translate(J.eye.x, J.eye.y); G.rotate(Math.atan2(J.fw.y, J.fw.x) + J.dir * .28);
+  G.shadowColor = streakPurple ? 'rgba(90,30,160,.7)' : 'rgba(120,0,10,.7)'; G.shadowBlur = 5;
+  G.fillStyle = INK; G.beginPath(); G.moveTo(-7.5, 0); G.quadraticCurveTo(0, -4.6, 8, -.5); G.quadraticCurveTo(0, 3.2, -7.5, 0); G.fill();
+  G.restore();
+}
+function heroSword(B, id) {
+  seed(id); poly([B(7, -4.5), B(98, -3.8), B(114, 0), B(98, 3.8), B(7, 4.5)], '#e4e1d9', 1.8, .15);
+  sline(B(11, 0), B(94, 0), 1, 'rgba(30,30,30,.55)', id + 1);
+  sline(B(-13, 0), B(5, 0), 5, INK, id + 2);
+  sline(B(6, -13), B(6, 13), 4.5, INK, id + 3);
+  scircle(B(-16, 0), 3.2, INK, 1, INK, id + 4);
+}
+/* Espadas-gancho: hoja corta que se curva en gancho, mango con anilla para la cadena.
+   Son el arma a distancia y la herramienta para engancharse; la espada sagrada es solo cuerpo a cuerpo. */
+const HOOK = (() => {
+  const c = [];
+  for (let k = 0; k <= 6; k++) c.push({u: 4 + k * 6, v: -2 * (k / 6) * (k / 6)});
+  for (let k = 1; k <= 12; k++) { const a = rad(90 - k / 12 * 210); c.push({u: 40 + 13 * Math.cos(a), v: -15 + 13 * Math.sin(a)}); }
+  const n = c.length, s1 = [], s2 = [];
+  for (let i = 0; i < n; i++) {
+    const a = c[Math.max(0, i - 1)], b = c[Math.min(n - 1, i + 1)], tu = b.u - a.u, tv = b.v - a.v, l = Math.hypot(tu, tv) || 1;
+    const w = lerp(7.5, 1, Math.pow(i / (n - 1), 1.2)) / 2, nu = -tv / l, nv = tu / l;
+    s1.push({u: c[i].u + nu * w, v: c[i].v + nv * w}); s2.push({u: c[i].u - nu * w, v: c[i].v - nv * w});
+  }
+  return {poly: [...s1, ...s2.reverse()], edge: s1};
+})();
+function hookBlade(B, id) {
+  seed(id);
+  const pts = HOOK.poly.map(q => B(q.u, q.v));
+  poly(pts, '#d2cdc2', 1.7, .12); hatch(pts, 3.2, 'rgba(20,18,16,.22)');
+  G.strokeStyle = 'rgba(245,240,228,.8)'; G.lineWidth = 1; G.beginPath();                 // filo interior brillante
+  HOOK.edge.slice(2, -2).forEach((q, i) => { const w = B(q.u, q.v); i ? G.lineTo(w.x, w.y) : G.moveTo(w.x, w.y); }); G.stroke();
+  sline(B(-12, 0), B(4, 0), 5, INK, id + 1);
+  sline(B(-8, -3.5), B(-6, 3.5), 1.2, '#b9ad95', id + 2); sline(B(-3, -3.5), B(-1, 3.5), 1.2, '#b9ad95', id + 3);   // correa del mango
+  sline(B(4, -7), B(4, 7), 3.6, INK, id + 4);
+  scircle(B(-18, 0), 4.2, null, 1.8, INK, id + 5);                                            // anilla de la cadena
+}
+function drawBackGear(J, id, wpn, beltBlades) {
+  const tx = J.neck.x - J.hip.x, ty = J.neck.y - J.hip.y, tl = Math.hypot(tx, ty) || 1, u = {x: tx / tl, y: ty / tl}, bk = J.back;
+  const at = (a, b) => ({x: J.hip.x + u.x * a + bk.x * b, y: J.hip.y + u.y * a + bk.y * b});
+  if (wpn === 'potion') {                           // bebiendo: la espada a la espalda y las dos espadas-gancho al cinturón
+    drawBackGear(J, id, 'blades', 0); drawBackGear(J, id + 500, 'none', 2); return;
+  }
+  if (wpn !== 'sword' && wpn !== 'none') {          // la espada sagrada, envainada a la espalda (con las espadas-gancho o un arma de ranura libre)
+    const top = at(L.torso + 10, 9), bot = at(-18, 24), Bs = makeB(top, Math.atan2(bot.y - top.y, bot.x - top.x), J.dir, .82);
+    seed(id); const sc = [Bs(4, -5.5), Bs(110, -4.8), Bs(118, 0), Bs(110, 4.8), Bs(4, 5.5)];
+    poly(sc, '#5a5047', 1.6, .1); hatch(sc, 3, 'rgba(10,8,6,.35)');
+    sline(Bs(-13, 0), Bs(4, 0), 5, INK, id + 1); sline(Bs(5, -12), Bs(5, 12), 4.2, INK, id + 2); scircle(Bs(-16, 0), 3.2, INK, 1, INK, id + 3);
+  }
+  // con la espada en la mano cuelgan las dos del cinturón; al levantar el escudo, la segunda vuelve al cinturón
+  const n = beltBlades ?? (wpn === 'blades' ? (J.shOpen > .5 ? 1 : 0) : 2);
+  for (let i = 0; i < n; i++) {
+    const g = at(-2, 6 + i * 10), down = Math.atan2(-u.y, -u.x) + (i ? .22 : -.12) * J.dir;
+    hookBlade(makeB(g, down, J.dir, .78), id + 10 + i * 10);
+  }
+  if (n === 2) drawChain(at(-18, 6), at(-18, 16), .3, 1.1);
+}
+const SHIELDS = {sacred: {name: 'sagrado', uses: Infinity}, ice: {name: 'de hielo', uses: 10}, fire: {name: 'de fuego', uses: 4}};
+const SHIELD_PTS = {
+  sacred: [[-22, -26], [0, -29], [22, -26], [21, -2], [12, 18], [0, 30], [-12, 18], [-21, -2]],
+  ice: [[-18, -24], [-6, -31], [8, -27], [21, -18], [23, 2], [13, 21], [0, 31], [-12, 19], [-23, 0]],
+  fire: Array.from({length: 18}, (_, k) => [Math.cos(k / 18 * 6.283) * 25, Math.sin(k / 18 * 6.283) * 25]),
+};
+function drawShield(J, type, open, id, arm = 1) {            // roto (paso 3.6): le falta una cuña, grieta de tinta y la cara apagada
+  if (!type) return;
+  if (typeof broken === 'function' && broken(type) && J.dir) {
+    const el = arm ? J.belb : J.elbow, ha = arm ? J.bhand : J.hand, fa = {x: lerp(el.x, ha.x, .6), y: lerp(el.y, ha.y, .6)};
+    const d = J.dir, sx = lerp(.22, 1, open), c = {x: fa.x + d * lerp(3, 9, open), y: fa.y + lerp(6, 0, open)}, T = ([x, y]) => ({x: c.x + x * sx * d, y: c.y + y});
+    G.save(); G.beginPath(); G.rect(c.x - 80, c.y - 80, 160, 160); const w = [[4, -36], [34, -36], [34, 6], [10, -6]].map(T); G.moveTo(w[0].x, w[0].y); w.slice(1).forEach(q => G.lineTo(q.x, q.y)); G.closePath(); G.clip('evenodd');
+    drawShieldWhole(J, type, open, id, arm);
+    closedCurve(SHIELD_PTS[type].map(T)); G.fillStyle = 'rgba(26,23,21,.3)'; G.fill(); G.restore();
+    const k = [[10, -6], [2, 4], [6, 12], [-4, 22]].map(T); G.strokeStyle = INK; G.lineWidth = 1.8; G.beginPath(); k.forEach((q, i) => i ? G.lineTo(q.x, q.y) : G.moveTo(q.x, q.y)); G.stroke();
+    return;
+  }
+  drawShieldWhole(J, type, open, id, arm);
+}
+function drawShieldWhole(J, type, open, id, arm = 1) {
+  if (!type) return;
+  const el = arm ? J.belb : J.elbow, ha = arm ? J.bhand : J.hand;           // colgado, puede ir en la mano libre, sea cual sea
+  const fa = {x: lerp(el.x, ha.x, .6), y: lerp(el.y, ha.y, .6)};   // atado al antebrazo: la mano queda libre
+  const d = J.dir, sx = lerp(.22, 1, open), c = {x: fa.x + d * lerp(3, 9, open), y: fa.y + lerp(6, 0, open)};
+  const T = ([x, y], k = 1) => ({x: c.x + x * k * sx * d, y: c.y + y * k});
+  const pts = SHIELD_PTS[type].map(q => T(q));
+  seed(id);
+  if (type === 'sacred') {
+    closedCurve(pts); G.fillStyle = '#dcd5c3'; G.fill(); G.lineWidth = 2.2; G.strokeStyle = INK; G.stroke();
+    closedCurve(SHIELD_PTS.sacred.map(q => T(q, .8))); G.lineWidth = 1.3; G.strokeStyle = 'rgba(150,120,50,.85)'; G.stroke();
+    if (open > .4) { const e = T([0, -4]); scircle(e, 7 * Math.max(.3, sx), null, 1.4, 'rgba(150,120,50,.95)', id + 1, 1 / Math.max(.3, sx) * sx, 1);
+      sline(T([0, -20]), T([0, 18]), 1.4, 'rgba(150,120,50,.95)', id + 2); sline(T([-12, -4]), T([12, -4]), 1.4, 'rgba(150,120,50,.95)', id + 3); }
+  } else if (type === 'ice') {
+    poly(pts, '#c3dbe4', 2.1, .2);
+    G.strokeStyle = 'rgba(60,110,140,.6)'; G.lineWidth = 1; G.beginPath(); const o = T([1, -2]);
+    for (const q of pts) { G.moveTo(o.x, o.y); G.lineTo(q.x, q.y); } G.stroke();
+    sline(T([-13, -19]), T([-5, -6]), 1.6, 'rgba(255,255,255,.8)', id + 1);
+  } else {
+    poly(pts, '#5d4637', 2.2, .15);
+    closedCurve(SHIELD_PTS.fire.map(q => T(q, .8))); G.lineWidth = 1.2; G.strokeStyle = 'rgba(15,10,6,.7)'; G.stroke();
+    if (open > .3) {
+      const fl = [[0, -16], [7, -4], [9, 8], [0, 15], [-9, 8], [-7, -4], [-2, -2]].map(q => T(q));
+      poly(fl, '#e0782c', 1.2, .1); poly([[0, -6], [4, 3], [0, 9], [-4, 3]].map(q => T(q)), '#ffd166', 0, .05);
+    }
+    G.fillStyle = INK; for (let k = 0; k < 6; k++) { const r = T([Math.cos(k / 6 * 6.283) * 21, Math.sin(k / 6 * 6.283) * 21]); G.beginPath(); G.arc(r.x, r.y, 1.4, 0, 6.3); G.fill(); }
+  }
+}
+function makeB(g, ang, d, sl = 1) {
+  const sd = {x: Math.cos(ang), y: Math.sin(ang)}, sp = {x: -sd.y * d, y: sd.x * d};
+  return (u, v) => ({x: g.x + sd.x * u * sl + sp.x * v, y: g.y + sd.y * u * sl + sp.y * v});
+}
+function foot(a, b, d, id) {                        // pie corto: ayuda a leer el apoyo
+  const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1;
+  let fx = d * dy / l * .5 + d * .5, fy = -d * dx / l * .5; const fl = Math.hypot(fx, fy) || 1; fx /= fl; fy /= fl;
+  sline(b, {x: b.x + fx * 10, y: b.y + fy * 10}, 2.7, INK, id);
+}
+function spine(J, id) {                            // tronco: recto de pie, curvado hacia atrás al encogerse
+  if (J.cu < .5) { sline(J.hip, J.neck, 3.1, INK, id); return; }
+  seed(id); const m = mid(J.hip, J.neck), c = {x: m.x + J.back.x * J.cu * 2 + rnd() * .5, y: m.y + J.back.y * J.cu * 2 + rnd() * .5};
+  G.strokeStyle = INK; G.lineWidth = 3.1; G.beginPath(); G.moveTo(J.hip.x, J.hip.y); G.quadraticCurveTo(c.x, c.y, J.neck.x, J.neck.y); G.stroke();
+  G.save(); G.globalAlpha *= .3; G.lineWidth = 1.2; G.beginPath(); G.moveTo(J.hip.x + rnd(), J.hip.y + rnd()); G.quadraticCurveTo(c.x + rnd(), c.y + rnd(), J.neck.x + rnd(), J.neck.y + rnd()); G.stroke(); G.restore();
+}
+function limb(a, b, c, w, id) { sline(a, b, w, INK, id); sline(b, c, w, INK, id + 1); }
+function drawFigure(f, J, opt = {}) {
+  G.lineCap = 'round'; G.lineJoin = 'round';
+  const id = f.sid, d = J.dir;
+  const wpn = opt.weapon || 'sword', hg = opt.hang;   // hang: colgado de una argolla; {free: mano libre (0 delante, 1 detrás), item: 'blade' | 'shield'}
+  const shType = opt.shield === undefined ? 'sacred' : opt.shield, shArm = hg && hg.item === 'shield' ? hg.free : 1;
+  if (f.cape.init) drawCape(f, d);
+  if (!opt.bare) drawBackGear(J, id + 200, wpn, hg ? (hg.item === 'shield' ? 1 : 0) : undefined);   // bare (intro): sin nada a la espalda ni al cinturón
+  limb(J.sh, J.belb, J.bhand, 2.6, id + 1);
+  limb(J.hip, J.kk, J.kf, 2.9, id + 3); foot(J.kk, J.kf, d, id + 5);
+  spine(J, id + 6);
+  limb(J.hip, J.fk, J.ff, 2.9, id + 7); foot(J.fk, J.ff, d, id + 9);
+  scircle(J.head, L.head, PAPER, 3, INK, id + 10);
+  if (!opt.noStreak) drawStreak(f, d);
+  drawEye(J);
+  if (shArm === 1) drawShield(J, shType, J.shOpen, id + 300, 1);
+  limb(J.sh, J.elbow, J.hand, 2.9, id + 11);
+  if (shArm === 0) drawShield(J, shType, J.shOpen, id + 300, 0);
+  for (let i = 0; i < 2; i++) {
+    const c = opt.chains && opt.chains[i];
+    if (c && c.mode) {                             // la espada-gancho vuela en su cadena: eslabones desde su mano
+      const B = makeB(c.grip, c.ang, c.flip ? -d : d, c.mode === 'fly' ? 1 : c.sl);
+      drawChain(handOf(J, i), B(WEAPONS.blades.pommel, 0), c.ten, 1.5); hookBlade(B, id + 20 + i * 30);
+    } else if (hg) {                               // colgado: la mano libre lleva su espada-gancho, o nada si lleva el escudo
+      if (i === hg.free && hg.item === 'blade') hookBlade(i ? makeB(J.bhand, handAng(J, 1) + .35 * d, d) : J.B, id + 20 + i * 30);
+    } else if (i === 0) { if (wpn === 'flail') flailDraw(J.B, id + 20, opt.ball || restBall(J, false)); else WEAPONS[wpn].draw(J.B, id + 20); }
+    else if (wpn === 'blades' && !(J.shOpen > .5)) hookBlade(makeB(J.bhand, handAng(J, 1) + .35 * d, d), id + 50);   // la segunda hoja, en la otra mano
+  }
+}
+function breathe(p, k = 1) { const o = {...p}; o.lean += Math.sin(T * 2.2) * 1.3 * k; o.aU += Math.sin(T * 2.2 + 1) * 1.2 * k; o.bU += Math.sin(T * 2.2 + .5) * 1 * k; return o; }
+function settleCape(f, x, y, d, pose, mode) {
+  f.cape.init = false;
+  const J = skeleton(pose, {x, y}, d);
+  mode = mode || (pose.rot ? 'rodar' : 'quieto');
+  f.cape.init = false; stepCape(f.cape, J.cape, capeTargets(mode, d, 0, (pose.rot || 0) * .6), 0, y);
+  f.eyeHist = Array.from({length: 42}, () => ({x: J.eye.x, y: J.eye.y}));
+}
+const HAND = sz => `${sz}px 'Patrick Hand', 'Segoe Print', cursive`;
+function hudText(s, x, y, sz, al = 'left', col = INK, stroke = null) {
+  G.font = HAND(sz); G.textAlign = al; G.textBaseline = 'middle';
+  if (stroke) { G.lineWidth = sz * .16; G.strokeStyle = stroke; G.lineJoin = 'round'; G.strokeText(s, x, y); }
+  G.fillStyle = col; G.fillText(s, x, y); return G.measureText(s).width;
+}
+function hudBox(x, y, w, h, id, o = {}) {                  // una casilla de papel con su marco de lápiz
+  seed(id); const pts = [{x, y}, {x: x + w, y}, {x: x + w, y: y + h}, {x, y: y + h}];
+  if (o.dash) { G.save(); G.setLineDash([7, 6]); poly(pts, o.fill ?? 'rgba(239,230,214,.28)', 1.4, .6, 'rgba(26,23,21,.45)'); G.restore(); return; }
+  poly(pts, o.fill ?? 'rgba(239,230,214,.74)', o.on ? 3.6 : 1.7, .6, o.on ? INK : 'rgba(26,23,21,.62)');
+  if (o.on) { seed(id + 1); poly([{x: x + 4, y: y + 4}, {x: x + w - 4, y: y + 4}, {x: x + w - 4, y: y + h - 4}, {x: x + 4, y: y + h - 4}], null, 1, .8, 'rgba(26,23,21,.35)'); }
+}
+const TS = {col: 170, top: 372, bw: 470, bh: 64, gap: 16, noteY: 868, ax: 1400, fy: 900, r: 165, R: 225, sy: 560, hx: 960, logoY: 196};   // el inicio, en hu
+/* la boca de la mazmorra: el último plano de la intro (01-story/cinematics/intro.md, plano 10) */
+function ttScene(W) {
+  const ox = (W - 1920) / 2, L = -ox - 10, Rx = 1920 + ox + 10, {ax, fy, r, R, sy} = TS;
+  G.fillStyle = PAPER; G.fillRect(0, 0, W, 1080);
+  G.save(); G.translate(ox, 0);
+  const sky = G.createLinearGradient(0, 0, 0, fy); sky.addColorStop(0, 'rgba(26,23,21,.26)'); sky.addColorStop(1, 'rgba(26,23,21,0)'); G.fillStyle = sky; G.fillRect(L, 0, Rx - L, fy);
+  // a lo lejos, las colinas y las torres de la intro (plano 6, el fin del mundo), en grafito
+  const hill = x => 700 - 46 * Math.sin(x / 270 + .6) - 20 * Math.sin(x / 93 + 1.3);
+  for (let x = L, i = 0; x < Rx; x += 46, i++) sline({x, y: hill(x)}, {x: x + 46, y: hill(x + 46)}, 1.5, 'rgba(26,23,21,.32)', 41000 + i);
+  [[300, 70], [640, 46], [1760, 58], [-60, 40]].forEach(([x, h], i) => { const b = hill(x) + 4; seed(41200 + i);
+    poly([{x: x - 11, y: b}, {x: x - 11, y: b - h}, {x, y: b - h - 24}, {x: x + 11, y: b - h}, {x: x + 11, y: b}], 'rgba(185,175,156,.55)', 1.3, .4, 'rgba(26,23,21,.4)'); });
+  // la ladera en la que se abre la mazmorra
+  const mound = [{x: 1080, y: fy}, {x: 1170, y: 640}, {x: 1260, y: 420}, {x: 1390, y: 300}, {x: 1530, y: 318}, {x: 1660, y: 440}, {x: 1760, y: 640}, {x: 1860, y: fy}];
+  seed(41300); poly(mound, '#b5ab97', 2.2, 1.2); seed(41301); hatch(mound, 7, 'rgba(26,23,21,.18)');
+  for (let i = 0; i < 9; i++) { seed(41310 + i); const x = 1180 + r01() * 560, y = 470 + r01() * 360; if (Math.abs(x - ax) > R + 20) sline({x, y}, {x: x + 30 + r01() * 40, y: y + rnd() * 6}, 1.1, 'rgba(26,23,21,.35)'); }
+  // el suelo: una cornisa de piedra; bajo el arco, la escalera baja a la oscuridad
+  const ground = (x0, x1, id) => { const pts = [{x: x0, y: fy}]; seed(id); for (let x = x0 + 60; x < x1; x += 60) pts.push({x, y: fy + rnd() * 3}); pts.push({x: x1, y: fy}, {x: x1, y: 1090}, {x: x0, y: 1090});
+    poly(pts, '#b9af9c', 0); seed(id + 1); hatch(pts, 6, 'rgba(26,23,21,.22)'); for (let i = 0; i < pts.length - 3; i++) sline(pts[i], pts[i + 1], 2.8, INK, id + 10 + i); };
+  G.fillStyle = '#120e0b'; G.fillRect(ax - r, fy - 2, 2 * r, 200);
+  ground(L, ax - r, 41400); ground(ax + r, Rx, 41500);
+  for (let k = 0; k < 8; k++) {                          // los peldaños bajan hacia la derecha y se pierden en la oscuridad
+    const x0 = ax - r + k * 41, y = fy + 6 + k * 24, a = 1 - k / 8, pts = [{x: x0, y}, {x: x0 + 41, y}, {x: x0 + 41, y: 1090}, {x: x0, y: 1090}];
+    seed(41600 + k); poly(pts, `rgba(185,175,156,${.8 * a})`, 0); G.save(); G.globalAlpha = a; seed(41640 + k); hatch(pts, 6, 'rgba(26,23,21,.3)'); G.restore();
+    sline({x: x0, y}, {x: x0 + 41, y: y + 1}, 2.2, `rgba(26,23,21,${.9 * a})`, 41620 + k); sline({x: x0 + 41, y}, {x: x0 + 41, y: y + 24}, 1.6, `rgba(26,23,21,${.7 * a})`, 41660 + k);
+  }
+  // el arco roto: el pilar izquierdo entero, el derecho partido y la rosca rota a la derecha
+  const arc = (rr, a0, a1) => { G.beginPath(); G.arc(ax, sy, rr, a0, a1); };
+  G.save(); G.beginPath(); G.moveTo(ax - r, fy); G.lineTo(ax - r, sy); G.arc(ax, sy, r, Math.PI, 0); G.lineTo(ax + r, fy); G.closePath(); G.fillStyle = '#120e0b'; G.fill();
+  G.clip(); hatchRect(ax - r, sy - r, ax + r, fy, 5, 'rgba(60,50,40,.35)'); G.restore();
+  const pillar = (x0, x1, top, id) => { const pts = [{x: x0, y: fy}, {x: x0, y: top}, {x: x1, y: top}, {x: x1, y: fy}]; seed(id); poly(pts, '#bdb3a0', 2.4, .4); seed(id + 1); hatch(pts, 7, 'rgba(26,23,21,.14)');
+    for (let y = fy - 54, k = 0; y > top + 10; y -= 54 + (k % 2) * 6, k++) sline({x: x0 + 1, y}, {x: x1 - 1, y: y + rnd()}, 1.3, 'rgba(26,23,21,.5)', id + 10 + k); };
+  pillar(ax - R, ax - r, sy, 41700);
+  { const x0 = ax + r, x1 = ax + R, pts = [{x: x0, y: fy}, {x: x0, y: 668}, {x: x0 + 14, y: 650}, {x: x0 + 26, y: 676}, {x: x0 + 44, y: 640}, {x: x1, y: 662}, {x: x1, y: fy}];
+    seed(41800); poly(pts, '#bdb3a0', 2.4, .4); seed(41801); hatch(pts, 7, 'rgba(26,23,21,.14)');
+    for (let y = fy - 54, k = 0; y > 690; y -= 56, k++) sline({x: x0 + 1, y}, {x: x1 - 1, y: y + 1}, 1.3, 'rgba(26,23,21,.5)', 41810 + k); }
+  const a1 = Math.PI * 1.66;                              // la rosca llega hasta aquí; lo demás cayó
+  G.beginPath(); G.arc(ax, sy, R, Math.PI, a1); G.arc(ax, sy, r, a1 + .05, Math.PI, true); G.closePath(); G.fillStyle = '#c4bcaa'; G.fill();
+  G.lineWidth = 2.6; G.strokeStyle = INK; arc(R, Math.PI, a1); G.stroke(); G.lineWidth = 3; arc(r, Math.PI, a1 + .05); G.stroke();
+  for (let k = 0; k <= 9; k++) { const an = Math.PI + k / 9 * (a1 - Math.PI); sline({x: ax + Math.cos(an) * r, y: sy + Math.sin(an) * r}, {x: ax + Math.cos(an) * R, y: sy + Math.sin(an) * R}, 1.6, INK, 41900 + k); }
+  { const e = a1, c = Math.cos(e), s = Math.sin(e), p = (rr, d) => ({x: ax + Math.cos(e + d) * rr, y: sy + Math.sin(e + d) * rr});   // el corte: dientes de piedra rota
+    seed(41950); poly([p(r, .05), p(r + 14, .1), p(r + 26, .04), p(r + 40, .12), p(R - 6, .03), p(R, 0)], '#c4bcaa', 2, .5); void c; void s; }
+  // los sillares caídos de la rosca, al pie del pilar roto
+  [[ax + R + 40, 22, .3], [ax + R + 96, 16, -.2], [ax + R + 14, 13, .9], [ax + R + 150, 11, .1]].forEach(([x, s, rot], i) => {
+    G.save(); G.translate(x, fy - s * .7); G.rotate(rot); seed(42000 + i); const pts = [{x: -s * 1.4, y: -s}, {x: s * 1.3, y: -s * .9}, {x: s * 1.4, y: s}, {x: -s * 1.3, y: s}];
+    poly(pts, '#c4bcaa', 1.8, .6); seed(42010 + i); hatch(pts, 5, 'rgba(26,23,21,.2)'); G.restore(); });
+  G.restore();
+  const v = G.createRadialGradient(W / 2, 560, 380, W / 2, 560, 1200); v.addColorStop(0, 'rgba(14,11,9,0)'); v.addColorStop(1, 'rgba(14,11,9,.5)'); G.fillStyle = v; G.fillRect(0, 0, W, 1080);
+}
+function ttLogo() {                                       // el título, a lápiz: una pasada de tinta y otra, fina, desplazada
+  const t = tr('ui.title.logo'), x = TS.ax, y = TS.logoY;
+  G.save(); G.font = HAND(128); G.textAlign = 'center'; G.textBaseline = 'middle';
+  G.lineWidth = 9; G.strokeStyle = 'rgba(239,230,214,.55)'; G.lineJoin = 'round'; G.strokeText(t, x, y);
+  G.fillStyle = INK; G.fillText(t, x, y); G.globalAlpha = .28; G.fillText(t, x + 2.5, y - 1.5); G.restore();
+  sline({x: x - 330, y: y + 78}, {x: x + 330, y: y + 74}, 2.6, INK, 42100); sline({x: x - 250, y: y + 92}, {x: x + 210, y: y + 90}, 1.2, 'rgba(26,23,21,.5)', 42101);
+}
+
+/* ======================================================================
+   La música: music.intro tal como la sintetiza 07-audio/sandbox/sandbox.html (aprobada; su WAV es
+   07-audio/music/cinematics/intro.wav). Copiado: el juego de piezas, el órgano, las cuerdas, el golpe sordo,
+   la pista y su render sin conexión; también music.descent (Nueva partida). Se renderizan una vez al cargar y suenan con los planos.
+   ====================================================================== */
+const SND = (() => {
+const SR = 44100;
+const NOTE_I = {C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11};
+const N = s => { const m = /^([A-G])([#b]?)(-?\d)$/.exec(s); return 12 * (+m[3] + 1) + NOTE_I[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0); };
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+const srand = s => mulberry(hash(String(s)));
+/* ---------- el juego de piezas: todo se construye dentro de un contexto (en vivo o sin conexión) ---------- */
+function kit(c, r) {
+  const nb = c.createBuffer(1, SR * 2, SR), nd = nb.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = r() * 2 - 1;                // ruido blanco con semilla
+  const K = {c, r, SR, last: 0,
+    gain(v = 1, dest) { const g = c.createGain(); g.gain.value = v; if (dest) g.connect(dest); return g; },
+    filt(type, f, Q = .7, dest, gainDb = 0) { const b = c.createBiquadFilter(); b.type = type; b.frequency.value = f; b.Q.value = Q; b.gain.value = gainDb; if (dest) b.connect(dest); return b; },
+    pan(p, dest) { const s = c.createStereoPanner ? c.createStereoPanner() : c.createGain(); if (s.pan) s.pan.value = p; if (dest) s.connect(dest); return s; },
+    noise(t, dur, dest, rate = 1) {
+      const s = c.createBufferSource(); s.buffer = nb; s.loop = true; s.playbackRate.value = rate; s.connect(dest);
+      s.start(t, r() * 1.9); s.stop(t + dur + .02); K.last = Math.max(K.last, t + dur + .02); return s;
+    },
+    osc(type, f, t, dur, dest, detune = 0) {
+      const o = c.createOscillator(); if (type instanceof PeriodicWave) o.setPeriodicWave(type); else o.type = type;
+      o.frequency.value = f; o.detune.value = detune; o.connect(dest); o.start(t); o.stop(t + dur + .05); K.last = Math.max(K.last, t + dur + .05); return o;
+    },
+    // envolvente: ataque lineal, caída exponencial; sin clics
+    env(g, t, a, peak, d, hold = 0) {
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a);
+      if (hold) g.gain.setValueAtTime(peak, t + a + hold);
+      g.gain.setTargetAtTime(0, t + a + hold, d / 4); return g;
+    },
+    // ráfaga de ruido filtrado, con barrido opcional del filtro
+    burst(t, o) {
+      const {type = 'bandpass', f = 1000, f2 = 0, Q = 1, a = .002, d = .06, v = 1, dest, rate = 1, hold = 0} = o;
+      const g = K.env(K.gain(0, dest), t, a, v, d, hold), b = K.filt(type, f, Q, g);
+      if (f2) { b.frequency.setValueAtTime(f, t); b.frequency.exponentialRampToValueAtTime(f2, t + a + hold + d * .8); }
+      K.noise(t, a + hold + d * 1.6, b, rate); return g;
+    },
+    // nota simple con caída exponencial y glisando opcional
+    tone(t, o) {
+      const {type = 'sine', f, f2 = 0, glide = .1, a = .002, d = .2, v = 1, dest, detune = 0, hold = 0} = o;
+      const g = K.env(K.gain(0, dest), t, a, v, d, hold), x = K.osc(type, f, t, a + hold + d * 1.8, g, detune);
+      if (f2) { x.frequency.setValueAtTime(f, t); x.frequency.exponentialRampToValueAtTime(f2, t + glide); }
+      return x;
+    },
+    // campana: parciales (razón, nivel, caída)
+    bell(t, f, parts, v, dest) { for (const [ra, lv, dc] of parts) K.tone(t, {f: f * ra, d: dc, v: v * lv, dest}); },
+    // tintineo metálico corto (monedas, cadena): parciales inarmónicos
+    clink(t, f, v, dest, d = .12) { K.bell(t, f, [[1, 1, d], [2.41, .55, d * .7], [3.93, .3, d * .5], [5.8, .15, d * .35]], v, dest); K.burst(t, {type: 'highpass', f: 5000, d: .01, v: v * .3, dest}); },
+    // reverberación con semilla: respuesta de ruido que cae y se oscurece
+    reverb(sec, damp = .5, dest, wet = .3) {
+      const ch = c.destination.channelCount >= 2 ? 2 : 1, len = Math.round(sec * SR), b = c.createBuffer(ch, len, SR);
+      for (let k = 0; k < ch; k++) {
+        const d = b.getChannelData(k); let y = 0;
+        for (let i = 0; i < len; i++) {
+          const u = i / len, x = (r() * 2 - 1) * Math.pow(1 - u, 2.2) * Math.exp(-u * 3), a = .92 - (.92 - (.5 - damp * .42)) * u;
+          y += a * (x - y); d[i] = y;
+        }
+      }
+      const cv = c.createConvolver(); cv.buffer = b; const w = K.gain(wet, dest); cv.connect(w); return cv;
+    },
+    // reverberación de la música: peines amortiguados en paralelo y pasatodos en serie (tipo Freeverb), estéreo.
+    // rt = segundos hasta −60 dB; damp 0–1 oscurece la cola
+    verb(rt, damp, dest, wet = 1) {
+      const inp = K.gain(1), split = c.createChannelSplitter(2), merge = c.createChannelMerger(2), w = K.gain(wet, dest); inp.connect(split); merge.connect(w);
+      const COMB = [1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617], AP = [556, 441, 341, 225];
+      for (let ch = 0; ch < 2; ch++) {
+        const sum = K.gain(.12), x = K.gain(1); split.connect(x, ch);
+        for (const n of COMB) {
+          // amortiguación de un polo (IIR): ganancia ≤ 1 a toda frecuencia, así el peine nunca se dispara
+          const dt = (n + ch * 23) / 44100, s1 = K.gain(1), dl = c.createDelay(.2), a1 = .15 + (1 - damp) * .6, lp = c.createIIRFilter([a1], [1, a1 - 1]), fb = K.gain(Math.min(.97, Math.pow(10, -3 * dt / rt)));
+          dl.delayTime.value = dt; x.connect(s1); s1.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(s1); dl.connect(sum);
+        }
+        let node = sum;
+        for (const n of AP) {
+          const dt = (n + ch * 23) / 44100, s1 = K.gain(1), dl = c.createDelay(.1), fb = K.gain(.5), ff = K.gain(-.5), o = K.gain(1);
+          dl.delayTime.value = dt; node.connect(s1); s1.connect(dl); dl.connect(fb); fb.connect(s1); dl.connect(o); s1.connect(ff); ff.connect(o); node = o;
+        }
+        node.connect(merge, 0, ch);
+      }
+      return inp;
+    },
+    // eco simple: retardo con realimentación
+    echo(time, fb, dest, wet = .3, lp = 2500) {
+      const dl = c.createDelay(2); dl.delayTime.value = time; const f = K.gain(fb), w = K.gain(wet, dest), l = K.filt('lowpass', lp, .7);
+      dl.connect(l); l.connect(f); f.connect(dl); l.connect(w); return dl;
+    },
+  };
+  return K;
+}
+
+const WAVES = new WeakMap();
+function wave(c, name, amps) { let m = WAVES.get(c); if (!m) WAVES.set(c, m = {}); if (!m[name]) { const re = new Float32Array(amps.length + 1), im = new Float32Array(amps.length + 1); amps.forEach((a, i) => { im[i + 1] = a; }); m[name] = c.createPeriodicWave(re, im); } return m[name]; }
+const VIB = (K, t, rate, cents, delay, dur, targets) => {     // vibrato que entra despacio
+  const lg = K.gain(0); K.osc('sine', rate, t, dur, lg);
+  lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(cents, t + delay + .01);
+  targets.forEach(o => lg.connect(o.detune));
+};
+const INS = {
+  strings(K, t, m, dur, vel, out, o = {}) {
+    const f = mtof(m), a = o.a ?? .3, rel = o.rel ?? .5, end = t + dur;
+    const lp = K.filt('lowpass', Math.min(o.lp ?? 4200, f * (o.bright ?? 6)), .5, null), g = K.gain(0, out); lp.connect(g);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vel * .16, t + a); g.gain.setValueAtTime(vel * .16, Math.max(t + a, end)); g.gain.setTargetAtTime(0, Math.max(t + a, end), rel / 3);
+    const span = dur + rel * 1.6 + a, oscs = [-9, -2, 6].map(dt => K.osc('sawtooth', f, t, span, lp, dt));
+    VIB(K, t, 5.2 + K.r() * .5, o.vib ?? 7, Math.min(.45, dur * .5), span, oscs);
+    if (o.trem) { const tg = K.gain(.55); lp.disconnect(); lp.connect(tg); tg.connect(g); K.osc('sine', o.trem, t, span, K.gain(.45, tg.gain)); }
+  },
+  organ(K, t, m, dur, vel, out, o = {}) {
+    const f = mtof(m), a = o.a ?? 1.5, end = t + dur, g = K.gain(0, out);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vel * .2, t + a); g.gain.setValueAtTime(vel * .2, Math.max(t + a, end)); g.gain.setTargetAtTime(0, Math.max(t + a, end), (o.rel ?? 1.2) / 3);
+    const span = dur + a + (o.rel ?? 1.2) * 1.8;
+    [[.5, .6, 0], [1, 1, 3], [1, .7, -3], [2, .35, 2], [3, .12, 0], [4, .08, 0]].forEach(([ra, lv, dt]) => K.osc('sine', f * ra, t, span, K.gain(lv, g), dt));
+  },
+};
+const thud = (K, t, f0, f1, d, v, dest) => { K.tone(t, {f: f0, f2: f1, glide: d * .5, d, v, dest}); K.burst(t, {type: 'lowpass', f: 650, d: d * .6, v: v * .45, dest}); };
+const MUSIC = {};
+// —— music.intro: la cinemática de la intro (01-story/cinematics/intro.md, la segunda versión del guion del 2026-10-13), 45 s exactos, sin bucle.
+// marks: los instantes que la imagen comparte con la música (01-story/cinematics/sandbox los comprueba).
+MUSIC['music.intro'] = {len: 45, ir: [3.5, .55], conv: true, marks: {
+  cuts3: [9.15, 9.85, 10.45, 11.2, 11.75, 12.55, 13.2], gaps3: [9, 9.65, 10.25, 11, 11.55, 12.35, 13, 13.8], steps4: [14, 14.6, 15.2, 15.8, 16.4, 17], strike4: 18, take5: 21.2,
+  strike6: 27.4, bolt6: 27.6, cuts7: [32.1, 32.75, 33.3, 33.9], gaps7: [32, 32.55, 33.1, 33.7], card7: 34.15, wake8: 37.15, run10: [41, 41.3, 41.6, 41.9, 42.2, 42.5, 42.813], stop10: 42.85}, build(K, out, wet) {
+  const M = MUSIC['music.intro'].marks;
+  const breath = (t0, up, down, v, f) => { const g = K.gain(0, out), b = K.filt('bandpass', f, .9, g); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(v, t0 + up); g.gain.linearRampToValueAtTime(0, t0 + up + down); K.noise(t0, up + down + .1, b); return b; };
+  const bed = (t0, t1, type, f, Q, v, fin, fout, dest = out, rate = 1) => { const g = K.gain(0, dest), b = K.filt(type, f, Q, g); g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(v, t0 + fin); g.gain.setValueAtTime(v, t1 - fout); g.gain.linearRampToValueAtTime(0, t1); K.noise(t0, t1 - t0 + .05, b, rate); return {g, b}; };
+  const crackle = (t0, t1, gapMin, gapVar, v) => { for (let t = t0 + K.r() * gapVar; t < t1; t += gapMin + K.r() * gapVar) K.burst(t, {type: 'highpass', f: 2200 + K.r() * 3200, d: .005 + K.r() * .012, v: v * (.3 + K.r() * .7), dest: out}); };
+  const staticAt = (t, d) => { K.burst(t, {type: 'highpass', f: 1600, a: .004, hold: Math.max(0, d - .03), d: .03, v: .32, dest: out}); crackle(t, t + d, .012, .02, .5); };
+  const cello = (t, n, d, v, dest = out) => INS.strings(K, t, N(n), d, v, dest, {a: .25, rel: .9, lp: 900, bright: 4, vib: 9});
+  // 1 · solo en las ruinas (0–6 s): el fuego crepita, viento, una melodía grave y sola
+  bed(0, 7.4, 'lowpass', 520, .7, .13, 1.2, .9);                                   //     el fuego: un soplo bajo
+  crackle(.2, 7.2, .06, .3, .34);                                                   //     y su crepitar
+  { const w = bed(0, 7.4, 'bandpass', 360, .8, .12, 1.6, 1.2); K.osc('sine', .23, 0, 7.4, K.gain(120, w.b.frequency)); K.osc('sine', .31, 0, 7.4, K.gain(.05, w.g.gain)); }   // viento
+  [['D3', .8, 1.3], ['F3', 2.1, .9], ['E3', 3.0, 1.0], ['C3', 4.0, .9], ['D3', 4.9, 1.5]].forEach(([n, t, d]) => cello(t, n, d, .55));
+  // 2 · hacia el sueño (6–9 s): la melodía se estira, lejana
+  cello(6.4, 'A2', 2.2, .4, wet); cello(7.3, 'F3', 1.6, .28, wet);
+  INS.organ(K, 7.3, N('D2'), 1.6, .25, wet, {a: .9, rel: .9});
+  // 3 · cortocircuitos (9–14 s): cada corte su sonido, roto por estática; un aliento debajo
+  M.gaps3.forEach((t, i) => staticAt(t, i === 0 ? .15 : .2));
+  { const [a, b, c, d, e, f, g] = M.cuts3;
+    K.clink(a, 1250, .7, wet, .35); K.clink(a + .01, 1870, .4, out, .2); K.burst(a, {type: 'highpass', f: 4000, d: .05, v: .5, dest: out});   //     las hojas que se cruzan
+    thud(K, b, 150, 70, .18, .8, wet); K.clink(b, 620, .35, wet, .2);                                                                   //     el escudo golpeado
+    K.burst(c, {f: 600, f2: 2600, Q: 1.2, a: .08, d: .35, v: .55, dest: out});                                                         //     la estela que corre
+    K.burst(d, {type: 'lowpass', f: 1300, d: .18, v: .35, dest: out}); thud(K, d, 190, 120, .08, .4, out); breath(d + .05, .07, .22, .2, 950);   // la mano en la cornisa
+    { const g2 = K.env(K.gain(0, wet), e, .08, .9, .5, .25), lp = K.filt('lowpass', 420, .9, g2); K.noise(e, .8, lp, .6); const o = K.osc('sawtooth', 92, e, .8, K.filt('lowpass', 320, 1, g2)); o.frequency.setValueAtTime(92, e); o.frequency.exponentialRampToValueAtTime(58, e + .6); }   // la sombra que ruge
+    { const w = bed(f, f + .5, 'bandpass', 520, .6, .5, .05, .15); K.osc('sine', 9, f, .5, K.gain(.35, w.g.gain)); }                    //     la capa al viento
+    INS.organ(K, g, N('D2'), .5, .7, wet, {a: .02, rel: .6}); INS.organ(K, g, N('A2'), .5, .45, wet, {a: .02, rel: .6}); thud(K, g, 64, 40, .35, .9, wet);   // los cinco jefes
+    breath(9.25, .35, .45, .07, 700); breath(10.7, .3, .4, .07, 700); breath(12.05, .3, .4, .08, 700); }
+  // 4 · la Cámara del Tiempo (14–20 s): pasos pesados, una nota sostenida, un golpe, silencio
+  M.steps4.forEach((t, i) => { thud(K, t, 105, 55, .16, .55 + i * .04, wet); K.burst(t, {type: 'lowpass', f: 700, d: .08, v: .25, dest: wet}); });
+  { const g = K.gain(1, out); INS.organ(K, 14.4, N('D2'), M.strike4 - 14.4, .7, g, {a: 1.2, rel: .15}); INS.strings(K, 14.6, N('A2'), M.strike4 - 14.6, .35, g, {a: 1.2, rel: .15, lp: 700});
+    g.gain.setValueAtTime(1, M.strike4 - .02); g.gain.linearRampToValueAtTime(0, M.strike4 + .03); }                                  //     cortada por el golpe
+  thud(K, M.strike4, 120, 42, .5, 1, wet); K.clink(M.strike4, 880, .55, wet, .4); K.burst(M.strike4, {type: 'highpass', f: 2500, d: .06, v: .6, dest: out});   // el golpe
+  // 5 · el reloj tomado (20–24 s): el tic hondo; la nota se dobla hacia abajo
+  K.clink(M.take5, 520, .55, wet, .6); thud(K, M.take5, 110, 48, .5, .75, wet); K.burst(M.take5, {type: 'highpass', f: 1800, d: .02, v: .35, dest: out});
+  { const g = K.gain(0, out), lp = K.filt('lowpass', 600, .7, g); g.gain.setValueAtTime(0, M.take5 + .05); g.gain.linearRampToValueAtTime(.16, M.take5 + .6); g.gain.setValueAtTime(.16, 23.4); g.gain.linearRampToValueAtTime(0, 24.3);
+    [-8, 0, 7].forEach(dt => { const o = K.osc('sawtooth', mtof(N('D2')), M.take5 + .05, 24.3 - M.take5, lp, dt); o.frequency.setValueAtTime(mtof(N('D2')), M.take5 + .4); o.frequency.exponentialRampToValueAtTime(mtof(N('A1')), 23.4); }); }
+  // 6 · el fin del mundo (24–32 s): un retumbo que sube, un crujido, un rugido largo que se adelgaza
+  { const g = K.gain(0, out), b = K.filt('lowpass', 90, .8, g); g.gain.setValueAtTime(0, 24); g.gain.linearRampToValueAtTime(.8, M.bolt6); g.gain.linearRampToValueAtTime(0, M.bolt6 + .4);
+    b.frequency.setValueAtTime(90, 24); b.frequency.exponentialRampToValueAtTime(260, M.bolt6); K.noise(24, M.bolt6 - 23.6, b, .5);
+    const s = K.gain(0, out); s.gain.setValueAtTime(0, 24); s.gain.linearRampToValueAtTime(.3, M.bolt6); s.gain.linearRampToValueAtTime(0, M.bolt6 + .3); K.osc('sine', 38, 24, 4, s); }
+  K.tone(M.strike6, {type: 'triangle', f: 220, f2: 110, glide: .15, d: .3, v: .35, dest: wet});                                         //     la manecilla golpea
+  K.burst(M.bolt6, {type: 'highpass', f: 3000, a: .001, d: .12, v: .9, dest: out}); thud(K, M.bolt6, 80, 30, .8, 1, wet); K.clink(M.bolt6, 1800, .5, wet, .5);   // el crujido
+  { const g = K.gain(0, out), b = K.filt('lowpass', 3200, .7, g); g.gain.setValueAtTime(0, M.bolt6); g.gain.linearRampToValueAtTime(.85, M.bolt6 + .15); g.gain.exponentialRampToValueAtTime(.2, 30.5); g.gain.linearRampToValueAtTime(0, 31.9);
+    b.frequency.setValueAtTime(3200, M.bolt6); b.frequency.exponentialRampToValueAtTime(120, 31.9); K.noise(M.bolt6, 31.95 - M.bolt6, b, .7); }   // el rugido que se adelgaza
+  // 7 · el que volvió (32–37 s): estática, un latido
+  M.gaps7.forEach((t, i) => staticAt(t, i === 0 ? .1 : .2)); K.burst(M.card7, {type: 'highpass', f: 2000, d: .04, v: .4, dest: out});
+  for (let t = 32.3, i = 0; t < 36.9; t += .85, i++) { const v = .5 + i * .06; thud(K, t, 62, 44, .13, v, out); thud(K, t + .22, 56, 40, .11, v * .7, out); }
+  // 8 · el despertar (37–40 s): un aliento brusco, las brasas
+  { const b = breath(M.wake8, .12, .5, .3, 900); b.frequency.setValueAtTime(700, M.wake8); b.frequency.exponentialRampToValueAtTime(1600, M.wake8 + .14); }
+  crackle(37, 39.8, .25, .45, .16); bed(37, 40, 'lowpass', 300, .7, .05, .3, .6);
+  // 9 · negro (40–41 s): silencio
+  // 10 · hacia el templo (41–45 s): pasos de carrera, su parada, el ambiente del inicio
+  M.run10.forEach((t, i) => { const v = .3 + .45 * Math.min(1, i / 3); K.burst(t, {f: 1100 + (i % 2) * 180, Q: 1.2, d: .035, v: v * .8, dest: out}); thud(K, t, 140, 80, .05, v * .6, out); });
+  K.burst(M.stop10, {type: 'lowpass', f: 900, d: .3, v: .4, dest: out}); thud(K, M.stop10, 120, 70, .08, .45, out);
+  { const w = bed(42.9, 45, 'bandpass', 420, .8, .1, 1.2, .25); K.osc('sine', .2, 42.9, 2.1, K.gain(90, w.b.frequency)); }             //     el aire de la boca de la mazmorra
+}};
+// —— music.descent: Nueva partida en la pantalla de inicio (06-ui/title): Akeris baja a la mazmorra (unos 4 s); pasos en la piedra que se alejan.
+MUSIC['music.descent'] = {len: 4.6, ir: [3.5, .55], conv: true, marks: {steps: [.6, 1.08, 1.56, 2.04, 2.52, 3, 3.48, 3.96]}, build(K, out, wet) {
+  MUSIC['music.descent'].marks.steps.forEach((t, i) => { const v = .7 * Math.pow(1 - (t - .6) / 3.8, 1.4); K.burst(t, {f: 1000 + (i % 2) * 200, Q: 1.3, d: .04, v: v * .8, dest: wet}); thud(K, t, 120, 70, .06, v * .6, wet); });
+  INS.organ(K, .2, N('D2'), 3.4, .3, wet, {a: 1, rel: .9});                                                                            //     y una nota grave que se va con él
+}};
+async function offline(sec, ch, build) { const c = new OfflineAudioContext(ch, Math.ceil(sec * SR), SR); build(c); return c.startRendering(); }
+function peakOf(buf) { let p = 0; for (let k = 0; k < buf.numberOfChannels; k++) { const d = buf.getChannelData(k); for (let i = 0; i < d.length; i++) { const a = Math.abs(d[i]); if (a > p) p = a; } } return p; }
+function scale(buf, f, fadeOut = .005) { for (let k = 0; k < buf.numberOfChannels; k++) { const d = buf.getChannelData(k), n = Math.round(fadeOut * SR); for (let i = 0; i < d.length; i++) d[i] *= f; if (fadeOut) for (let i = 0; i < n; i++) d[d.length - 1 - i] *= i / n; } return buf; }
+const TARGET = .89;                                                        // −1 dBFS
+async function renderMusic(id) {                                           // las cinemáticas: un solo render, sin bucle
+  const spec = MUSIC[id];
+  // conv: la reverberación por convolución, con su respuesta de ruido sembrada: el mismo render da el mismo WAV (los peines de verb, en bucle,
+  // no salen idénticos de un render a otro en Chrome)
+  return offline(spec.len, 2, c => { const K = kit(c, srand(id)), m = K.gain(1, c.destination), wet = K.gain(1, m); wet.connect(spec.conv ? K.reverb(spec.ir[0], spec.ir[1], m, .35) : K.verb(spec.ir[0], spec.ir[1], m, .35)); spec.build(K, m, wet); })
+    .then(b => scale(b, TARGET / peakOf(b), .02));
+}
+return {SR, MUSIC, renderMusic, peakOf, kit, srand};
+})();
+
+/* ======================================================================
+   LA INTRO: los planos, sus tiempos y sus textos (01-story/cinematics/intro.md, la segunda versión del guion del
+   operador, 2026-10-13: diez planos, 45 s)
+   ====================================================================== */
+let T = 0;                                                  // reloj del dibujo (la estela ondea con él)
+let weapon = 'sword';
+let streakAlpha = 1;                                        // la estela de Akeris se enciende (plano 8)
+let streakFront = null;                                     // plano 5: el morado avanza desde el ojo (0 → 1); null: todo de un color
+let eyeShut = false;                                        // dormido: el ojo es una raya
+const handOf = (J, i) => i ? J.bhand : J.hand, handAng = (J, i) => i ? Math.atan2(J.bhand.y - J.belb.y, J.bhand.x - J.belb.x) : J.swAng;
+const BLACK = '#0a0806', LIGHT = '#efe6d6', HOLLOW = '#120e0b';   // el negro de las tarjetas (06-ui/loading), paperLight y la boca
+const SHOTS = [                                             // duraciones por defecto (s); el juego las corre con dt
+  {n: 1, file: 'ruinas', name: 'Solo en las ruinas', dur: 6, text: null, pic: 'de noche, las ruinas de una sala sin techo; Akeris duerme junto a un fuego pequeño, encogido bajo su capa, la espada al lado; nadie más; la cámara se acerca', snd: 'el fuego crepita, viento, una melodía grave y sola'},
+  {n: 2, file: 'sueno', name: 'Hacia el sueño', dur: 3, text: null, pic: 'el brillo del fuego crece y lo lava todo a blanco; sube el sueño, borroso: una escalera que baja a lo oscuro, vista de lejos', snd: 'la melodía se estira, lejana'},
+  {n: 3, file: 'cortocircuitos', name: 'Cortocircuitos', dur: 5, text: null, pic: 'siete cortes de memoria: dos hojas que se cruzan en chispas; un escudo golpeado; una estela roja que corre en lo oscuro; una mano en una cornisa; una gran sombra que ruge; la capa rota al viento; los cinco jefes, solo formas', snd: 'espadas, un rugido, aliento: cada corte su sonido, roto por estática'},
+  {n: 4, file: 'camara', name: 'La Cámara del Tiempo', dur: 6, text: null, pic: 'un Akeris destrozado (capa en jirones, cortes, encorvado sobre su espada, estela roja) llega a una sala redonda y enorme; el Guardián del Tiempo, solo una silueta negra, ante el reloj; un golpe; la silueta cae y se rompe', snd: 'pasos pesados, una nota sostenida, un golpe, silencio'},
+  {n: 5, file: 'reloj', name: 'El reloj tomado', dur: 4, text: null, pic: 'toma el reloj de su pie; desde el ojo su estela se vuelve morada; la capa se oscurece, la espalda se endereza, el contorno se endurece', snd: 'el tic hondo; la nota se dobla hacia abajo'},
+  {n: 6, file: 'fin-del-mundo', name: 'El fin del mundo', dur: 8, text: null, pic: 'todo tiembla; (a) el horizonte en ruinas y un reloj gigante que se forma en el cielo; (b) su manecilla golpea y cae un rayo de tiempo; (c) desde el impacto el mundo se borra hacia fuera, trazo a trazo, hasta el papel blanco', snd: 'un retumbo que sube, un crujido, un rugido largo que se adelgaza'},
+  {n: 7, file: 'el-que-volvio', name: 'El que volvió', dur: 5, text: 'cinematic.intro.card', pic: 'cortocircuito: destellos del Akeris del futuro (capa del todo rota, espada curva y mellada, muy sucio, la estela roja rota a trozos); nos mira; de la nada, sobre su último cuadro, la tarjeta', snd: 'estática, un latido'},
+  {n: 8, file: 'despertar', name: 'El despertar', dur: 3, text: null, pic: 'las ruinas otra vez: Akeris se incorpora de golpe junto al fuego casi apagado; su estela roja se enciende; mira las ruinas vacías', snd: 'un aliento brusco, las brasas'},
+  {n: 9, file: 'negro', name: 'Negro', dur: 1, text: null, pic: 'negro', snd: 'silencio'},
+  {n: 10, file: 'templo', name: 'Hacia el templo', dur: 4, text: 'ui.title.logo', pic: 'la escena de la pantalla de inicio: Akeris llega corriendo desde la izquierda y se para donde lo pone el inicio, ante el arco roto; el título se escribe a lápiz; las opciones aparecen', snd: 'pasos de carrera, su parada, el ambiente del inicio'},
+];
+{ let s = 0; for (const sh of SHOTS) { sh.t0 = s; s += sh.dur; sh.t1 = s; } }
+const TOTAL = SHOTS[SHOTS.length - 1].t1;                   // 45
+const HOME = 3;                                             // después de los 45 s, el sandbox se queda 3 s en la pantalla de inicio
+const SKIP = {hold: 5, cut: .4, lift: .4};                  // S4: mantener Enter o Esc 5 s; música cortada en 0,4 s; el inicio sale del negro en 0,4 s
+const shotAt = t => SHOTS.find(s => t < s.t1) || SHOTS[SHOTS.length - 1];
+const SH = n => SHOTS[n - 1];
+const MK = () => SND.MUSIC['music.intro'].marks;            // los instantes que comparten la imagen y la música (07-audio/sandbox)
+
+/* ---------- los textos, por clave (en el juego, ports/translator) ---------- */
+let lang = 'es';
+const TXT = {
+  'cinematic.intro.card': {en: 'Akeris, you have to save the world. Enter the Temple of Time.', es: 'Akeris, tienes que salvar el mundo. Entra al templo del tiempo.'},
+  'cinematic.skip': {en: 'Hold to skip', es: 'Mantén para saltar'},            // propuesta: la pista del control de saltar
+  'ui.title.logo': {en: "Savior's Paradox", es: "Savior's Paradox"},
+  'ui.title.newGame': {en: 'New game', es: 'Nueva partida'},
+  'ui.title.continue': {en: 'Continue', es: 'Continuar'},
+  'ui.title.load': {en: 'Load', es: 'Cargar'},
+  'ui.title.settings': {en: 'Settings', es: 'Ajustes'},
+  'ui.title.shop': {en: 'Shop', es: 'Tienda'},
+  'ui.title.locked': {en: 'Locked', es: 'Bloqueada'},
+  'ui.title.exit': {en: 'Exit', es: 'Salir'},
+  'ui.title.hint': {en: 'W S or arrows · Enter choose', es: 'W S o flechas · Enter elegir'},
+};
+const tr = k => (TXT[k] || {})[lang] ?? k;
+
+/* ---------- parches mínimos sobre lo copiado: la estela, el ojo y la capa ----------
+   La estela puede encenderse (streakAlpha), volverse morada desde el ojo hacia fuera (streakFront: cada tramo tiene su
+   color según su distancia al ojo; el morado avanza, nada parpadea) y romperse a trozos (streakDefect, el Akeris del
+   futuro: el defecto va fijo a lo largo de la estela). Dormido, el ojo es una raya. */
+const ST_RED = [[110, 10, 16, 1], [216, 20, 29, 1], [200, 0, 20, .8]], ST_PUR = [[58, 23, 104, 1], [138, 79, 224, 1], [140, 70, 230, .85]];
+const rgba = (a, b, k) => `rgba(${a.slice(0, 3).map((v, i) => Math.round(lerp(v, b[i], k))).join(',')},${lerp(a[3], b[3], k).toFixed(3)})`;
+const purpleAt = t => streakFront == null ? (streakPurple ? 1 : 0) : smooth((streakFront * 1.15 - t) / .15);
+drawStreak = function (f, d) {
+  if (streakAlpha <= 0) return;
+  const h = f.eyeHist; if (h.length < 4) return;
+  const pts = [];
+  for (let k = 0; k < 20; k++) { const e = h[Math.min(k, h.length - 1)]; pts.push({x: e.x - d * k * 5.2, y: e.y - k * .8 + Math.sin(k * .45 - T * 4 + 1) * k * .25}); }
+  const prof = t => t < .12 ? .45 + t / .12 * .55 : 1 - (t - .12) / .88 * .92;
+  const pass = (ci, w, blur, core) => {
+    G.shadowBlur = blur;
+    for (let k = 0; k < pts.length - 1; k++) {
+      const df = streakDefect ? DEFECT[k] : null; if (df && (df.gap || (core && df.dim))) continue;
+      const o = df ? df.off : 0, t = k / (pts.length - 1), m = purpleAt(t), a = pts[k], b = pts[k + 1], c = pts[Math.min(k + 2, pts.length - 1)];
+      G.strokeStyle = rgba(ST_RED[ci], ST_PUR[ci], m); G.shadowColor = rgba(ST_RED[2], ST_PUR[2], m);
+      G.lineWidth = w * prof(t); G.beginPath(); G.moveTo(a.x, a.y + o); G.quadraticCurveTo(b.x, b.y + o, (b.x + c.x) / 2, (b.y + c.y) / 2 + o); G.stroke();
+    }
+  };
+  G.save(); G.globalAlpha *= streakAlpha; G.lineCap = streakDefect ? 'butt' : 'round'; pass(0, 4.4, 9, false); pass(1, 2.2, 0, true); G.restore();
+};
+drawEye = function (J) {
+  G.save(); G.translate(J.eye.x, J.eye.y); G.rotate(Math.atan2(J.fw.y, J.fw.x) + J.dir * .28);
+  if (eyeShut) { G.strokeStyle = INK; G.lineWidth = 1.7; G.lineCap = 'round'; G.beginPath(); G.moveTo(-7, -.5); G.quadraticCurveTo(0, 2.6, 7.5, -.2); G.stroke(); G.restore(); return; }
+  const m = purpleAt(0); G.shadowColor = rgba([120, 0, 10, .7], [90, 30, 160, .7], m); G.shadowBlur = 5 * Math.max(streakAlpha, .001);
+  G.fillStyle = INK; G.beginPath(); G.moveTo(-7.5, 0); G.quadraticCurveTo(0, -4.6, 8, -.5); G.quadraticCurveTo(0, 3.2, -7.5, 0); G.fill();
+  G.restore();
+};
+/* la capa: la misma de 03-characters/akeris; CAPE.rag (0–1) la rompe en jirones (más agujeros, el borde más mellado),
+   CAPE.cut acorta lo que queda y CAPE.fill la oscurece (el Akeris que toma el reloj) */
+const CAPE = {fill: '#3d3934', rag: 0, cut: 1, hole: PAPER};
+const HOLES_RAG = [{i: 2, off: .5, r: 2.2}, {i: 3, off: .2, r: 3.2}, {i: 5, off: .75, r: 2.8}, {i: 7, off: .4, r: 4}, {i: 10, off: .5, r: 3.6}, {i: 11, off: .3, r: 2.6}];
+drawCape = function (f, d) {
+  const n0 = f.cape.pts.length, n = Math.max(4, Math.round(n0 * CAPE.cut)), Q = chaikin(f.cape.pts.slice(0, n), 2), m = Q.length, rg = CAPE.rag;
+  const top = [], bot = [], N = [], TG = [], WD = [];
+  for (let i = 0; i < m; i++) {
+    const a = Q[Math.max(0, i - 1)], b = Q[Math.min(m - 1, i + 1)];
+    let tx = b.x - a.x, ty = b.y - a.y; const l = Math.hypot(tx, ty) || 1; tx /= l; ty /= l;
+    const nx = d * ty, ny = -d * tx, w = 3 + i / (m - 1) * (n - 1) * 3.1;
+    N.push({x: nx, y: ny}); TG.push({x: tx, y: ty}); WD.push(w);
+    top.push({x: Q[i].x - nx * w * .3, y: Q[i].y - ny * w * .3}); bot.push({x: Q[i].x + nx * w, y: Q[i].y + ny * w});
+  }
+  const pts = [...top], e = m - 1;
+  for (let k = 1; k <= 5; k++) {                    // borde final desgarrado
+    const u = k / 6, bx = top[e].x + (bot[e].x - top[e].x) * u, by = top[e].y + (bot[e].y - top[e].y) * u, Ln = ((k % 2 ? 14 : 3) + TAT[k] * 10) * (1 + rg * 1.4);
+    pts.push({x: bx + TG[e].x * Ln, y: by + TG[e].y * Ln});
+  }
+  for (let i = e; i >= 0; i--) {                    // borde inferior con jirones (más y más hondos si la capa está rota)
+    pts.push(bot[i]);
+    if ((i % 4 === 2 || (rg > 0 && i % 4 === 0)) && i > m * (rg > 0 ? .12 : .22)) { const Ln = (4 + TAT[6 + (i >> 1) % 30] * 10) * (1 + rg * 1.2); pts.push({x: bot[i].x + N[i].x * Ln + TG[i].x * Ln * .6, y: bot[i].y + N[i].y * Ln + TG[i].y * Ln * .6}); }
+  }
+  seed(f.sid + 50); spath(pts, .25); G.fillStyle = CAPE.fill; G.fill();
+  G.strokeStyle = 'rgba(8,6,5,.5)'; G.lineWidth = 1; G.beginPath();
+  for (let i = 2; i < m - 3; i += 2) { const a = top[i], b = bot[Math.min(m - 1, i + 3)]; G.moveTo(a.x, a.y); G.lineTo(a.x + (b.x - a.x) * .9, a.y + (b.y - a.y) * .9); }
+  G.stroke();
+  seed(f.sid + 51); spath(pts, .25); G.lineWidth = 1.8; G.strokeStyle = INK; G.lineJoin = 'round'; G.stroke();
+  [...HOLES, ...(rg > 0 ? HOLES_RAG : [])].forEach((h, k) => {
+    const i = Math.round(Math.min(1, h.i / (n0 - 1)) * e), w = WD[i], c = {x: Q[i].x + N[i].x * w * h.off, y: Q[i].y + N[i].y * w * h.off};
+    G.save(); G.translate(c.x, c.y); G.rotate(Math.atan2(TG[i].y, TG[i].x)); G.scale(1.6, 1);
+    scircle({x: 0, y: 0}, h.r * (1 + rg * .5), CAPE.hole, 1.1, INK, f.sid + 60 + k); G.restore();
+  });
+};
+
+/* ======================================================================
+   UTILIDADES: capas, pistas de poses, el brazo que alcanza un punto
+   ====================================================================== */
+const LAYERS = new Map();
+function layer(g, name) {
+  const w = g.canvas.width, h = g.canvas.height, key = name; let c = LAYERS.get(key);
+  if (!c || c.width !== w || c.height !== h) { c = document.createElement('canvas'); c.width = w; c.height = h; LAYERS.set(key, c); }
+  const x = c.getContext('2d'); x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.globalCompositeOperation = 'source-over'; x.filter = 'none'; x.clearRect(0, 0, w, h);
+  x.setTransform(g.getTransform()); x.lineCap = 'round'; x.lineJoin = 'round';
+  return {c, x};
+}
+function blit(g, c, alpha = 1, op = 'source-over', filter = 'none', dx = 0, dy = 0) {   // pega una capa con el mismo tamaño en píxeles
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = alpha; g.globalCompositeOperation = op; g.filter = filter; g.drawImage(c, dx, dy); g.restore();
+}
+function withG(g, fn) { const G0 = G; G = g; try { fn(); } finally { G = G0; } }
+function track(keys, u) {                                   // keys: [[u, {valores}, ease?], …] → los valores en u, suavizados tramo a tramo
+  if (u <= keys[0][0]) return {...keys[0][1]};
+  for (let i = 1; i < keys.length; i++) {
+    const [u1, b, e = EASE.io] = keys[i], [u0, a] = keys[i - 1];
+    if (u < u1) { const k = e((u - u0) / (u1 - u0)), o = {...a}; for (const q in b) o[q] = q in a ? lerp(a[q], b[q], k) : b[q]; return o; }
+  }
+  return {...keys[keys.length - 1][1]};
+}
+const keysOf = ks => { let acc = {}; return ks.map(([u, o, e]) => [u, acc = {...acc, ...o}, e]); };   // cada clave hereda lo que no cambia
+function armIK(sh, tg) {                                    // los ángulos (grados) del brazo para que la mano llegue a tg; el codo abajo
+  const dx = tg.x - sh.x, dy = tg.y - sh.y, d = clamp(Math.hypot(dx, dy), Math.abs(L.up - L.low) + .5, L.up + L.low - .5), a = Math.atan2(dy, dx);
+  const off = Math.acos(clamp((L.up * L.up + d * d - L.low * L.low) / (2 * L.up * d), -1, 1));
+  const best = [a + off, a - off].map(u => { const e = {x: sh.x + Math.cos(u) * L.up, y: sh.y + Math.sin(u) * L.up}; return {u, e}; }).sort((p, q) => q.e.y - p.e.y)[0];
+  const end = {x: sh.x + dx / Math.hypot(dx, dy) * d, y: sh.y + dy / Math.hypot(dx, dy) * d};
+  return [deg(best.u), deg(Math.atan2(end.y - best.e.y, end.x - best.e.x))];
+}
+function simCape(f, u, at, floor = 0) {                     // la capa, simulada desde el principio del plano a paso fijo: el mismo instante da la misma capa
+  const STEP = 1 / 120, n = Math.round(u / STEP);
+  f.cape.init = false;
+  for (let i = 0; i <= n; i++) { const {J, targets} = at(i * STEP); stepCape(f.cape, J.cape, targets, i ? STEP : 0, floor); }
+}
+const breatheAt = (p, t, k = 1) => { const o = {...p}; o.lean += Math.sin(t * 2.2) * 1.3 * k; o.aU += Math.sin(t * 2.2 + 1) * 1.2 * k; o.bU += Math.sin(t * 2.2 + .5) * 1 * k; return o; };
+const mixTargets = (a, b, w) => a.map((v, i) => lerp(v, b[i], w));
+const camMix = (a, b, k) => ({z: lerp(a.z, b.z, k), x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k)});
+function camera(cam, fn) { G.save(); G.translate(960, 540); G.scale(cam.z, cam.z); G.translate(-cam.x, -cam.y); fn(); G.restore(); }
+function sarc(cx, cy, rx, ry, a0, a1, w, col, id, n = 48) {   // un arco de elipse a lápiz: su irregularidad, fija por semilla
+  seed(id); G.strokeStyle = col; G.lineWidth = w; G.beginPath();
+  for (let i = 0; i <= n; i++) { const a = lerp(a0, a1, i / n), x = cx + Math.cos(a) * rx + rnd() * .6, y = cy + Math.sin(a) * ry + rnd() * .6; i ? G.lineTo(x, y) : G.moveTo(x, y); }
+  G.stroke();
+}
+
+/* ---------- fondos ---------- */
+function blackPaper(lift = .06) {                          // el negro de las tarjetas, con el centro apenas más claro (06-ui/loading)
+  G.fillStyle = BLACK; G.fillRect(-10, -10, 1940, 1100);
+  const v = G.createRadialGradient(960, 520, 40, 960, 520, 760); v.addColorStop(0, `rgba(239,230,214,${lift})`); v.addColorStop(1, 'rgba(239,230,214,0)'); G.fillStyle = v; G.fillRect(0, 0, 1920, 1080);
+}
+function vignette(a = .5) { const v = G.createRadialGradient(960, 560, 380, 960, 560, 1200); v.addColorStop(0, 'rgba(14,11,9,0)'); v.addColorStop(1, `rgba(14,11,9,${a})`); G.fillStyle = v; G.fillRect(0, 0, 1920, 1080); }
+function cardText(s, y, size, col, halo) {                  // un texto de tarjeta, a mano
+  G.save(); G.font = HAND(size); G.textAlign = 'center'; G.textBaseline = 'middle';
+  if (halo) { G.lineWidth = size * .16; G.strokeStyle = halo; G.lineJoin = 'round'; G.strokeText(s, 960, y); }
+  G.fillStyle = col; G.fillText(s, 960, y); G.restore();
+}
+function cover(col, a) { if (a > 0) { G.save(); G.setTransform(1, 0, 0, 1, 0, 0); G.globalAlpha = clamp(a); G.fillStyle = col; G.fillRect(0, 0, G.canvas.width, G.canvas.height); G.restore(); } }
+const fromBlack = a => cover(BLACK, a), toWhite = a => cover('#f8f4ec', a);
+
+/* ======================================================================
+   EL SUEÑO (planos 2–7): borroso, como un recuerdo. El plano se dibuja en su capa y se pega difuminado, lavado y con
+   una viñeta que se deshace en blanco. Todo es función del fotograma: el mismo instante da los mismos píxeles.
+   ====================================================================== */
+const DREAM = {paper: '#e9e2d3', blur: 3.2, raw: false};
+function dream(fn, o = {}) {                                // o: {blur, shake: {x, y} (en hu), paper}
+  const g = G, k = g.getTransform().a, A = layer(g, 'dream'), s = o.shake || {x: 0, y: 0};
+  withG(A.x, () => { A.x.save(); fn(); A.x.restore(); });
+  G.fillStyle = o.paper || DREAM.paper; G.fillRect(-60, -60, 2040, 1200);
+  if (DREAM.raw) { blit(g, A.c, 1, 'source-over', 'none', s.x * k, s.y * k); return; }   // sin el velo (solo para las pruebas de color y los sprites)
+  blit(g, A.c, 1, 'source-over', `blur(${((o.blur ?? DREAM.blur) * k).toFixed(2)}px) saturate(.5) contrast(.88) brightness(1.06)`, s.x * k, s.y * k);
+  G.fillStyle = 'rgba(244,238,226,.24)'; G.fillRect(-60, -60, 2040, 1200);                         // el papel lavado
+  const v = G.createRadialGradient(960, 540, 300, 960, 540, 1120);                                  // la viñeta: los bordes se deshacen en blanco
+  v.addColorStop(0, 'rgba(250,247,240,0)'); v.addColorStop(.55, 'rgba(250,247,240,.3)'); v.addColorStop(1, 'rgba(250,247,240,.97)'); G.fillStyle = v; G.fillRect(-60, -60, 2040, 1200);
+}
+/* ---------- los cortocircuitos (planos 3 y 7): cuadros quietos de 0,2–0,6 s, cortados en seco; entre ellos un destello
+   blanco y una franja de estática rayada. La estática sale de una semilla del hueco y de su instante (cada 0,1 s). */
+function circuitAt(u, C) {                                  // C: {lead, gap, cuts: [duraciones]} → {gap: i, gu} o {cut: i, cu}
+  let t = 0;
+  if (u < C.lead) return {gap: 0, gu: u};
+  t = C.lead;
+  for (let i = 0; i < C.cuts.length; i++) {
+    if (u < t + C.cuts[i] || i === C.cuts.length - 1 && C.hold) return {cut: i, cu: u - t};
+    t += C.cuts[i];
+    if (u < t + C.gap || i === C.cuts.length - 1) return {gap: i + 1, gu: u - t};
+    t += C.gap;
+  }
+  return {gap: C.cuts.length, gu: u - t};
+}
+const cutStarts = (C, t0 = 0) => { const o = []; let t = C.lead; for (const d of C.cuts) { o.push(+(t0 + t).toFixed(4)); t += d + C.gap; } return o; };
+function staticBand(gi, gu, dark) {                         // la franja de estática: papel gris, una banda de ruido rayado y rayas de arriba abajo
+  const step = Math.floor(gu / .1); seed(91000 + gi * 97 + step * 13);
+  const y0 = 180 + r01() * 520, h = 130 + r01() * 220, blocks = [], vs = [], hs = [];
+  for (let i = 0; i < 300; i++) blocks.push([r01() * 1940 - 10, y0 + r01() * h, 6 + r01() * 70, 1 + r01() * 5, r01() < .5]);
+  for (let i = 0; i < 8; i++) vs.push([r01() * 1920, rnd() * 90, 1 + r01() * 1.6]);
+  for (let i = 0; i < 16; i++) hs.push([y0 + r01() * h, rnd() * 4]);
+  G.fillStyle = dark ? '#1b1714' : '#d6cfc0'; G.fillRect(-10, -10, 1940, 1100);
+  G.fillStyle = dark ? 'rgba(239,230,214,.12)' : 'rgba(26,23,21,.5)'; G.fillRect(-10, y0, 1940, h);
+  for (const [x, y, w, hh, light] of blocks) { G.fillStyle = light ? 'rgba(239,230,214,.75)' : 'rgba(10,8,6,.75)'; G.fillRect(x, y, w, hh); }
+  vs.forEach(([x, dx, w], i) => sline({x, y: -10}, {x: x + dx, y: 1090}, w, dark ? 'rgba(239,230,214,.35)' : 'rgba(26,23,21,.5)', 91500 + gi * 97 + step * 13 + i));
+  hs.forEach(([y, dy], i) => sline({x: -10, y}, {x: 1930, y: y + dy}, 1.2, 'rgba(239,230,214,.6)', 91700 + gi * 97 + step * 13 + i));
+}
+function flash(cu) { if (cu < .08) toWhite(.9 * (1 - cu / .08)); }   // el destello blanco de cada corte
+
+/* ======================================================================
+   EL RELOJ DEL TIEMPO (planos 4–6): sobre su pie en la Cámara del Tiempo y, gigante, en el cielo.
+   Ningún documento lo describe (premise.md §2, glossary: «la reliquia que sostiene el tiempo»): se dibuja
+   sencillo: una esfera con doble aro, doce marcas, una argolla arriba, una sola manecilla y, grabado abajo, el
+   reloj de arena de la Cámara del Tiempo (el sello de los altares y de la pantalla de carga). Propuesta.
+   ====================================================================== */
+const CLOCK_INK = {c: INK, c2: 'rgba(26,23,21,.5)', c3: 'rgba(26,23,21,.28)', face: 'rgba(239,230,214,.85)', glass: 'rgba(26,23,21,.14)', ring: 'rgba(196,188,170,.9)', hand: INK, hub: LIGHT, w: 2.4};
+const CLOCK_SKY = {...CLOCK_INK, face: 'rgba(239,230,214,.35)', w: 1.6};
+function timeClock(cx, cy, R, ang, alpha = 1, P = CLOCK_INK) {
+  if (alpha <= 0) return;
+  G.save(); G.globalAlpha *= alpha; G.translate(cx, cy); G.lineCap = 'round'; G.lineJoin = 'round';
+  const k = R / 230, w = k * P.w;
+  scircle({x: 0, y: -R - 26 * k}, 15 * k, null, 2.6 * w, P.c, 47000);                            // la argolla
+  seed(47001); poly([{x: -10 * k, y: -R + 2}, {x: 10 * k, y: -R + 2}, {x: 8 * k, y: -R - 12 * k}, {x: -8 * k, y: -R - 12 * k}], P.ring, 2 * w, .3, P.c);
+  scircle({x: 0, y: 0}, R, P.face, 3.2 * w, P.c, 47002);
+  scircle({x: 0, y: 0}, R - 16 * k, null, 1.5 * w, P.c2, 47003);
+  scircle({x: 0, y: 0}, R * .5, null, 1.2 * w, P.c3, 47004);
+  for (let i = 0; i < 12; i++) {                                                                  // doce marcas; las de los cuartos, largas
+    const a = i / 12 * Math.PI * 2 - Math.PI / 2, big = i % 3 === 0, r0 = R - (big ? 54 : 36) * k, r1 = R - 24 * k;
+    sline({x: Math.cos(a) * r0, y: Math.sin(a) * r0}, {x: Math.cos(a) * r1, y: Math.sin(a) * r1}, (big ? 3.4 : 1.8) * w, P.c, 47010 + i);
+  }
+  if (R > 150) for (let i = 0; i < 60; i++) { if (i % 5 === 0) continue; const a = i / 60 * Math.PI * 2 - Math.PI / 2, r0 = R - 30 * k, r1 = R - 24 * k;
+    sline({x: Math.cos(a) * r0, y: Math.sin(a) * r0}, {x: Math.cos(a) * r1, y: Math.sin(a) * r1}, 1 * w, P.c2, 47030 + i); }
+  { const y0 = R * .3, h = 30 * k, ww = 18 * k;                                                    // el reloj de arena grabado
+    seed(47100); poly([{x: -ww, y: y0 - h}, {x: ww, y: y0 - h}, {x: 0, y: y0}], null, 1.4 * w, .2, P.c2);
+    seed(47101); poly([{x: 0, y: y0}, {x: ww, y: y0 + h}, {x: -ww, y: y0 + h}], P.glass, 1.4 * w, .2, P.c2);
+    sline({x: -ww - 6 * k, y: y0 - h}, {x: ww + 6 * k, y: y0 - h}, 1.6 * w, P.c2, 47102); sline({x: -ww - 6 * k, y: y0 + h}, {x: ww + 6 * k, y: y0 + h}, 1.6 * w, P.c2, 47103); }
+  G.save(); G.rotate(ang);                                                                        // la manecilla: su trazo gira con ella, no cambia
+  seed(47120); poly([{x: -7 * k, y: 0}, {x: -3 * k, y: -(R - 92 * k)}, {x: 0, y: -(R - 46 * k)}, {x: 3 * k, y: -(R - 92 * k)}, {x: 7 * k, y: 0}, {x: 0, y: 34 * k}], P.hand, 1.8 * w, .25, P.c);
+  seed(47121); poly([{x: 0, y: -(R - 122 * k)}, {x: 9 * k, y: -(R - 96 * k)}, {x: 0, y: -(R - 70 * k)}, {x: -9 * k, y: -(R - 96 * k)}], P.hub, 1.6 * w, .2, P.c);
+  G.restore();
+  scircle({x: 0, y: 0}, 12 * k, P.hub, 2.2 * w, P.c, 47130);
+  G.restore();
+}
+
+/* ======================================================================
+   LAS RUINAS (planos 1, 2 y 8): de noche, una sala sin techo de un mundo medio destruido — muros rotos, una columna
+   partida y otra caída, losas, hierbas, unas pocas estrellas. Se dibuja a lápiz sobre el papel y la noche lo oscurece
+   entero, menos la luz del fuego. El fuego es un ciclo de cuatro dibujos fijos (las brasas, de tres): cambia de dibujo
+   cada 0,14 s; ningún trazo se mueve solo.
+   ====================================================================== */
+const RU = {gy: 860, fire: {x: 1040, y: 862}, O: {x: 700, y: 860}, sc: 2, glow: 560, ember: 250};
+const WALL = [[-120, 860], [-120, 470], [-20, 452], [60, 490], [150, 470], [230, 520], [300, 506], [350, 560], [470, 548], [520, 590], [600, 576], [660, 620], [760, 600], [820, 650], [900, 640],
+  [960, 690], [1070, 700], [1100, 760], [1170, 776], [1230, 720], [1290, 690], [1330, 622], [1410, 600], [1450, 640], [1530, 628], [1530, 860]];
+const STARS = [[90, 120], [260, 70], [430, 210], [560, 96], [700, 300], [820, 150], [990, 240], [1120, 90], [1260, 330], [1380, 180], [1500, 60], [1720, 140], [1840, 260], [640, 430], [1080, 470]];
+function drawRuins() {
+  const gy = RU.gy;
+  G.fillStyle = '#c3bcae'; G.fillRect(-400, -400, 2800, gy + 400);                                // el cielo, bajo y gris
+  [[-80, 180, 520], [380, 120, 640], [960, 210, 560], [1380, 150, 700], [200, 300, 420], [1180, 360, 520], [600, 380, 380]].forEach(([x, y, l], i) => {
+    sline({x, y}, {x: x + l, y: y + 6}, 1.4, 'rgba(26,23,21,.2)', 52000 + i); sline({x: x + 40, y: y + 14}, {x: x + l * .7, y: y + 18}, 1, 'rgba(26,23,21,.14)', 52010 + i); });
+  // el muro del fondo, roto: hiladas de piedra, juntas y una ventana en arco sin cristal
+  const wall = WALL.map(([x, y]) => ({x, y}));
+  seed(52100); poly(wall, '#b4ab98', 2.4, .8); seed(52101); hatch(wall, 8, 'rgba(26,23,21,.12)');
+  G.save(); spath(wall, 0); G.clip();
+  for (let k = 0, y = gy - 46; y > 430; y -= 46, k++) { sline({x: -130, y}, {x: 1540, y: y + 2}, 1.2, 'rgba(26,23,21,.38)', 52120 + k);
+    for (let x = -120 + (k % 2) * 60, j = 0; x < 1530; x += 120, j++) sline({x, y}, {x: x + 1, y: y + 46}, 1, 'rgba(26,23,21,.32)', 52200 + k * 20 + j); }
+  G.restore();
+  { const x0 = 300, x1 = 420, yb = 760, yt = 640;                                                 // la ventana: el cielo se ve por ella
+    G.fillStyle = '#c3bcae'; G.beginPath(); G.moveTo(x0, yb); G.lineTo(x0, yt); G.arc((x0 + x1) / 2, yt, (x1 - x0) / 2, Math.PI, 0); G.lineTo(x1, yb); G.closePath(); G.fill();
+    G.lineWidth = 2.4; G.strokeStyle = INK; G.stroke(); sline({x: x0 - 12, y: yb + 2}, {x: x1 + 14, y: yb}, 2.6, INK, 52300); }
+  // a la izquierda, un pilar alto y roto; a la derecha, una columna partida
+  const pillar = (pts, id) => { seed(id); poly(pts, '#bdb4a2', 2.4, .5); seed(id + 1); hatch(pts, 7, 'rgba(26,23,21,.16)'); };
+  pillar([{x: 120, y: gy}, {x: 118, y: 300}, {x: 146, y: 282}, {x: 160, y: 318}, {x: 184, y: 296}, {x: 204, y: 330}, {x: 206, y: gy}], 52400);
+  for (let y = gy - 70, k = 0; y > 340; y -= 70, k++) sline({x: 121, y}, {x: 205, y: y + 2}, 1.3, 'rgba(26,23,21,.5)', 52410 + k);
+  pillar([{x: 1580, y: gy}, {x: 1580, y: 486}, {x: 1600, y: 470}, {x: 1622, y: 498}, {x: 1648, y: 462}, {x: 1668, y: 490}, {x: 1668, y: gy}], 52430);
+  for (let i = 0; i < 4; i++) sline({x: 1594 + i * 18, y: 500}, {x: 1594 + i * 18, y: gy - 2}, 1, 'rgba(26,23,21,.35)', 52440 + i);   // las estrías
+  for (let y = gy - 96, k = 0; y > 520; y -= 96, k++) sline({x: 1580, y}, {x: 1668, y: y + 2}, 1.4, 'rgba(26,23,21,.55)', 52450 + k);
+  // el suelo: losas rotas
+  { const pts = [{x: -400, y: gy}, {x: 2400, y: gy}, {x: 2400, y: 1500}, {x: -400, y: 1500}]; G.fillStyle = '#aaa18c'; G.fillRect(-400, gy, 2800, 700); seed(52500); hatch(pts, 7, 'rgba(26,23,21,.17)');
+    for (let i = 0; i < 5; i++) sline({x: -100, y: gy + 30 + i * i * 14}, {x: 2000, y: gy + 32 + i * i * 14}, 1.1, 'rgba(26,23,21,.34)', 52510 + i);
+    for (let i = 0; i < 16; i++) { const x = -60 + i * 128; sline({x, y: gy + 4}, {x: x + (x - 960) * .12, y: 1090}, 1, 'rgba(26,23,21,.26)', 52530 + i); }
+    sline({x: -200, y: gy}, {x: 2100, y: gy + 1}, 2.8, INK, 52560);
+    [[220, 900, 40], [1260, 940, 60], [560, 990, 50]].forEach(([x, y, l], i) => { seed(52570 + i); G.strokeStyle = 'rgba(26,23,21,.6)'; G.lineWidth = 1.3; G.beginPath(); G.moveTo(x, y); G.lineTo(x + l * .4, y + 6 + rnd() * 3); G.lineTo(x + l * .7, y - 2); G.lineTo(x + l, y + 8); G.stroke(); }); }
+  // la columna caída: tendida en el suelo, en tambores
+  { const x0 = 1260, x1 = 1760, y0 = gy - 74, y1 = gy - 2, pts = [{x: x0, y: y0 + 6}, {x: x1, y: y0}, {x: x1, y: y1}, {x: x0, y: y1}];
+    seed(52600); poly(pts, '#c0b7a5', 2.4, .5); seed(52601); hatch(pts, 8, 'rgba(26,23,21,.14)');
+    for (let i = 1; i < 4; i++) { const x = x0 + i * 125; sline({x, y: y0 + 4}, {x: x + 3, y: y1}, 1.6, 'rgba(26,23,21,.6)', 52610 + i); }
+    for (let i = 0; i < 3; i++) sline({x: x0 + 10, y: y0 + 22 + i * 16}, {x: x1 - 10, y: y0 + 18 + i * 16}, .9, 'rgba(26,23,21,.25)', 52620 + i);
+    scircle({x: x1, y: (y0 + y1) / 2}, 36, '#cbc3b2', 2.2, INK, 52630, .42, 1); }
+  // cascotes y hierbas
+  [[60, 10, .2], [250, 13, -.4], [930, 9, .5], [1200, 16, .1], [1830, 12, -.2], [1490, 8, .7]].forEach(([x, s, rot], i) => {
+    G.save(); G.translate(x, gy - s * .6); G.rotate(rot); seed(52700 + i); const pts = [{x: -s * 1.4, y: -s}, {x: s * 1.3, y: -s * .9}, {x: s * 1.4, y: s}, {x: -s * 1.3, y: s}];
+    poly(pts, '#c4bcaa', 1.8, .6); G.restore(); });
+  [[30, 6], [210, 5], [470, 7], [880, 4], [1230, 6], [1540, 7], [1700, 5], [1880, 6], [600, 4]].forEach(([x, n], i) => { seed(52800 + i * 9); const ws = [];
+    for (let k = 0; k < n; k++) ws.push([x + rnd() * 10, -20 - r01() * 24, rnd() * 14]);
+    ws.forEach(([bx, h, lean], k) => sline({x: bx, y: gy + 2}, {x: bx + lean, y: gy + h}, 1.3, 'rgba(26,23,21,.7)', 52900 + i * 9 + k)); });
+  // la espada, tendida a su lado, y el escudo apoyado en la columna caída
+  { G.save(); G.translate(560, 884); G.scale(1.5, 1.5); heroSword(makeB({x: 0, y: 0}, rad(-2), 1), 53000); G.restore(); }
+  { const sc = 1.45, J = {dir: 1, belb: {x: 0, y: 0}, bhand: {x: 0, y: 0}, elbow: {x: 0, y: 0}, hand: {x: 0, y: 0}};
+    G.save(); G.translate(1236, 822); G.scale(sc, sc); G.rotate(.2); drawShieldWhole(J, 'sacred', 1, 53020, 1); G.restore(); }
+  // el fuego: un corro de piedras y dos leños cruzados
+  { const f = RU.fire; [[-64, 0, 13], [-42, 8, 11], [-14, 12, 12], [16, 12, 11], [44, 9, 12], [66, 1, 13]].forEach(([dx, dy, r], i) => scircle({x: f.x + dx, y: f.y + dy - 4}, r, '#a39a87', 1.8, INK, 53040 + i, 1.3, .8));
+    sline({x: f.x - 40, y: f.y + 2}, {x: f.x + 36, y: f.y - 18}, 7, '#4a3f35', 53060); sline({x: f.x - 34, y: f.y - 16}, {x: f.x + 42, y: f.y + 2}, 7, '#3d342c', 53061); }
+}
+const FLAMES = [                                             // las lenguas de cada dibujo: [dx, alto, ancho, inclinación]
+  [[-18, 92, 30, -.12], [10, 120, 36, .06], [30, 70, 24, .2]],
+  [[-20, 104, 30, -.04], [8, 108, 38, -.08], [32, 82, 24, .12]],
+  [[-16, 84, 28, -.18], [12, 126, 34, .1], [28, 64, 22, .26]],
+  [[-22, 98, 32, -.08], [6, 114, 36, .02], [34, 76, 22, .16]],
+];
+const EMBERS = [[[0, 26, 18, .1]], [[-4, 18, 16, -.1]], [[4, 30, 16, .18]]];
+const flameFrame = (t, n, per = .14) => Math.floor(Math.max(0, t) / per + 1e-9) % n;
+function drawFlame(t, embers = false) {                     // el fuego: un dibujo del ciclo, elegido por el tiempo
+  const f = RU.fire, set = embers ? EMBERS : FLAMES, i = flameFrame(t, set.length), base = f.y - 14;
+  if (embers) [[-30, 4], [-12, 8], [6, 5], [22, 9], [36, 3]].forEach(([dx, dy], k) => { G.save(); G.shadowColor = 'rgba(230,90,30,.9)'; G.shadowBlur = 10; scircle({x: f.x + dx, y: base + dy}, 4.5, k % 2 ? '#c8461c' : '#e8872e', 0, null, 53100 + k); G.restore(); });
+  set[i].forEach(([dx, h, w, lean], k) => {
+    const x = f.x + dx, tip = {x: x + lean * h, y: base - h}, pts = [{x: x - w / 2, y: base}, {x: x - w * .45 + lean * h * .3, y: base - h * .35}, {x: x - w * .2 + lean * h * .65, y: base - h * .7}, tip,
+      {x: x + w * .25 + lean * h * .6, y: base - h * .66}, {x: x + w * .5 + lean * h * .25, y: base - h * .3}, {x: x + w / 2, y: base}];
+    G.save(); G.shadowColor = 'rgba(232,135,46,.8)'; G.shadowBlur = embers ? 8 : 22; seed(53200 + i * 10 + k + (embers ? 50 : 0)); poly(pts, '#e0782c', 1.2, .4, 'rgba(26,23,21,.55)'); G.restore();
+    const inner = pts.map(p => ({x: x + (p.x - x) * .5, y: base + (p.y - base) * .62})); seed(53300 + i * 10 + k + (embers ? 50 : 0)); poly(inner, '#ffd166', 0, .3);
+  });
+}
+function nightRuins(embers) {                               // la noche: todo oscuro menos la luz del fuego; las estrellas, encima, en el cielo
+  const g = G, A = layer(g, 'night'), f = RU.fire, R = embers ? RU.ember : RU.glow;
+  A.x.fillStyle = 'rgba(8,9,16,.8)'; A.x.fillRect(-600, -600, 3200, 2400);
+  A.x.globalCompositeOperation = 'destination-out';
+  const v = A.x.createRadialGradient(f.x, f.y - 60, 10, f.x, f.y - 60, R); v.addColorStop(0, 'rgba(0,0,0,.92)'); v.addColorStop(.5, 'rgba(0,0,0,.5)'); v.addColorStop(1, 'rgba(0,0,0,0)');
+  A.x.fillStyle = v; A.x.fillRect(f.x - R, f.y - 60 - R, 2 * R, 2 * R);
+  blit(g, A.c);
+  const w = G.createRadialGradient(f.x, f.y - 50, 10, f.x, f.y - 50, R * .9); w.addColorStop(0, `rgba(232,135,46,${embers ? .14 : .22})`); w.addColorStop(1, 'rgba(232,135,46,0)');
+  G.fillStyle = w; G.fillRect(f.x - R, f.y - 50 - R, 2 * R, 2 * R);
+  STARS.forEach(([x, y], i) => { seed(53400 + i); G.fillStyle = 'rgba(239,230,214,.75)'; G.beginPath(); G.arc(x, y, 1.4 + r01() * 1.1, 0, 6.3); G.fill(); });
+}
+/* ---------- Akeris en el suelo: tendido bajo su capa, las rodillas un poco arriba (en unidades del rig, la raíz en RU.O) ---------- */
+const LIE = {lean: -180, hd: -4, aU: 4, aL: 2, sw: 0, bU: 8, bL: 4, hx: 0, hy: 18};
+const LEGS0 = {fx: 70, fy: -10, bx: 80, by: -12};
+function groundPose(o) {                                    // o: tronco, brazos, cadera y pies (fF, fB, en coordenadas de la raíz)
+  const p = full({...LIE, ...o});
+  for (const [front, f] of [[true, o.fF || {x: LEGS0.fx, y: LEGS0.fy}], [false, o.fB || {x: LEGS0.bx, y: LEGS0.by}]]) { const [t, s] = ik(f.x - p.hx, f.y + p.hy); if (front) { p.fT = t; p.fS = s; } else { p.kT = t; p.kS = s; } }
+  return p;
+}
+const breathAt = t => .5 - .5 * Math.cos(2 * Math.PI * t / 3.4);   // el pecho, despacio
+/* la capa como manta: su borde de arriba sigue el cuerpo; al incorporarse cae a su regazo */
+const LAP = [{x: -2, y: -16}, {x: 14, y: -26}, {x: 32, y: -30}, {x: 52, y: -26}, {x: 70, y: -20}, {x: 90, y: -8}];
+function capeTop(J, breath, lean) {
+  const up = smooth((lean + 170) / 45), kn = J.fk.y < J.kk.y ? J.fk : J.kk, ft = J.ff.x > J.kf.x ? J.ff : J.kf;
+  const A = {x: lerp(J.neck.x + 3, J.hip.x - 14, up), y: lerp(J.neck.y - 9, J.hip.y - 4, up)};
+  const B = {x: lerp((J.neck.x + J.hip.x) / 2, J.hip.x - 4, up), y: lerp((J.neck.y + J.hip.y) / 2 - 12 - breath * 2.2, J.hip.y - 12, up)};
+  const C = {x: J.hip.x + 8, y: J.hip.y - 10};
+  const D = {x: Math.max(kn.x, C.x + 10), y: Math.min(kn.y, (J.hip.y + ft.y) / 2) - 9};
+  const E = {x: ft.x + 6, y: Math.min(ft.y - 9, D.y + 4)}, F = {x: E.x + 16, y: -2};
+  return [A, B, C, D, E, F];
+}
+function drawCapeBlanket(top) {                             // la capa de Akeris (el mismo gris, con su borde roto) echada encima
+  const T2 = chaikin(top, 2), a = T2[0], z = T2[T2.length - 1], hem = [];
+  for (let k = 0; k <= 6; k++) hem.push({x: lerp(z.x + 2, a.x - 4, k / 6), y: k % 2 ? 2 : -3});
+  const pts = [...T2, ...hem];
+  seed(53500); poly(pts, '#3d3934', 1.4, .15); seed(53501); hatch(pts, 4, 'rgba(8,6,5,.5)', .8);
+  seed(53502); poly(pts, null, 1.6, .15);
+  [[.35, 2.4], [.62, 3]].forEach(([u, r], i) => { const p = T2[Math.round(T2.length * u)]; scircle({x: p.x, y: p.y + 9}, r, PAPER, 1, INK, 53510 + i, 1.6, 1); });
+}
+function lyingFigure(p, o = {}) {                           // o: {breath, lap (0–1), lit, shut}
+  const J = skeleton(p, {x: 0, y: 0}, 1); BED_FIG.eyeHist = Array.from({length: 42}, () => ({x: J.eye.x, y: J.eye.y}));
+  G.save(); G.translate(RU.O.x, RU.O.y); G.scale(RU.sc, RU.sc);
+  G.fillStyle = 'rgba(10,8,6,.25)'; G.beginPath(); G.ellipse(-10, 2, 120, 6, 0, 0, 6.3); G.fill();
+  scircle({x: -98, y: -6}, 10, '#a39a87', 1.6, INK, 53520, 1.6, .7);                          // la piedra de almohada
+  const h = o.lap || 0, top = capeTop(J, o.breath || 0, p.lean).map((q, i) => ({x: lerp(q.x, LAP[i].x, EASE.io(h)), y: lerp(q.y, LAP[i].y, EASE.io(h))}));
+  eyeShut = !!o.shut;
+  const fig = () => drawFigure(BED_FIG, J, {weapon: 'none', shield: null, bare: true, noStreak: true});
+  if (h < .5) { fig(); drawCapeBlanket(top); } else { drawCapeBlanket(top); fig(); }
+  G.restore();
+  return J;
+}
+const BED_FIG = {sid: 1100, cape: makeCape(), eyeHist: []};
+function ruinsShot(cam, p, o = {}) {                        // cam: {z, x, y}; p: la pose; o: {breath, lap, lit, shut, t (para el fuego), embers}
+  T = o.T ?? 0; let J;
+  camera(cam, () => {
+    drawRuins();
+    J = lyingFigure(p, o);
+    nightRuins(o.embers);
+    drawFlame(o.t ?? 0, o.embers);
+    if (o.lit > 0) { streakAlpha = o.lit; G.save(); G.translate(RU.O.x, RU.O.y); G.scale(RU.sc, RU.sc); drawStreak(BED_FIG, 1); drawEye(J); G.restore(); streakAlpha = 1; }
+    eyeShut = false;
+  });
+  vignette(.55);
+}
+const CAM_R0 = {z: 1, x: 960, y: 540}, CAM_R1 = {z: 1.3, x: 860, y: 690}, CAM_WAKE = {z: 1.22, x: 860, y: 680};
+
+/* ---------- plano 1: solo en las ruinas ---------- */
+const sleepPose = () => groundPose({});
+function shot1(u) {
+  ruinsShot(camMix(CAM_R0, CAM_R1, EASE.io(u / SH(1).dur)), sleepPose(), {breath: breathAt(u), shut: true, T: u, t: u});
+  fromBlack(1 - smooth(u / 1.4));
+}
+
+/* ---------- plano 2: hacia el sueño. El brillo del fuego crece y lo lava todo a blanco; sube el sueño: una escalera
+   que baja a lo oscuro, pequeña, como vista desde lejos ---------- */
+const W2 = {white: 1.3, up: [1.3, 2.6]};
+function stairFar() {
+  G.fillStyle = LIGHT; G.fillRect(-60, -60, 2040, 1200);
+  sline({x: -40, y: 640}, {x: 1960, y: 636}, 1.4, 'rgba(26,23,21,.35)', 54000);
+  const cx = 960, top = 470, w = 150, h = 190, base = top + h;
+  const rock = [{x: cx - 260, y: base + 30}, {x: cx - 220, y: top - 40}, {x: cx - 90, y: top - 110}, {x: cx + 80, y: top - 104}, {x: cx + 230, y: top - 30}, {x: cx + 270, y: base + 30}];
+  seed(54010); poly(rock, '#cfc6b3', 2, .8); seed(54011); hatch(rock, 7, 'rgba(26,23,21,.16)');
+  G.fillStyle = HOLLOW; G.beginPath(); G.moveTo(cx - w / 2, base); G.lineTo(cx - w / 2, top + 40); G.arc(cx, top + 40, w / 2, Math.PI, 0); G.lineTo(cx + w / 2, base); G.closePath(); G.fill();
+  G.lineWidth = 2.4; G.strokeStyle = INK; G.stroke();
+  for (let k = 0; k < 6; k++) { const a = 1 - k / 6, y = base - 10 - k * 18, x0 = cx - w / 2 + 10 + k * 6, x1 = cx + w / 2 - 10 - k * 6;   // los peldaños bajan hacia dentro y se pierden
+    sline({x: x0, y}, {x: x1, y: y + 1}, 2, `rgba(196,186,166,${.85 * a})`, 54020 + k); }
+  sline({x: cx - 300, y: base + 32}, {x: cx + 300, y: base + 30}, 2.2, INK, 54040);
+}
+function shot2(u) {
+  const t = SH(2).t0 + u;
+  if (u < W2.up[0] + .05) {
+    ruinsShot(CAM_R1, sleepPose(), {breath: breathAt(t), shut: true, T: t, t});
+    const k = smooth(u / W2.white), f = RU.fire, R = 120 + 1500 * k * k;                         // el brillo del fuego crece hasta lavarlo todo
+    G.save(); G.translate(960, 540); G.scale(CAM_R1.z, CAM_R1.z); G.translate(-CAM_R1.x, -CAM_R1.y);
+    const v = G.createRadialGradient(f.x, f.y - 60, 0, f.x, f.y - 60, R); v.addColorStop(0, `rgba(255,236,200,${(.6 + .4 * k).toFixed(3)})`); v.addColorStop(.6, `rgba(250,240,222,${(.5 * k).toFixed(3)})`); v.addColorStop(1, 'rgba(250,244,234,0)');
+    G.fillStyle = v; G.fillRect(-600, -600, 3200, 2400); G.restore();
+    toWhite(smooth((u - .5) / (W2.white - .5)));
+  } else {
+    dream(stairFar, {blur: 4.2});
+    toWhite(1 - smooth((u - W2.up[0]) / (W2.up[1] - W2.up[0])) * .92);
+  }
+}
+
+/* ======================================================================
+   LOS AKERIS DEL SUEÑO: el rig aprobado con lo que les ha pasado encima. fx: {rag (la capa en jirones), cut, capeFill,
+   cuts (cortes en el trazo: la heridas son tela rota y cortes, nunca sangre), dirt (suciedad), hard (el contorno más
+   duro: la figura se pega cuatro veces desplazada), defect (la estela rota a trozos), front (el morado desde el ojo)}
+   ====================================================================== */
+const CUT_AT = [['hip', 'neck', .34], ['neck', 'hip', .2], ['sh', 'elbow', .55], ['hip', 'fk', .62], ['fk', 'ff', .42], ['hip', 'kk', .4], ['kk', 'kf', .66], ['belb', 'bhand', .5]];
+function strokeCuts(J, id, col) {                           // cortes en el trazo: tajos cortos del color del papel que parten las líneas
+  CUT_AT.forEach(([a, b, u], i) => { const A = J[a], B = J[b], dx = B.x - A.x, dy = B.y - A.y, l = Math.hypot(dx, dy) || 1, c = {x: A.x + dx * u, y: A.y + dy * u}, nx = -dy / l, ny = dx / l;
+    seed(id + i); const s = 4.5 + r01() * 2, k = .5 + rnd() * .35;
+    G.strokeStyle = col; G.lineWidth = 2.6; G.lineCap = 'butt'; G.beginPath(); G.moveTo(c.x - nx * s - dx / l * s * k, c.y - ny * s - dy / l * s * k); G.lineTo(c.x + nx * s + dx / l * s * k, c.y + ny * s + dy / l * s * k); G.stroke();
+    G.lineCap = 'round'; sline({x: c.x + nx * s * 1.1, y: c.y + ny * s * 1.1}, {x: c.x + nx * s * 1.6 + dx / l * 3, y: c.y + ny * s * 1.6 + dy / l * 3}, 1, 'rgba(26,23,21,.7)', id + 20 + i); });
+}
+function dirt(J, id) {                                      // muy sucio: manchas grises y rayas cortas, fijas sobre el cuerpo
+  [['hip', 7, -4, 2], ['neck', 6, 3, 4], ['fk', 5, 2, 0], ['kk', 6, -3, 3], ['sh', 5, 4, -2], ['head', 6, 6, 5], ['elbow', 4, -3, 1], ['ff', 5, 0, -3]].forEach(([k, r, dx, dy], i) => {
+    const c = {x: J[k].x + dx, y: J[k].y + dy}; G.fillStyle = 'rgba(70,60,50,.38)'; scircle(c, r, 'rgba(70,60,50,.36)', 0, null, id + i, 1.4, .8);
+    for (let j = 0; j < 3; j++) { seed(id + 40 + i * 3 + j); const a = {x: c.x + rnd() * r, y: c.y + rnd() * r}; sline(a, {x: a.x + 4 + r01() * 3, y: a.y - 3 - r01() * 3}, .9, 'rgba(26,23,21,.55)', id + 80 + i * 3 + j); } });
+}
+const CURVE = (() => {                                      // la espada del Akeris del futuro: curva, mellada y rota en la punta
+  const top = [], bot = [], c = u => -.0026 * (u - 7) * (u - 7);
+  for (let k = 0; k <= 12; k++) { const u = 7 + k * 8.4, w = lerp(4.6, 1.6, k / 12); top.push({u, v: c(u) - w + ([3, 6, 9].includes(k) ? 2.8 : 0)}); bot.push({u, v: c(u) + w}); }
+  const tip = {u: 7 + 12 * 8.4 + 5, v: c(7 + 12 * 8.4) + 2.4};
+  return {poly: [...top, tip, ...bot.reverse()]};
+})();
+function curvedSword(B, id) {
+  seed(id); const pts = CURVE.poly.map(q => B(q.u, q.v)); poly(pts, '#c9c3b4', 1.8, .15); hatch(pts, 3.4, 'rgba(26,23,21,.24)');
+  sline(B(30, -1), B(44, 2), 1, 'rgba(26,23,21,.7)', id + 1); sline(B(70, -6), B(76, -2), 1, 'rgba(26,23,21,.7)', id + 4);   // grietas
+  sline(B(-13, 0), B(5, 0), 5, INK, id + 2); sline(B(5, -13), B(7, 11), 4.5, INK, id + 3); scircle(B(-16, 0), 3.2, INK, 1, INK, id + 5);
+}
+const WEAPONS = {sword: {draw: heroSword}, none: {draw: () => {}}, curved: {draw: curvedSword}, blades: {draw: hookBlade, pommel: -22}};
+function figureFX(f, J, x, y, sc, opt, fx = {}) {
+  const keep = {...CAPE}; CAPE.rag = fx.rag || 0; CAPE.cut = fx.cut ?? 1; CAPE.fill = fx.capeFill || '#3d3934'; CAPE.hole = fx.hole || PAPER;
+  f.eyeHist = Array.from({length: 42}, () => ({x: J.eye.x, y: J.eye.y}));
+  const body = () => { G.save(); G.translate(x, y); G.scale(sc, sc); drawFigure(f, J, {bare: true, ...opt, noStreak: true}); if (fx.cuts) strokeCuts(J, f.sid + 700, fx.cuts); if (fx.dirt) dirt(J, f.sid + 800); G.restore(); };
+  if (fx.hard > 0) {                                        // el contorno más duro: la misma figura, pegada cuatro veces desplazada y una encima
+    const g = G, A = layer(g, 'hard'); withG(A.x, body); const k = fx.hard * g.getTransform().a;
+    for (const [dx, dy] of [[k, 0], [-k, 0], [0, k], [0, -k]]) blit(g, A.c, 1, 'source-over', 'none', dx, dy);
+    blit(g, A.c);
+  } else body();
+  streakFront = fx.front ?? null; streakDefect = !!fx.defect;
+  G.save(); G.translate(x, y); G.scale(sc, sc); if (fx.frontal) frontalHead(f, J); else { drawStreak(f, J.dir); drawEye(J); } G.restore();
+  streakFront = null; streakDefect = false; Object.assign(CAPE, keep);
+}
+function frontalHead(f, J) {                                // nos mira: la cabeza de frente, el ojo en medio, la estela rota que se va hacia atrás
+  scircle(J.head, L.head, PAPER, 3, INK, f.sid + 10);
+  scircle({x: J.head.x + 5, y: J.head.y + 4}, 6, 'rgba(70,60,50,.4)', 0, null, f.sid + 900, 1.5, .8);   // una mancha en la cara
+  const e = {x: J.head.x, y: J.head.y + 1}; f.eyeHist = Array.from({length: 42}, () => ({x: e.x, y: e.y}));
+  drawStreak(f, 1);
+  G.save(); G.translate(e.x, e.y); G.shadowColor = 'rgba(120,0,10,.7)'; G.shadowBlur = 5; G.fillStyle = INK; G.beginPath(); G.moveTo(-7, 0); G.quadraticCurveTo(0, -4.4, 7, 0); G.quadraticCurveTo(0, 4, -7, 0); G.fill(); G.restore();
+}
+
+/* ======================================================================
+   PLANO 3: CORTOCIRCUITOS — siete cuadros de memoria, cada uno quieto, cortados en seco con estática entre ellos.
+   Nunca una sala entera.
+   ====================================================================== */
+const C3 = {lead: .15, gap: .2, cuts: [.5, .4, .55, .35, .6, .45, .6]};
+const MEM_FIG = {sid: 1300, cape: makeCape(), eyeHist: []};
+function settled(f, J, mode, d = 1) { f.cape.init = false; stepCape(f.cape, J.cape, capeTargets(mode, d, 0), 0, 0); }
+function memBlades() {                                      // dos hojas que se cruzan en chispas
+  G.fillStyle = '#ddd5c5'; G.fillRect(-60, -60, 2040, 1200);
+  G.save(); G.translate(960, 560); G.scale(3.2, 3.2);
+  heroSword(makeB({x: -150, y: 70}, rad(-26), 1), 54100);
+  G.save(); seed(54110); const B = makeB({x: 150, y: 80}, rad(-151), 1); poly([B(7, -5), B(104, -4), B(122, 0), B(104, 4), B(7, 5)], '#5a524a', 1.8, .15); sline(B(-14, 0), B(5, 0), 6, INK, 54111); sline(B(6, -15), B(6, 15), 5, INK, 54112); G.restore();
+  G.restore();
+  const c = {x: 960 + 6, y: 470}; for (let i = 0; i < 14; i++) { seed(54120 + i); const a = r01() * 6.28, r0 = 18 + r01() * 20, r1 = r0 + 40 + r01() * 90;
+    sline({x: c.x + Math.cos(a) * r0, y: c.y + Math.sin(a) * r0}, {x: c.x + Math.cos(a) * r1, y: c.y + Math.sin(a) * r1}, 2 + r01() * 2, i % 3 ? INK : '#e0782c', 54140 + i); }
+  scircle(c, 14, '#fff6dc', 0, null, 54160);
+}
+function memShield() {                                      // un escudo golpeado
+  G.fillStyle = '#d9d1c1'; G.fillRect(-60, -60, 2040, 1200);
+  const J = {dir: 1, belb: {x: 0, y: 0}, bhand: {x: 0, y: 0}, elbow: {x: 0, y: 0}, hand: {x: 0, y: 0}};
+  G.save(); G.translate(900, 600); G.scale(9, 9); G.rotate(-.12); drawShieldWhole(J, 'sacred', 1, 54200, 1); G.restore();
+  G.save(); G.translate(1240, 260); G.rotate(.75); seed(54210); poly([{x: -40, y: -60}, {x: 40, y: -60}, {x: 60, y: 20}, {x: 0, y: 60}, {x: -60, y: 20}], '#4a433c', 2.6, .4); sline({x: 0, y: 60}, {x: 0, y: 360}, 14, '#3a332c', 54211); G.restore();
+  const c = {x: 1020, y: 420}; for (let i = 0; i < 10; i++) { const a = -2.6 + i * .32; sline({x: c.x + Math.cos(a) * 60, y: c.y + Math.sin(a) * 60}, {x: c.x + Math.cos(a) * (150 + (i % 3) * 40), y: c.y + Math.sin(a) * (150 + (i % 3) * 40)}, 3, INK, 54220 + i); }
+}
+function memStreak() {                                      // una estela roja que corre en lo oscuro
+  G.fillStyle = '#16120f'; G.fillRect(-60, -60, 2040, 1200);
+  const p = gaitPose(.3, 1, 0), J = skeleton(p, {x: 0, y: 0}, 1); settled(MEM_FIG, J, 'correr');
+  G.save(); G.translate(1100, 760); G.scale(2.4, 2.4); drawFigure(MEM_FIG, J, {weapon: 'sword', shield: null, bare: true, noStreak: true}); G.restore();
+  G.fillStyle = 'rgba(22,18,15,.9)'; G.fillRect(-60, -60, 2040, 1200);
+  MEM_FIG.eyeHist = Array.from({length: 42}, () => ({x: J.eye.x, y: J.eye.y})); T = 0;
+  G.save(); G.translate(1100, 760); G.scale(2.4, 2.4); drawStreak(MEM_FIG, 1); drawEye(J); G.restore();
+  for (let i = 0; i < 5; i++) sline({x: 200 + i * 90, y: 560 + i * 37}, {x: 700 + i * 60, y: 560 + i * 37}, 1.4, 'rgba(239,230,214,.18)', 54300 + i);   // la carrera
+}
+function memLedge() {                                       // una mano en una cornisa
+  G.fillStyle = '#d4ccbc'; G.fillRect(-60, -60, 2040, 1200);
+  const top = 520, pts = [{x: -60, y: top}, {x: 2000, y: top - 10}, {x: 2000, y: top + 70}, {x: -60, y: top + 80}];
+  seed(54400); poly(pts, '#b6ad9a', 3, .8); seed(54401); hatch(pts, 8, 'rgba(26,23,21,.2)');
+  G.fillStyle = '#211b17'; G.fillRect(-60, top + 76, 2040, 700);                                    // abajo, el vacío
+  const h = {x: 900, y: top - 6};
+  sline({x: h.x + 40, y: h.y + 420}, {x: h.x + 10, y: h.y + 40}, 22, '#cfc6b4', 54410); sline({x: h.x + 40, y: h.y + 420}, {x: h.x + 10, y: h.y + 40}, 3, INK, 54411);   // el antebrazo
+  [[-34, 0], [-12, -8], [12, -10], [34, -6]].forEach(([dx, dy], i) => { const a = {x: h.x + dx, y: h.y + dy + 30}, b = {x: h.x + dx + 4, y: h.y + dy - 10}, c = {x: h.x + dx + 22, y: h.y + dy + 6};
+    G.strokeStyle = '#cfc6b4'; G.lineWidth = 16; G.beginPath(); G.moveTo(a.x, a.y); G.quadraticCurveTo(b.x, b.y, c.x, c.y); G.stroke(); sline(a, b, 2.6, INK, 54420 + i); sline(b, c, 2.6, INK, 54430 + i); });
+  sline({x: h.x - 50, y: h.y + 70}, {x: h.x - 30, y: h.y + 26}, 3, INK, 54440);                    // el pulgar
+  for (let i = 0; i < 4; i++) sline({x: 760 + i * 70, y: top + 90}, {x: 770 + i * 70, y: top + 140 + i * 9}, 1.6, 'rgba(239,230,214,.4)', 54450 + i);   // piedrecitas que caen
+}
+function memRoar() {                                        // una gran sombra que ruge, y Akeris pequeño ante ella
+  G.fillStyle = '#ddd5c5'; G.fillRect(-60, -60, 2040, 1200);
+  const head = [{x: 2000, y: 80}, {x: 1300, y: 140}, {x: 980, y: 260}, {x: 760, y: 330}, {x: 640, y: 400}, {x: 820, y: 460}, {x: 1040, y: 470}, {x: 1060, y: 520}, {x: 760, y: 620}, {x: 600, y: 720}, {x: 820, y: 760}, {x: 1200, y: 760}, {x: 1500, y: 860}, {x: 2000, y: 1000}];
+  seed(54500); poly(head, '#1a1512', 2.6, 1.2);
+  for (let i = 0; i < 7; i++) { const x = 720 + i * 46; seed(54510 + i); poly([{x, y: 455 - i * 2}, {x: x + 18, y: 455 - i * 2}, {x: x + 9, y: 500 - i * 2}], '#e6dfcf', 1.2, .2); seed(54520 + i); poly([{x: x - 30, y: 650 + i * 14}, {x: x - 12, y: 650 + i * 14}, {x: x - 21, y: 606 + i * 14}], '#e6dfcf', 1.2, .2); }
+  seed(54530); poly([{x: 980, y: 300}, {x: 1060, y: 286}, {x: 1040, y: 316}], '#c8461c', 0, .2);   // el ojo, apenas
+  const J = skeleton(POSE.block, {x: 0, y: 0}, 1); settled(MEM_FIG, J, 'bloquear');
+  MEM_FIG.eyeHist = Array.from({length: 42}, () => ({x: J.eye.x, y: J.eye.y})); T = 0;
+  G.save(); G.translate(300, 900); G.scale(1.1, 1.1); drawFigure(MEM_FIG, J, {weapon: 'sword', shield: 'sacred', bare: true}); G.restore();
+  for (let i = 0; i < 6; i++) sline({x: 560 - i * 20, y: 480 + i * 40}, {x: 420 - i * 30, y: 470 + i * 46}, 2, 'rgba(26,23,21,.5)', 54540 + i);   // el rugido
+}
+function memCape() {                                        // la capa rota, al viento
+  G.fillStyle = '#d8d0c0'; G.fillRect(-60, -60, 2040, 1200);
+  const f = {sid: 1400, cape: makeCape(), eyeHist: []}; f.cape.init = false; stepCape(f.cape, {x: 0, y: 0}, capeTargets('correr', 1, 1.3, 14), 0, 1e4);
+  const keep = {...CAPE}; CAPE.rag = .7;
+  G.save(); G.translate(1500, 330); G.scale(6, 6); G.rotate(.1); drawCape(f, 1); G.restore(); Object.assign(CAPE, keep);
+  for (let i = 0; i < 8; i++) sline({x: 1700 - i * 40, y: 200 + i * 80}, {x: 1100 - i * 90, y: 210 + i * 84}, 1.4, 'rgba(26,23,21,.35)', 54600 + i);   // el viento
+}
+function bossShapes() {                                     // los cinco jefes, solo formas (de sus sprites aprobados: 03-characters/bosses/)
+  G.fillStyle = '#d6cebe'; G.fillRect(-60, -60, 2040, 1200);
+  const S = '#1d1814', gy = 800; sline({x: -40, y: gy}, {x: 1960, y: gy + 2}, 2, 'rgba(26,23,21,.45)', 54700);
+  { const c = {x: 230, y: 600}, pts = []; for (let i = 0; i < 9; i++) { const a = i / 9 * 6.283 + .2; pts.push({x: c.x + Math.cos(a) * 150, y: c.y + Math.sin(a) * 125}); }   // el Gólem: la piedra con su ojo y sus cadenas
+    seed(54710); poly(pts, S, 2.4, 1); sline({x: 90, y: 640}, {x: 70, y: 790}, 3, S, 54711); sline({x: 370, y: 640}, {x: 392, y: 790}, 3, S, 54712); scircle(c, 22, '#8a2a1e', 0, null, 54713); }
+  { const c = {x: 640, y: 330}; seed(54720); poly([{x: c.x - 260, y: c.y - 20}, {x: c.x - 150, y: c.y - 40}, {x: c.x - 40, y: c.y}, {x: c.x - 22, y: c.y - 70}, {x: c.x - 8, y: c.y - 30}, {x: c.x + 8, y: c.y - 30}, {x: c.x + 22, y: c.y - 70}, {x: c.x + 40, y: c.y},   // el Murciélago
+      {x: c.x + 150, y: c.y - 40}, {x: c.x + 260, y: c.y - 20}, {x: c.x + 220, y: c.y + 50}, {x: c.x + 140, y: c.y + 36}, {x: c.x + 60, y: c.y + 60}, {x: c.x + 20, y: c.y + 110}, {x: c.x - 20, y: c.y + 110}, {x: c.x - 60, y: c.y + 60}, {x: c.x - 140, y: c.y + 36}, {x: c.x - 220, y: c.y + 50}], S, 2, .8); }
+  { const x = 960; seed(54730); poly([{x: x - 50, y: gy}, {x: x - 30, y: 560}, {x: x - 40, y: 470}, {x: x - 26, y: 420}, {x: x - 22, y: 380}, {x: x - 10, y: 400}, {x: x, y: 376}, {x: x + 10, y: 400}, {x: x + 22, y: 380}, {x: x + 26, y: 420}, {x: x + 40, y: 470}, {x: x + 30, y: 560}, {x: x + 50, y: gy}], S, 2, .6);   // el Esqueleto: corona, capa y su espadón
+    sline({x: x + 20, y: 520}, {x: x + 230, y: 760}, 9, S, 54731); sline({x: x + 10, y: 548}, {x: x + 52, y: 500}, 6, S, 54732); }
+  { const c = {x: 1350, y: 560}; scircle(c, 95, S, 2, S, 54740, 1, .85); scircle({x: c.x, y: c.y + 100}, 46, S, 2, S, 54741);   // la Araña
+    for (let i = 0; i < 4; i++) for (const s of [-1, 1]) { const k = {x: c.x + s * (120 + i * 30), y: c.y - 120 + i * 30}, ft = {x: c.x + s * (150 + i * 46), y: gy}; sline({x: c.x + s * 40, y: c.y + 10 + i * 12}, k, 5, S, 54750 + i * 2 + (s > 0)); sline(k, ft, 4, S, 54760 + i * 2 + (s > 0)); } }
+  { seed(54780); poly([{x: 1560, y: gy}, {x: 1600, y: 700}, {x: 1660, y: 650}, {x: 1700, y: 520}, {x: 1720, y: 420}, {x: 1780, y: 400}, {x: 1840, y: 420}, {x: 1790, y: 440}, {x: 1770, y: 560}, {x: 1800, y: 660}, {x: 1880, y: 700}, {x: 1960, y: 760}, {x: 1960, y: gy}], S, 2, .8);   // el Dragón: el cuello y un ala
+    seed(54781); poly([{x: 1660, y: 650}, {x: 1600, y: 420}, {x: 1680, y: 470}, {x: 1720, y: 380}, {x: 1740, y: 600}], S, 2, .6); }
+}
+const MEM3 = [memBlades, memShield, memStreak, memLedge, memRoar, memCape, bossShapes];
+function shot3(u) {
+  const c = circuitAt(u, C3);
+  if (c.gap != null) { staticBand(c.gap, c.gu, false); return; }
+  dream(MEM3[c.cut], {blur: 1.8});
+  flash(c.cu);
+}
+
+/* ======================================================================
+   PLANOS 4 y 5: LA CÁMARA DEL TIEMPO — una sala redonda y enorme (un anillo de pilares, la cúpula, el suelo en
+   anillos con el reloj de arena grabado), el reloj sobre su pie. El Guardián del Tiempo es solo una silueta negra,
+   alta, encapuchada, con un báculo que acaba en un aro con una aguja (propuesta): sin cara, sin detalle, sin nombre.
+   ====================================================================== */
+const CH = {gy: 860, sc: 1.6, gx: 1090, stand: {x: 1420, top: 650}, clock: {x: 1420, y: 584, R: 62}};
+function drawChamber() {
+  G.fillStyle = '#e6decd'; G.fillRect(-300, -300, 2600, 1700);
+  const v = G.createRadialGradient(1000, 640, 100, 1000, 640, 1100); v.addColorStop(0, 'rgba(255,250,240,.5)'); v.addColorStop(1, 'rgba(120,108,90,.35)'); G.fillStyle = v; G.fillRect(-300, -300, 2600, 1700);
+  for (let k = 0; k < 4; k++) sarc(960, 760, 1180 - k * 60, 720 - k * 50, Math.PI * 1.04, Math.PI * 1.96, 1.6 - k * .2, `rgba(26,23,21,${.42 - k * .07})`, 55000 + k);   // la cúpula
+  for (let i = 0; i < 11; i++) {                            // el anillo de pilares en la pared del fondo
+    const a = Math.PI * (1.06 + i * .088), cx = 960 + Math.cos(a) * 1060, by = 800 + Math.sin(a) * 140, h = 470 + 200 * Math.abs(Math.cos(a)), w = 26 + 24 * Math.abs(Math.cos(a));
+    const pts = [{x: cx - w, y: by}, {x: cx - w, y: by - h}, {x: cx + w, y: by - h}, {x: cx + w, y: by}]; seed(55020 + i); poly(pts, '#d2c9b6', 2, .5); seed(55040 + i); hatch(pts, 7, 'rgba(26,23,21,.13)');
+    sline({x: cx - w - 8, y: by - h}, {x: cx + w + 8, y: by - h}, 2.6, INK, 55060 + i);
+    if (i < 10) { const a2 = Math.PI * (1.06 + (i + .5) * .088), x2 = 960 + Math.cos(a2) * 1060, y2 = 800 + Math.sin(a2) * 140;   // un nicho oscuro entre pilar y pilar
+      G.fillStyle = 'rgba(26,23,21,.16)'; G.fillRect(x2 - 30, y2 - h * .72, 60, h * .58); }
+  }
+  const fl = [{x: -300, y: 790}, {x: 2300, y: 790}, {x: 2300, y: 1500}, {x: -300, y: 1500}]; G.fillStyle = '#d8cfbc'; G.fillRect(-300, 790, 2600, 800); seed(55080); hatch(fl, 9, 'rgba(26,23,21,.1)');
+  for (let k = 0; k < 4; k++) sarc(960, 930, 300 + k * 260, 46 + k * 40, 0, Math.PI * 2, 1.4, `rgba(26,23,21,${.4 - k * .06})`, 55090 + k, 72);   // el suelo, en anillos
+  sline({x: -300, y: 790}, {x: 2300, y: 792}, 2.4, INK, 55100);
+  { const c = {x: 960, y: 930}, w = 60, h = 26; seed(55110); poly([{x: c.x - w, y: c.y - h}, {x: c.x + w, y: c.y - h}, {x: c.x, y: c.y}], null, 1.6, .3, 'rgba(26,23,21,.5)'); seed(55111); poly([{x: c.x, y: c.y}, {x: c.x + w, y: c.y + h}, {x: c.x - w, y: c.y + h}], null, 1.6, .3, 'rgba(26,23,21,.5)'); }
+  const s = CH.stand;                                       // el pie del reloj
+  [[[s.x - 64, CH.gy], [s.x - 64, CH.gy - 34], [s.x + 64, CH.gy - 34], [s.x + 64, CH.gy]], [[s.x - 30, CH.gy - 34], [s.x - 30, s.top + 18], [s.x + 30, s.top + 18], [s.x + 30, CH.gy - 34]], [[s.x - 70, s.top + 18], [s.x - 70, s.top], [s.x + 70, s.top], [s.x + 70, s.top + 18]]].forEach((q, i) => {
+    const pts = q.map(([x, y]) => ({x, y})); seed(55120 + i); poly(pts, '#cbc2ae', 2.2, .4); seed(55130 + i); hatch(pts, 6, 'rgba(26,23,21,.18)'); });
+  G.fillStyle = 'rgba(10,8,6,.18)'; G.beginPath(); G.ellipse(s.x, CH.gy + 4, 110, 10, 0, 0, 6.3); G.fill();
+}
+/* el Guardián: la silueta en coordenadas propias (la base en 0, hacia arriba negativo); mira a la izquierda */
+const GUARD = [[-115, 0], [-98, -150], [-80, -330], [-62, -470], [-48, -522], [-40, -546], [-30, -594], [-6, -646], [24, -604], [34, -550], [52, -520], [68, -460], [88, -320], [106, -150], [122, 0],
+  [96, -10], [74, 4], [44, -12], [14, 4], [-18, -10], [-50, 4], [-82, -8]].map(([x, y]) => ({x, y}));
+function guardianShape() {
+  seed(55200); poly(GUARD, BLACK, 1.6, .3, 'rgba(10,8,6,.9)');
+  sline({x: -46, y: -500}, {x: -136, y: -430}, 26, BLACK, 55201); scircle({x: -140, y: -428}, 16, BLACK, 0, null, 55202);   // el brazo y la mano
+  sline({x: -142, y: 0}, {x: -142, y: -610}, 10, BLACK, 55203);                                  // el báculo
+  scircle({x: -142, y: -650}, 36, null, 8, BLACK, 55204);                                        // su aro, con una aguja
+  sline({x: -142, y: -650}, {x: -142, y: -730}, 6, BLACK, 55205); sline({x: -142, y: -650}, {x: -176, y: -626}, 5, BLACK, 55206);
+}
+const W4 = {stop: 3.0, dec: .5, cyc: 1.2, wind: [3.45, 3.85], strike: 4.0, back: [4.6, 5.8], fall: [4.02, 4.9], brk: 4.9, slash: [3.92, 4.22]};
+const GAIT4 = gaitParams(0, 0), CYC4 = GAIT4.S * CH.sc, V4 = CYC4 / W4.cyc, X4_STOP = 800, X4_0 = X4_STOP - V4 * (W4.stop + W4.dec / 2);
+const DREAM_FIG = {sid: 1100, cape: makeCape(), eyeHist: []};
+function x4(u) { return u < W4.stop ? X4_0 + V4 * u : X4_0 + V4 * W4.stop + V4 * W4.dec * (1 - Math.pow(1 - clamp((u - W4.stop) / W4.dec), 2)) / 2; }
+const BENT = (() => {                                        // encorvado sobre la espada, la punta clavada delante
+  const p = {...POSE.idle, lean: -60, hd: 18, bU: 104, bL: 86}, J = skeleton(p, {x: 0, y: 0}, 1), [aU, aL] = armIK(J.sh, {x: 48, y: -113});
+  return {...p, aU, aL, sw: 86};
+})();
+const WIND4 = {...POSE.windup, hd: 6}, SLASH4 = {...POSE.slash, hd: 0};
+function limp(q) {                                          // la marcha del rig, encorvada y pesada; la espada se arrastra detrás
+  const p = gaitPose(q, 0, 0), o = {...p, lean: p.lean + 20 + 2 * Math.cos(4 * Math.PI * q), hd: 14, aU: 96, aL: 112, bU: 100 + 8 * Math.cos(2 * Math.PI * q), bL: 80};
+  const J = skeleton(o, {x: 0, y: 0}, 1); o.sw = 180 - deg(Math.asin(clamp((-1 - J.hand.y) / 114, -1, 1)));   // la punta roza el suelo
+  return o;
+}
+function pose4(u) {
+  const x = x4(u), w = smooth((u - W4.stop) / W4.dec); let p = mixP(limp((x - X4_0) / CYC4), BENT, w);
+  if (u > W4.wind[0]) p = mixP(p, WIND4, EASE.io((u - W4.wind[0]) / (W4.wind[1] - W4.wind[0])));
+  if (u > W4.wind[1]) p = mixP(p, SLASH4, EASE.o((u - W4.wind[1]) / (W4.strike - W4.wind[1])));
+  if (u > W4.back[0]) p = mixP(p, BENT, EASE.io((u - W4.back[0]) / (W4.back[1] - W4.back[0])));
+  return {p, x};
+}
+function cape4(u) { const w = smooth((u - W4.stop) / W4.dec), a = capeTargets('andar', 1, u), b = capeTargets('quieto', 1, u), c = capeTargets('atacar', 1, u), k = smooth((u - W4.wind[1]) / .3) * (1 - smooth((u - W4.back[0]) / 1));
+  return mixTargets(mixTargets(a, b, w), c, k); }
+const PIECES = (() => {                                      // los trozos en que se rompe: bandas con bordes quebrados
+  const ys = [-760, -600, -500, -400, -300, -200, -100, 20], edge = (y, s) => { seed(s); const o = []; for (let x = -200; x <= 160; x += 40) o.push({x, y: y + (x > -200 && x < 160 ? rnd() * 22 : 0)}); return o; };
+  const E = ys.map((y, i) => edge(y, 55300 + i));
+  return E.slice(0, -1).map((top, i) => ({poly: [...top, ...[...E[i + 1]].reverse()], cy: (ys[i] + ys[i + 1]) / 2, dir: i % 2 ? 1 : -1}));
+})();
+function guardian(u) {                                      // de pie, tambaleándose, cayendo de espaldas y roto en trozos que se van, enteros
+  if (u >= W4.brk + .14 * PIECES.length + .2) return;
+  const tilt = .12 * smooth((u - W4.fall[0]) / .25) + 1.05 * Math.pow(clamp((u - W4.fall[0] - .25) / (W4.fall[1] - W4.fall[0] - .25)), 2);
+  G.save(); G.translate(CH.gx + 122, CH.gy); G.rotate(tilt); G.translate(-122, 0);
+  if (u < W4.brk) guardianShape();
+  else PIECES.forEach((pc, i) => {
+    const b = u - W4.brk; if (b > .1 + i * .14) return;   // cada trozo desaparece entero, uno tras otro
+    G.save(); G.translate(pc.dir * 30 * b + 40 * b, -60 * b + 260 * b * b); G.rotate(pc.dir * .5 * b);
+    G.beginPath(); pc.poly.forEach((q, k) => k ? G.lineTo(q.x, q.y) : G.moveTo(q.x, q.y)); G.closePath(); G.clip(); guardianShape(); G.restore();
+  });
+  G.restore();
+}
+const CUTCOL = '#e3dbca';
+function chamberAkeris(J, x, fx, wpn = 'sword') { figureFX(DREAM_FIG, J, x, CH.gy, CH.sc, {weapon: wpn, shield: null}, {rag: .8, cuts: CUTCOL, ...fx}); }
+function shot4(u) {
+  T = u;
+  dream(() => {
+    drawChamber();
+    timeClock(CH.clock.x, CH.clock.y, CH.clock.R, -Math.PI / 6, 1, CLOCK_INK);
+    guardian(u);
+    const {p, x} = pose4(u), J = skeleton(p, {x: 0, y: 0}, 1);
+    simCape(DREAM_FIG, u, tt => ({J: skeleton(pose4(tt).p, {x: 0, y: 0}, 1), targets: cape4(tt)}));
+    T = u;
+    G.fillStyle = 'rgba(10,8,6,.2)'; G.beginPath(); G.ellipse(x + 6, CH.gy + 2, 60, 7, 0, 0, 6.3); G.fill();
+    chamberAkeris(J, x, {});
+    if (u >= W4.slash[0] && u < W4.slash[1]) { sarc(CH.gx - 40, CH.gy - 300, 200, 260, -2.2, .5, 4, INK, 55400); sarc(CH.gx - 30, CH.gy - 300, 190, 250, -2.0, .3, 1.4, 'rgba(26,23,21,.5)', 55401); }   // el tajo, entero
+  });
+  if (u < .3) toWhite(.6 * (1 - smooth(u / .3)));
+}
+/* ---------- plano 5: el reloj tomado — más cerca. La espada queda clavada; la mano va al reloj, lo levanta; desde el
+   ojo la estela se vuelve morada; la capa se oscurece, la espalda se endereza, el contorno se endurece ---------- */
+const W5 = {reach: [.3, 1.1], take: 1.2, lift: [1.25, 1.9], purple: [1.2, 2.6], change: [1.4, 3.0], hard: [1.6, 3.0]};
+const CAM5 = {z: 1.5, x: 1300, y: 640};
+const D5_TARGET = (() => { const c = CH.clock, a = rad(186); return {x: c.x + Math.cos(a) * c.R * .97, y: c.y + Math.sin(a) * c.R * .97}; })();
+const STAND5 = {...BENT, aU: 70, aL: 40, sw: 60};
+const UPRIGHT = {...POSE.idle, lean: -86, hd: -4, bU: 112, bL: 96};
+const X5 = (() => { const J = skeleton(STAND5, {x: 0, y: 0}, 1), tu = (D5_TARGET.y - CH.gy) / CH.sc, dy = tu - J.sh.y, r = (L.up + L.low) * .9; return D5_TARGET.x - CH.sc * (J.sh.x + Math.sqrt(Math.max(0, r * r - dy * dy))); })();
+const LIFT5 = {x: 50, y: -190};                              // adónde sube la mano con el reloj (unidades del rig)
+function pose5(u) {
+  const ch = EASE.io((u - W5.change[0]) / (W5.change[1] - W5.change[0]));
+  let p = mixP(STAND5, UPRIGHT, ch);
+  const J0 = skeleton(p, {x: 0, y: 0}, 1), grab = {x: (D5_TARGET.x - X5) / CH.sc, y: (D5_TARGET.y - CH.gy) / CH.sc};
+  const k = EASE.io((u - W5.reach[0]) / (W5.reach[1] - W5.reach[0])), l = EASE.io((u - W5.lift[0]) / (W5.lift[1] - W5.lift[0]));
+  const tg = {x: lerp(grab.x, LIFT5.x, l), y: lerp(grab.y, LIFT5.y, l)}, [aU, aL] = armIK(J0.sh, tg);
+  if (k > 0) p = {...p, aU: lerp(p.aU, aU, k), aL: lerp(p.aL, aL, k)};
+  return p;
+}
+function clock5(J) {                                        // el reloj sigue a la mano desde que la toca
+  const c = CH.clock; if (J == null) return {x: c.x, y: c.y};
+  const h = {x: X5 + J.hand.x * CH.sc, y: CH.gy + J.hand.y * CH.sc}; return {x: h.x + (c.x - D5_TARGET.x), y: h.y + (c.y - D5_TARGET.y)};
+}
+const front5 = u => clamp((u - W5.purple[0]) / (W5.purple[1] - W5.purple[0]));
+const CAPE_DARK = '#1d1722';
+function shot5(u) {
+  T = u;
+  dream(() => {
+    camera(CAM5, () => {
+      drawChamber();
+      const p = pose5(u), J = skeleton(p, {x: 0, y: 0}, 1), held = u >= W5.take, c = clock5(held ? J : null);
+      { G.save(); G.translate(X5 - 92, CH.gy + 6); G.scale(CH.sc, CH.sc); heroSword(makeB({x: 0, y: 0}, rad(-84), 1), 55500); G.restore(); }   // la espada, clavada en el suelo
+      simCape(DREAM_FIG, u, tt => ({J: skeleton(pose5(tt), {x: 0, y: 0}, 1), targets: capeTargets('quieto', 1, tt)}));
+      T = u;
+      G.fillStyle = 'rgba(10,8,6,.2)'; G.beginPath(); G.ellipse(X5 + 6, CH.gy + 2, 60, 7, 0, 0, 6.3); G.fill();
+      const ch = EASE.io((u - W5.change[0]) / (W5.change[1] - W5.change[0]));
+      chamberAkeris(J, X5, {rag: .8, capeFill: rgba([61, 57, 52, 1], [29, 23, 34, 1], ch), hard: .9 * EASE.io((u - W5.hard[0]) / (W5.hard[1] - W5.hard[0])), front: front5(u)}, 'none');
+      timeClock(c.x, c.y, CH.clock.R, -Math.PI / 6 - Math.PI / 6 * EASE.o((u - W5.take) / .12), 1, CLOCK_INK);   // al tomarlo, la manecilla salta una hora atrás
+    });
+  });
+}
+
+/* ======================================================================
+   PLANO 6: EL FIN DEL MUNDO — tres planos, y todo tiembla de una pieza (un desplazamiento de todo el dibujo, función
+   del tiempo). (a) el horizonte del mundo en ruinas —colinas, torres rotas, árboles muertos— y un reloj gigante que se
+   forma en el cielo; (b) su manecilla golpea y cae un rayo de tiempo, una grieta blanca a lápiz, recta hacia abajo;
+   (c) desde el impacto, el mundo se borra hacia fuera: cada trazo desaparece entero, hasta que solo queda el papel.
+   ====================================================================== */
+const W6 = {b: 3.2, strike: 3.4, bolt: 3.6, c: 5.0, erase: [5.0, 7.3], clockGone: 7.5, boltGone: 700};
+const SKY = {x: 960, y: 290, R: 230};
+const hill6 = x => 700 - 46 * Math.sin(x / 270 + .6) - 20 * Math.sin(x / 93 + 1.3) - 70;
+const HIT = {x: 960, y: hill6(960) + 2};
+let WORLD6 = null;
+function world6() {                                         // cada trazo con su centro: el borrado los quita enteros según su distancia al impacto
+  if (WORLD6) return WORLD6;
+  const S = [], add = (c, d) => S.push({c, d}), far = x => 590 - 30 * Math.sin(x / 210 + 2) - 14 * Math.sin(x / 71 + .4);
+  for (let x = -80, i = 0; x < 2000; x += 40, i++) { const a = {x, y: far(x)}, b = {x: x + 40, y: far(x + 40)}; add(mid(a, b), () => sline(a, b, 1.4, 'rgba(26,23,21,.36)', 56000 + i)); }
+  for (let x = -92, i = 0; x < 2012; x += 46, i++) { const a = {x, y: hill6(x)}, b = {x: x + 46, y: hill6(x + 46)}; add(mid(a, b), () => sline(a, b, 2.6, INK, 56100 + i)); }
+  [[300, 96], [640, 66], [1760, 84], [-60, 60], [935, 132], [1045, 100], [1250, 74], [470, 52], [1480, 92], [780, 58], [1940, 64], [140, 48], [1620, 50]].forEach(([x, h], j) => {   // las torres, rotas
+    const b = hill6(x) + 4, w = 12 + h * .07, tp = b - h, id = 56300 + j * 20; seed(id + 19); const jl = r01() * 26, jr = r01() * 26;
+    add({x: x - w, y: b - h / 2}, () => sline({x: x - w, y: b}, {x: x - w, y: tp + jl}, 2.3, INK, id));
+    add({x: x + w, y: b - h / 2}, () => sline({x: x + w, y: b}, {x: x + w, y: tp + jr}, 2.3, INK, id + 1));
+    const top = [{x: x - w, y: tp + jl}, {x: x - w * .3, y: tp - 8}, {x: x + w * .25, y: tp + 16}, {x: x + w, y: tp + jr}];   // la cima, mellada
+    add({x, y: tp}, () => { G.strokeStyle = INK; G.lineWidth = 2.1; G.beginPath(); top.forEach((q, i) => i ? G.lineTo(q.x, q.y) : G.moveTo(q.x, q.y)); G.stroke(); });
+    if (j % 3 !== 1) add({x, y: tp + 30}, () => sline({x: x - 3, y: tp + 26}, {x: x - 3, y: tp + 38}, 2.2, INK, id + 4));   // una ventana
+    for (let k = 0; k < Math.floor(h / 13); k++) { const y = b - 6 - k * 13; if (y < tp + 20) break; add({x: x + w / 2, y}, () => sline({x: x + w * .1, y}, {x: x + w - 2, y: y - 8}, 1.1, 'rgba(26,23,21,.38)', id + 6 + k)); }
+  });
+  { const yA = hill6(935) + 4 - 52, yB = hill6(1045) + 4 - 44;   // el castillo del centro: el muro, partido por la mitad
+    add({x: 970, y: yA}, () => sline({x: 935 + 21, y: yA}, {x: 978, y: lerp(yA, yB, .3) + 10}, 2.2, INK, 56580));
+    add({x: 1010, y: yB}, () => sline({x: 1004, y: lerp(yA, yB, .7) + 14}, {x: 1045 - 19, y: yB}, 2.2, INK, 56581)); }
+  [[200, 74], [560, 60], [1150, 82], [1380, 66], [1700, 70], [860, 50]].forEach(([x, h], j) => {   // árboles muertos
+    const b = hill6(x) + 2, id = 56600 + j * 10, t = {x: x + 4, y: b - h};
+    add({x, y: b - h / 2}, () => sline({x, y: b}, t, 2.2, INK, id));
+    add({x: x - 14, y: b - h * .7}, () => sline({x: x + 2, y: b - h * .55}, {x: x - 24, y: b - h * .9}, 1.5, INK, id + 1));
+    add({x: x + 16, y: b - h * .8}, () => sline({x: x + 3, y: b - h * .72}, {x: x + 28, y: b - h * 1.02}, 1.5, INK, id + 2));
+    add({x: x + 8, y: b - h}, () => sline(t, {x: x + 14, y: b - h - 16}, 1.2, INK, id + 3));
+  });
+  for (let i = 0; i < 70; i++) { seed(56700 + i); const x = -40 + r01() * 2000, y = hill6(x) + 30 + r01() * 170, l = 26 + r01() * 40, dy = rnd() * 4;   // el rayado del llano
+    add({x: x + l / 2, y}, () => sline({x, y}, {x: x + l, y: y + dy}, 1.2, 'rgba(26,23,21,.3)', 56800 + i)); }
+  const BOLT = []; { seed(56900); for (let y = SKY.y + SKY.R + 6; y < HIT.y - 20; y += 30) BOLT.push({x: SKY.x + (BOLT.length ? rnd() * 20 : 0), y}); BOLT.push(HIT); }
+  return (WORLD6 = {S, BOLT});
+}
+function shake6(u) {                                        // el temblor: función de u (mismo u, mismo sitio)
+  const A = ((2 + 4 * smooth(u / 3)) * (u < W6.bolt ? 1 : 0) + (u >= W6.bolt ? 16 * Math.exp(-(u - W6.bolt) * 3) + 6 * (1 - smooth((u - W6.c) / 2.6)) : 0)) * (1 - smooth((u - 7.2) / .8));
+  return {x: A * (.6 * Math.sin(u * 43.1) + .4 * Math.sin(u * 71.3 + 1.3)), y: A * .6 * (.6 * Math.sin(u * 37.7 + .7) + .4 * Math.sin(u * 59.9 + 2.1))};
+}
+const erase6 = u => 1500 * EASE.io((u - W6.erase[0]) / (W6.erase[1] - W6.erase[0]));
+const visible6 = (c, u) => Math.hypot(c.x - HIT.x, c.y - HIT.y) >= erase6(u) || u < W6.erase[0];
+const skyHand = u => -Math.PI / 3 + Math.PI / 3 * EASE.o((u - W6.strike) / .15);
+function drawBolt() {                                       // el rayo de tiempo: una grieta blanca, recta hacia abajo, con dos ramas
+  const B = world6().BOLT, path = () => { G.beginPath(); B.forEach((q, i) => i ? G.lineTo(q.x, q.y) : G.moveTo(q.x, q.y)); };
+  G.save(); G.lineJoin = 'miter'; path(); G.strokeStyle = INK; G.lineWidth = 17; G.stroke(); path(); G.strokeStyle = '#fbf8f1'; G.lineWidth = 11; G.stroke(); G.restore();
+  [[1, 1], [3, -1]].forEach(([i, s], k) => { const a = B[i]; sline(a, {x: a.x + s * 46, y: a.y + 30}, 3, INK, 56950 + k); });
+  [[-70, -6, -110, -20], [-36, -14, -50, -46], [40, -16, 60, -48], [74, -4, 120, -18]].forEach(([a, b, c, d], i) => sline({x: HIT.x + a, y: HIT.y + b}, {x: HIT.x + c, y: HIT.y + d}, 1.6, 'rgba(26,23,21,.6)', 56960 + i));
+}
+function shot6(u) {
+  const W = world6(), k = smooth((u - W6.erase[0]) / 2.6);
+  const cam = u < W6.b || u >= W6.c ? {z: 1, x: 960, y: 540} : {z: 1.14, x: 960, y: 470};   // (a), (b), (c): tres planos, cortados
+  dream(() => camera(cam, () => {
+    G.fillStyle = rgba([221, 213, 196, 1], [247, 243, 234, 1], k); G.fillRect(-300, -300, 2600, 1700);
+    const sky = G.createLinearGradient(0, 0, 0, 700); sky.addColorStop(0, `rgba(26,23,21,${(.3 * (1 - k)).toFixed(3)})`); sky.addColorStop(1, 'rgba(26,23,21,0)'); G.fillStyle = sky; G.fillRect(-300, -300, 2600, 1000);
+    if (u < W6.clockGone) timeClock(SKY.x, SKY.y, SKY.R, skyHand(u), smooth(u / 2.6), CLOCK_SKY);   // el reloj se forma en el cielo
+    G.lineCap = 'round'; G.lineJoin = 'round';
+    for (const s of W.S) if (visible6(s.c, u)) s.d();
+    if (u >= W6.bolt && erase6(u) < W6.boltGone) drawBolt();
+  }), {blur: 2.6, shake: shake6(u)});
+  if (u >= W6.bolt && u < W6.bolt + .12) toWhite(.85 * (1 - (u - W6.bolt) / .12));   // el destello del rayo
+}
+
+/* ======================================================================
+   PLANO 7: EL QUE VOLVIÓ — un cortocircuito: destellos del Akeris del futuro (characters.md §2): la capa del todo rota,
+   la espada curva y mellada, muy sucio, su estela roja rota a trozos (la estela defectuosa del paso 3.7). En el último
+   cuadro nos mira y, de la nada, aparece encima la tarjeta.
+   ====================================================================== */
+const C7 = {lead: .1, gap: .2, cuts: [.45, .35, .4, 3.1], hold: true}, CARD7 = 2.15;
+const FUT_FIG = {sid: 1500, cape: makeCape(), eyeHist: []};
+const FUT = {...POSE.idle, lean: -78, hd: 12, aU: 78, aL: 66, sw: 62, bU: 114, bL: 104};
+const FUT_FX = {rag: 1, cut: .74, dirt: true, defect: true, cuts: '#d8d0bf'};
+function futureFrame(i) {
+  G.fillStyle = '#d3cab8'; G.fillRect(-300, -300, 2600, 1700);
+  const J = skeleton(FUT, {x: 0, y: 0}, 1); FUT_FIG.cape.init = false; stepCape(FUT_FIG.cape, J.cape, capeTargets('andar', 1, 0, 18), 0, 0); T = 0;
+  const X = 900, Y = 880, S = 2.4, at = p => ({x: X + p.x * S, y: Y + p.y * S});
+  const cams = [{z: 1, x: 960, y: 560}, (() => { const c = at(J.B(60, 0)); return {z: 3, x: c.x, y: c.y}; })(), (() => { const c = at(J.head); return {z: 4, x: c.x - 20, y: c.y + 10}; })(), (() => { const c = at(J.neck); return {z: 2.1, x: c.x + 10, y: c.y + 60}; })()];
+  camera(cams[i], () => {
+    sline({x: -300, y: Y + 2}, {x: 2300, y: Y + 4}, 2, 'rgba(26,23,21,.5)', 57000);
+    [[200, 640, 70], [380, 700, 40], [1500, 620, 90], [1700, 680, 50]].forEach(([x, y, h], j) => { seed(57010 + j); poly([{x: x - 16, y: Y}, {x: x - 16, y: y}, {x: x - 4, y: y - 10}, {x: x + 6, y: y + 8}, {x: x + 16, y: y - 4}, {x: x + 16, y: Y}], 'rgba(150,140,122,.6)', 1.4, .4, 'rgba(26,23,21,.4)'); void h; });
+    G.fillStyle = 'rgba(10,8,6,.24)'; G.beginPath(); G.ellipse(X + 6, Y + 2, 80, 8, 0, 0, 6.3); G.fill();
+    figureFX(FUT_FIG, J, X, Y, S, {weapon: 'curved', shield: null}, {...FUT_FX, frontal: i === 3});
+  });
+}
+function shot7(u) {
+  const c = circuitAt(u, C7);
+  if (c.gap != null) { staticBand(10 + c.gap, c.gu, false); return; }
+  dream(() => futureFrame(c.cut), {blur: 1.6});
+  flash(c.cu);
+  if (u >= CARD7) {   // de la nada: la tarjeta, entera, sobre su último cuadro
+    cover(BLACK, .58);
+    const lines = tr('cinematic.intro.card').split(/(?<=\.)\s+/);
+    lines.forEach((s, i) => cardText(s, 540 + (i - (lines.length - 1) / 2) * 92, 66, 'rgba(239,230,214,.95)'));
+  }
+}
+
+/* ---------- plano 8: el despertar — las ruinas otra vez, el fuego casi apagado (brasas). Se incorpora de golpe, la
+   estela roja se enciende y mira alrededor: no hay nadie ---------- */
+const WAKE8 = keysOf([
+  [0, {lean: -180, hd: -4, aU: 4, aL: 2, bU: 8, bL: 4, hy: 18}],
+  [.15, {}],
+  [.5, {lean: -96, hd: -14, aU: 64, aL: -6, bU: 112, bL: 84, hy: 16}, EASE.o],
+  [.75, {lean: -99, hd: -8}],
+  [1.25, {hd: -32}],
+  [1.85, {hd: 26, lean: -96}],
+  [2.45, {hd: -16, lean: -100}],
+  [3.0, {hd: -10}],
+]);
+const W8 = {open: .3, lit: [.35, .65], lap: [.2, .65]};
+function pose8(u) { const k = track(WAKE8, u); return groundPose({...k, fF: {x: lerp(LEGS0.fx, 58, smooth(u / .5)), y: -10}, fB: {x: lerp(LEGS0.bx, 64, smooth(u / .5)), y: -12}}); }
+function shot8(u) {
+  ruinsShot(CAM_WAKE, pose8(u), {shut: u < W8.open, lit: smooth((u - W8.lit[0]) / (W8.lit[1] - W8.lit[0])), lap: clamp((u - W8.lap[0]) / (W8.lap[1] - W8.lap[0])), T: u, t: u, embers: true});
+}
+function shot9() { blackPaper(0); }
+
+/* ======================================================================
+   PLANO 10: HACIA EL TEMPLO — la escena de la pantalla de inicio (06-ui/title: ttScene y ttLogo, copiados). Akeris llega
+   corriendo desde la izquierda (la carrera del rig: la fase avanza con la distancia, sin patinar), frena y se para justo
+   donde lo pone el inicio (x 960), en su reposo; el título se escribe; las opciones aparecen. Pasados los 45 s el
+   mismo dibujo sigue: es la pantalla de inicio.
+   ====================================================================== */
+const SC6 = 1.5, FIG = {sid: 1100, cape: makeCape(), eyeHist: []};
+const RUN = {cyc: .6, stop: 1.7, dec: .5, logo: [2.3, 3.2], rules: [3.3, 3.45], menu: [3.3, 4.0]};
+const GAITR = gaitParams(1, 0), CYCR = GAITR.S * SC6, VR = CYCR / RUN.cyc, X10_0 = TS.hx - VR * (RUN.stop + RUN.dec / 2);
+function x10(u) {
+  if (u >= RUN.stop + RUN.dec) return TS.hx;
+  return u < RUN.stop ? X10_0 + VR * u : X10_0 + VR * RUN.stop + VR * RUN.dec * (1 - Math.pow(1 - clamp((u - RUN.stop) / RUN.dec), 2)) / 2;
+}
+function pose10(u) {
+  const x = x10(u), w = smooth((u - RUN.stop) / RUN.dec), idle = breatheAt(POSE.idle, u - SH(10).dur);
+  return {p: w >= 1 ? idle : mixP(gaitPose((x - X10_0) / CYCR, 1, 0), idle, w), x, w};
+}
+function runContacts(u1 = RUN.stop + RUN.dec) {             // los instantes en que un pie toca el suelo (la fase cruza 0 o ½)
+  const out = []; let prev = -1;
+  for (let i = 0; i <= Math.round(u1 * 2000); i++) { const u = i / 2000, q = Math.floor(2 * (x10(u) - X10_0) / CYCR + 1e-9); if (q !== prev && smooth((u - RUN.stop) / RUN.dec) < .5) out.push(+u.toFixed(3)); prev = q; }
+  return out;
+}
+const LOGO10 = (u) => {                                     // ttLogo, escrito de izquierda a derecha; las rayas aparecen enteras
+  if (u >= RUN.rules[1]) { ttLogo(); return; }
+  const k = EASE.io((u - RUN.logo[0]) / (RUN.logo[1] - RUN.logo[0])); if (k <= 0) return;
+  const t = tr('ui.title.logo'), x = TS.ax, y = TS.logoY;
+  G.save(); G.font = HAND(128); const w = G.measureText(t).width; G.beginPath(); G.rect(x - w / 2 - 20, y - 110, (w + 40) * k, 220); G.clip();
+  G.textAlign = 'center'; G.textBaseline = 'middle';
+  G.lineWidth = 9; G.strokeStyle = 'rgba(239,230,214,.55)'; G.lineJoin = 'round'; G.strokeText(t, x, y);
+  G.fillStyle = INK; G.fillText(t, x, y); G.globalAlpha = .28; G.fillText(t, x + 2.5, y - 1.5); G.restore();
+  if (u >= RUN.rules[0]) sline({x: x - 330, y: y + 78}, {x: x + 330, y: y + 74}, 2.6, INK, 42100);
+};
+function shot10(u) {                                        // u puede pasar de 4 s: la pantalla de inicio
+  ttScene(1920);
+  const {p, x, w} = pose10(u), J = skeleton(p, {x: 0, y: 0}, 1);
+  simCape(FIG, u, tt => { const s = pose10(tt); return {J: skeleton(s.p, {x: 0, y: 0}, 1), targets: mixTargets(capeTargets('correr', 1, tt), capeTargets('quieto', 1, tt), s.w)}; });
+  T = u - SH(10).dur; FIG.eyeHist = Array.from({length: 42}, () => ({x: J.eye.x, y: J.eye.y}));
+  G.fillStyle = 'rgba(10,8,6,.26)'; G.beginPath(); G.ellipse(x + 6, TS.fy + 2, 66, 8, 0, 0, 6.3); G.fill();
+  G.save(); G.translate(x, TS.fy); G.scale(SC6, SC6); drawFigure(FIG, J, {weapon: 'sword', shield: 'sacred'}); G.restore();
+  void w;
+  LOGO10(u);
+  const m = smooth((u - RUN.menu[0]) / (RUN.menu[1] - RUN.menu[0]));
+  if (m > 0) { G.save(); G.globalAlpha = m; titleMenu(); G.restore(); }
+}
+function titleMenu(on = 'm0') {                             // la columna de ttMain, sin partidas guardadas (title.md §4: «nothing saved»)
+  const {col, top, bw, bh, gap} = TS;
+  [['m0', 'ui.title.newGame'], ['m1', 'ui.title.continue'], ['m2', 'ui.title.load'], ['m3', 'ui.title.settings'], ['m4', 'ui.title.shop'], ['m5', 'ui.title.exit']].forEach(([id, k], i) => {
+    const y = top + i * (bh + gap), off = id === 'm1' || id === 'm2' || id === 'm4';
+    hudBox(col, y, bw, bh, 42200 + i * 9, {on: id === on, fill: off ? 'rgba(212,204,190,.55)' : 'rgba(239,230,214,.78)'});
+    hudText(tr(k), col + 28, y + bh / 2 + 1, 34, 'left', off ? 'rgba(26,23,21,.45)' : INK);
+    if (id === 'm4') { const lx = col + bw - 40, ly = y + bh / 2 + 4; G.save(); G.globalAlpha *= .6;
+      G.lineWidth = 2; G.strokeStyle = INK; G.beginPath(); G.arc(lx, ly - 9, 7, Math.PI, 0); G.stroke(); seed(42290); poly([{x: lx - 11, y: ly - 9}, {x: lx + 11, y: ly - 9}, {x: lx + 11, y: ly + 9}, {x: lx - 11, y: ly + 9}], 'rgba(239,230,214,.9)', 1.8, .3);
+      G.restore(); hudText(tr('ui.title.locked'), lx - 22, y + bh / 2 + 2, 24, 'right', 'rgba(26,23,21,.55)'); }
+  });
+  hudText(tr('ui.title.hint'), 1750, 1012, 24, 'right', 'rgba(239,230,214,.8)');
+}
+
+/* ======================================================================
+   NUEVA PARTIDA: EL DESCENSO (ya no es parte de la intro). Desde la pantalla de inicio, la columna se va y Akeris, desde
+   donde está, anda hasta el arco y baja la escalera hacia lo oscuro (cada pie en su peldaño; la oscuridad de la boca se
+   lo come desde abajo), unos 4 s, con pasos que se alejan; luego negro y empieza la zona 1. Continuar y Cargar no lo
+   tienen.
+   ====================================================================== */
+const DESC = {start: .3, blend: .3, step: .48, menuOut: .35, black: [4.2, 4.6], len: 6.2};
+const GAIT = gaitParams(0, 0), CYC = GAIT.S * SC6, V6 = CYC / (2 * DESC.step);   // un ciclo = dos pasos
+const X6 = 960 + V6 * DESC.blend * .5;                      // dónde está en el primer paso (v = 0,6)
+const STAIR = {x0: TS.ax - TS.r, w: 41, h: 24, top: TS.fy + 6, n: 8};
+const ground6 = x => x < STAIR.x0 ? TS.fy : STAIR.top + STAIR.h * Math.floor((x - STAIR.x0) / STAIR.w);
+function x6(v) {
+  const w = clamp((v - DESC.start) / DESC.blend);
+  return v < DESC.start + DESC.blend ? 960 + V6 * DESC.blend * (w * w * w - w * w * w * w / 2) : X6 + V6 * (v - DESC.start - DESC.blend);
+}
+function walk6(q) {                                         // la marcha de gaitPose, con cada pie en el suelo que pisa
+  const p0 = gaitPose(q, 0, 0), {st, xc, xt} = GAIT, hy = p0.hy, lift = 16;
+  const rel = p => { p = ((p % 1) + 1) % 1; if (p < st) return [lerp(xc, xt, p / st), hy]; const v = (p - st) / (1 - st); return [lerp(xt, xc, smooth(v)), hy - lift * Math.sin(Math.PI * v)]; };
+  const plant = n => ground6(X6 + CYC * n + xc * SC6);
+  const g = off => { const qq = q + off, n = Math.floor(qq), p = qq - n, a = plant(n); return p < st ? a : lerp(a, plant(n + 1), smooth((p - st) / (1 - st))); };
+  const g1 = g(0), g2 = g(.5), y = (g1 + g2) / 2, [f1x, f1y] = rel(q), [f2x, f2y] = rel(q + .5);
+  const [fT, fS] = ik(f1x, f1y + (g1 - y) / SC6), [kT, kS] = ik(f2x, f2y + (g2 - y) / SC6);
+  return {pose: {...p0, fT, fS, kT, kS}, y};
+}
+function state6(v) {                                        // pose y sitio de Akeris en el instante v del descenso
+  const idle = breatheAt(POSE.idle, v), w = smooth((v - DESC.start) / DESC.blend), x = x6(v);
+  if (w <= 0) return {pose: idle, x, y: TS.fy, w};
+  const {pose, y} = walk6((x - X6) / CYC);
+  return {pose: mixP(idle, pose, w), x, y: lerp(TS.fy, y, w), w};
+}
+function cape6(tt) { const w = smooth((tt - DESC.start) / DESC.blend), a = capeTargets('quieto', 1, tt), b = capeTargets('andar', 1, tt); return a.map((v, i) => lerp(v, b[i], w)); }
+const DESC_FIG = {sid: 1100, cape: makeCape(), eyeHist: []};
+function drawDescent(v) {
+  if (v >= DESC.black[1]) { blackPaper(.05); const a = smooth((v - DESC.black[1] - .15) / .4);   // la zona 1 empieza (en el juego, su pantalla de carga)
+    G.save(); G.globalAlpha = a; cardText(lang === 'es' ? 'Zona 1 · el Santuario Suspendido' : 'Zone 1 · the Suspended Sanctuary', 520, 56, 'rgba(239,230,214,.9)'); cardText(lang === 'es' ? '(aquí empieza la partida; el sandbox para)' : '(the run starts here; the sandbox stops)', 600, 28, 'rgba(239,230,214,.5)'); G.restore(); return; }
+  T = v;
+  ttScene(1920);
+  const s = state6(v), J = skeleton(s.pose, {x: 0, y: 0}, 1);
+  simCape(DESC_FIG, v, tt => ({J: skeleton(state6(tt).pose, {x: 0, y: 0}, 1), targets: cape6(tt)}));
+  T = v; DESC_FIG.eyeHist = Array.from({length: 42}, () => ({x: J.eye.x, y: J.eye.y}));
+  const depth = s.y - TS.fy, onGround = clamp(1 - (s.x - STAIR.x0 + 30) / 60);
+  if (onGround > 0) { G.save(); G.globalAlpha = onGround; G.fillStyle = 'rgba(10,8,6,.26)'; G.beginPath(); G.ellipse(s.x + 6, TS.fy + 2, 66, 8, 0, 0, 6.3); G.fill(); G.restore(); }
+  if (s.x - 200 >= TS.ax + TS.r) { ttLogo(); fromBlack(smooth((v - DESC.black[0]) / (DESC.black[1] - DESC.black[0]))); return; }
+  const g = G, A = layer(g, 'dark');
+  withG(A.x, () => { A.x.save(); A.x.translate(s.x, s.y); A.x.scale(SC6, SC6); drawFigure(DESC_FIG, J, {weapon: 'sword', shield: 'sacred'}); A.x.restore(); });
+  const k = smooth((depth - 20) / 150);                     // la oscuridad de la boca: desde abajo (los peldaños bajan a lo negro) y entera según baja
+  A.x.save(); A.x.globalCompositeOperation = 'source-atop';
+  const gr = A.x.createLinearGradient(0, TS.fy + 4, 0, TS.fy + 130); gr.addColorStop(0, `rgba(18,14,11,${(.97 * k).toFixed(3)})`); gr.addColorStop(1, 'rgba(18,14,11,.97)');
+  A.x.fillStyle = gr; A.x.fillRect(0, -10, 1920, 1100); A.x.restore();
+  A.x.save(); A.x.globalCompositeOperation = 'destination-in'; A.x.fillStyle = '#000'; A.x.fillRect(-10, -10, TS.ax + TS.r + 10, 1100); A.x.restore();   // pasada la boca, la roca de la derecha lo tapa
+  blit(g, A.c);
+  ttLogo();
+  const m = 1 - smooth(v / DESC.menuOut); if (m > 0) { G.save(); G.globalAlpha = m; titleMenu(); G.restore(); }
+  fromBlack(smooth((v - DESC.black[0]) / (DESC.black[1] - DESC.black[0])));
+}
+
+/* ======================================================================
+   EL FOTOGRAMA: todo sale de (t, idioma, estado del control de saltar, nueva partida)
+   ====================================================================== */
+const DRAW = {1: shot1, 2: shot2, 3: shot3, 4: shot4, 5: shot5, 6: shot6, 7: shot7, 8: shot8, 9: shot9, 10: shot10};
+function drawFrame(g, t, o = {}) {                          // g: un contexto con la transformación ya en hu (1920 × 1080)
+  withG(g, () => {
+    G.save(); G.lineCap = 'round'; G.lineJoin = 'round';
+    G.beginPath(); G.rect(0, 0, 1920, 1080); G.clip();
+    if (o.ng != null) drawDescent(o.ng);
+    else if (t >= TOTAL) shot10(t - SH(10).t0);             // la pantalla de inicio: el mismo dibujo del plano 10, que sigue
+    else { const s = shotAt(t); DRAW[s.n](t - s.t0); }
+    if (o.lift > 0) fromBlack(o.lift);
+    if (o.skip) skipOverlay(o.skip);
+    G.restore();
+  });
+}
+function skipOverlay(k) {                                   // el control de saltar: un anillo a lápiz que se llena; al saltar, negro
+  if (k.cut != null) { G.fillStyle = `rgba(10,8,6,${smooth(k.cut / SKIP.cut)})`; G.fillRect(-10, -10, 1940, 1100); }
+  const a = k.show; if (a <= 0) return;
+  const x = 1800, y = 1000, r = 24, f = clamp(k.hold / SKIP.hold), dark = k.onDark;
+  const C = dark ? 'rgba(239,230,214,.9)' : INK, C2 = dark ? 'rgba(239,230,214,.3)' : 'rgba(26,23,21,.3)';
+  G.save(); G.globalAlpha = a;
+  hudText(tr('cinematic.skip'), x - r - 18, y + 1, 28, 'right', C, dark ? null : 'rgba(239,230,214,.5)');
+  scircle({x, y}, r, null, 1.4, C2, 47900);
+  if (f > 0) { G.strokeStyle = C; G.lineWidth = 4.2; G.lineCap = 'round'; G.beginPath(); G.arc(x, y, r, -Math.PI / 2, -Math.PI / 2 + f * Math.PI * 2); G.stroke(); }
+  G.restore();
+}
+const darkAt = t => { if (t >= TOTAL) return false; const s = shotAt(t); return [1, 8, 9].includes(s.n) || (s.n === 2 && t - s.t0 < 1); };   // sobre lo oscuro, el anillo va en claro
+
+/* ======================================================================
+   EL SONIDO: music.intro y music.descent se renderizan una vez (sin conexión) y suenan desde el instante en que está
+   la imagen. Saltar corta la intro en 0,4 s (07-audio/music/music.md §3).
+   ====================================================================== */
+const AUD = {buf: null, dbuf: null, ready: null, ac: null, src: null, g: null, on: true};
+AUD.ready = Promise.all([SND.renderMusic('music.intro'), SND.renderMusic('music.descent')]).then(([b, d]) => { AUD.buf = b; AUD.dbuf = d; return b; });
+function audioCtx() { if (!AUD.ac) AUD.ac = new (window.AudioContext || window.webkitAudioContext)(); if (AUD.ac.state === 'suspended') AUD.ac.resume(); return AUD.ac; }
+function musicStop() { if (AUD.src) { try { AUD.src.stop(); } catch (e) {} AUD.src.disconnect(); AUD.src = null; } }
+function playBuf(buf, t) {                                  // suena buf desde t (s)
+  musicStop(); if (!AUD.on || !buf || t >= buf.duration) return;
+  const ac = audioCtx(), s = ac.createBufferSource(), g = ac.createGain(); s.buffer = buf; s.connect(g); g.connect(ac.destination);
+  s.start(ac.currentTime + .02, Math.max(0, t)); AUD.src = s; AUD.g = g; AUD.t0 = ac.currentTime + .02 - t;
+}
+const musicAt = t => playBuf(AUD.buf, t);
+function cutMusic(gain, src, when) {                        // el corte de saltar: de lo que suene a cero en 0,4 s, y la fuente se para
+  gain.gain.cancelScheduledValues(when); gain.gain.setValueAtTime(1, when); gain.gain.linearRampToValueAtTime(0, when + SKIP.cut);
+  try { src.stop(when + SKIP.cut + .02); } catch (e) {}
+}
+const musicPos = () => AUD.src && AUD.ac ? AUD.ac.currentTime - AUD.t0 : null;
+
+/* ======================================================================
+   EL BUCLE: el tiempo avanza con dt; la música se resincroniza si se separa más de 0,1 s
+   ====================================================================== */
+const ST = {t: 0, playing: false, handoff: true, keys: {Enter: false, Escape: false}, hold: 0, show: 0, cut: null, lift: 0, landed: false, ng: null, frames: 0, last: 0};
+const endOf = () => TOTAL + (ST.handoff ? HOME : 0);
+function play(on) {
+  ST.playing = on; btn('bPlay').setAttribute('aria-pressed', on); btn('bPlay').textContent = on ? 'Pausa (Espacio)' : 'Reproducir (Espacio)';
+  if (!on) { musicStop(); return; }
+  if (ST.ng != null) { if (ST.ng >= DESC.len) ST.ng = 0; playBuf(AUD.dbuf, ST.ng); return; }
+  if (ST.t >= endOf()) seek(0, false);
+  musicAt(ST.t);
+}
+function seek(t, keep = true) {
+  ST.t = clamp(t, 0, endOf()); ST.cut = null; ST.lift = 0; ST.landed = false; ST.hold = 0; ST.ng = null;
+  if (keep && ST.playing) musicAt(ST.t);
+}
+function newGame() {                                        // Nueva partida, desde la pantalla de inicio: el descenso y la zona 1
+  if (ST.t < TOTAL) ST.t = TOTAL;
+  ST.cut = null; ST.hold = 0; ST.lift = 0; ST.ng = 0; ST.playing = true;
+  btn('bPlay').setAttribute('aria-pressed', 'true'); btn('bPlay').textContent = 'Pausa (Espacio)';
+  playBuf(AUD.dbuf, 0);
+}
+function stepLive(dt) {                                     // la lógica del sandbox: solo dt
+  const held = (ST.keys.Enter || ST.keys.Escape) && ST.ng == null;
+  if (ST.cut != null) { ST.cut += dt; if (ST.cut >= SKIP.cut) { ST.cut = null; ST.t = TOTAL; ST.lift = 1; ST.landed = true; ST.hold = 0; } }   // tras el negro, la pantalla de inicio
+  else if (held && ST.t < TOTAL) { ST.hold += dt; if (ST.hold >= SKIP.hold) skipNow(); }
+  else ST.hold = 0;
+  if (ST.lift > 0 && ST.cut == null && ST.landed) ST.lift = Math.max(0, ST.lift - dt / SKIP.lift);
+  ST.show = held && ST.cut == null && ST.t < TOTAL ? Math.min(1, ST.show + dt / .2) : Math.max(0, ST.show - dt / .3);
+  if (ST.playing && ST.cut == null) {
+    if (ST.ng != null) { ST.ng += dt; if (ST.ng >= DESC.len) { ST.ng = DESC.len; play(false); } return; }
+    ST.t += dt;
+    if (ST.t >= endOf()) { ST.t = endOf(); play(false); }
+    const mp = musicPos(); if (!ST.landed && mp != null && ST.t < TOTAL - .2 && Math.abs(mp - ST.t) > .1) musicAt(ST.t);
+  }
+}
+function skipNow() {                                        // S4: la imagen a negro y la música cortada en 0,4 s; después, la pantalla de inicio
+  ST.cut = 0; ST.hold = SKIP.hold;
+  if (AUD.src && AUD.g) { cutMusic(AUD.g, AUD.src, AUD.ac.currentTime); AUD.src = null; }
+}
+let pxs = 1;
+function fit() { const r = cv.getBoundingClientRect(); pxs = window.devicePixelRatio || 1; const w = Math.round(r.width * pxs), h = Math.round(r.height * pxs); if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } }
+function render(t = ST.t) {
+  fit(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+  const k = cv.width / 1920; ctx.setTransform(k, 0, 0, k, 0, (cv.height - 1080 * k) / 2);
+  drawFrame(ctx, t, {ng: ST.ng, lift: ST.cut == null ? ST.lift : 0, skip: ST.ng == null ? {hold: ST.hold, show: ST.show, cut: ST.cut, onDark: darkAt(t)} : null});
+}
+function frame(now) {
+  const dt = ST.last ? Math.min(.1, (now - ST.last) / 1000) : 0; ST.last = now;
+  stepLive(dt); render(); ST.frames++; ui();
+  requestAnimationFrame(frame);
+}
+
+/* ---------- los mandos ---------- */
+const btn = id => document.getElementById(id);
+const fmt = x => x.toFixed(1).replace('.', ',');
+function ui() {
+  const s = shotAt(Math.min(ST.t, TOTAL - 1e-6));
+  const where = ST.ng != null ? (ST.ng >= DESC.black[1] ? 'nueva partida: empieza la zona 1' : `nueva partida: el descenso (${fmt(ST.ng)} s)`)
+    : ST.cut != null ? 'saltando…' : ST.t >= TOTAL ? (ST.landed ? 'saltada: la pantalla de inicio (la música, cortada en 0,4 s)' : 'la pantalla de inicio (06-ui/title), sobre el mismo dibujo') : `plano ${s.n} · ${s.name}`;
+  btn('state').textContent = `${fmt(Math.min(ST.t, TOTAL))} s · ${where}${AUD.buf ? '' : ' · música: preparando…'}`;
+  const sc = btn('scrub'); if (document.activeElement !== sc) sc.value = Math.min(ST.t, TOTAL);
+  document.querySelectorAll('#shots button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.n === s.n && ST.t < TOTAL && ST.ng == null)));
+}
+SHOTS.forEach(s => { const b = document.createElement('button'); b.dataset.n = s.n; b.textContent = `${s.n} · ${s.name} (${s.t0}–${s.t1} s)`; b.onclick = () => { seek(s.t0); cv.focus(); }; btn('shots').appendChild(b); });
+btn('bPlay').onclick = () => { play(!ST.playing); cv.focus(); };
+btn('bRestart').onclick = () => { seek(0); cv.focus(); };
+btn('bNew').onclick = () => { newGame(); cv.focus(); };
+btn('scrub').oninput = e => seek(+e.target.value);
+function toggleLang() { lang = lang === 'es' ? 'en' : 'es'; btn('bLang').textContent = `Idioma: ${lang === 'es' ? 'español' : 'inglés'} (L)`; }
+btn('bLang').onclick = () => { toggleLang(); cv.focus(); };
+btn('bHand').onclick = () => { ST.handoff = !ST.handoff; btn('bHand').setAttribute('aria-pressed', ST.handoff); btn('bHand').textContent = `Quedarse en el inicio: ${ST.handoff ? 'sí' : 'no'}`; if (!ST.handoff && ST.t > TOTAL) seek(TOTAL); cv.focus(); };
+btn('bMute').onclick = () => { AUD.on = !AUD.on; btn('bMute').setAttribute('aria-pressed', !AUD.on); btn('bMute').textContent = `Música: ${AUD.on ? 'sí' : 'no'} (M)`; if (ST.playing) { if (ST.ng != null) playBuf(AUD.dbuf, ST.ng); else musicAt(ST.t); } else musicStop(); cv.focus(); };
+btn('bStill').onclick = () => { const r = stillCheck(ST.t, ST.ng); btn('check').textContent = r.same ? `Nada tiembla: el fotograma de ${fmt(ST.ng ?? ST.t)} s, dibujado dos veces (y otra vez tras saltar a otro instante), da los mismos ${r.px} píxeles.` : `¡Tiembla! ${r.diff} píxeles distintos en ${fmt(ST.t)} s.`; cv.focus(); };
+btn('bTests').onclick = () => { btn('check').textContent = 'Pruebas: corriendo…'; ciTests().then(r => { btn('check').textContent = `Pruebas: ${r.ok ? 'todas bien' : 'FALLAN: ' + r.fails.join(' · ')} (${r.n} comprobaciones).`; }); cv.focus(); };
+window.addEventListener('keydown', e => {
+  if (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Escape') { ST.keys[e.code === 'Escape' ? 'Escape' : 'Enter'] = true; e.preventDefault(); return; }
+  if (e.repeat || e.target.tagName === 'INPUT') return;
+  const n = /^Digit([0-9])$/.exec(e.code);
+  if (n) { seek(SHOTS[(+n[1] + 9) % 10].t0); e.preventDefault(); }
+  else if (e.code === 'Space') { play(!ST.playing); e.preventDefault(); }
+  else if (e.code === 'KeyR') seek(0);
+  else if (e.code === 'KeyG') newGame();
+  else if (e.code === 'KeyL') toggleLang();
+  else if (e.code === 'KeyM') btn('bMute').onclick();
+  else if (e.code === 'KeyN') btn('bStill').onclick();
+  else if (e.code === 'KeyP') btn('bTests').onclick();
+});
+window.addEventListener('keyup', e => { if (e.code === 'Enter' || e.code === 'NumpadEnter') ST.keys.Enter = false; if (e.code === 'Escape') ST.keys.Escape = false; });
+window.addEventListener('blur', () => { ST.keys.Enter = ST.keys.Escape = false; });
+
+/* ======================================================================
+   NADA TIEMBLA: el mismo instante, dibujado dos veces, da los mismos píxeles (también el sueño difuminado y la estática)
+   ====================================================================== */
+function offscreen(w = 960, h = 540) { const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); g.setTransform(w / 1920, 0, 0, w / 1920, 0, 0); return {c, g}; }
+function shotPixels(t, o = {}, w = 640, h = 360) { const {c, g} = offscreen(w, h); drawFrame(g, t, o); return g.getImageData(0, 0, w, h).data; }
+function diffPx(a, b) { let n = 0; for (let i = 0; i < a.length; i += 4) if (a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2] || a[i + 3] !== b[i + 3]) n++; return n; }
+function stillCheck(t, ng = null) {
+  const o = {ng}, a = shotPixels(t, o), b = shotPixels(t, o);
+  shotPixels((t + 7.3) % TOTAL, {}); const c = shotPixels(t, o);             // saltar a otro instante y volver
+  const d = diffPx(a, b) + diffPx(a, c); return {same: d === 0, diff: d, px: a.length / 4};
+}
+
+/* ======================================================================
+   PRUEBAS (deterministas): cada plano al empezar, a la mitad y al acabar; la duración; saltar (acaba en el inicio); el
+   idioma de la tarjeta; nada tiembla en ningún plano (también el sueño difuminado, la estática y el temblor del plano 6);
+   la estela roja antes de tomar el reloj y morada después; la carrera acaba donde el inicio pone a Akeris; el descenso de
+   Nueva partida; los instantes compartidos con la música; el corte de la música en 0,4 s
+   ====================================================================== */
+function streakPx(t, box, o = {}) {                          // cuenta los píxeles rojos y morados de la estela dentro de box (en hu), sin el velo del sueño
+  const W = 960, H = 540, k = W / 1920; DREAM.raw = true; let d; try { d = shotPixels(t, o, W, H); } finally { DREAM.raw = false; } let red = 0, pur = 0;
+  for (let y = Math.floor(box[1] * k); y < box[3] * k; y++) for (let x = Math.floor(box[0] * k); x < box[2] * k; x++) { const i = (y * W + x) * 4, r = d[i], g = d[i + 1], b = d[i + 2];
+    if (r > 120 && g < 70 && b < 90 && r > b * 1.6) red++; else if (b > 110 && g < 110 && b > r * 1.1 && b > g * 1.6) pur++; }
+  return {red, pur};
+}
+async function ciTests() {
+  const fails = [], ok = (c, m) => { if (!c) fails.push(m); }; let n = 0; const chk = (c, m) => { n++; ok(c, m); };
+  const keep = {...ST, keys: {...ST.keys}}, keepLang = lang, near = (a, b, e = .011) => Math.abs(a - b) <= e;
+  // 1. cada plano en su principio, su mitad y su final se dibuja sin errores; también el inicio y el descenso
+  for (const s of SHOTS) for (const u of [0, s.dur / 2, s.dur - .001]) { try { shotPixels(s.t0 + u); chk(true); } catch (e) { chk(false, `plano ${s.n} en ${u}: ${e.message}`); } }
+  for (const v of [0, 1.5, 3, 4.4, 5.5]) { try { shotPixels(TOTAL, {ng: v}); chk(true); } catch (e) { chk(false, `el descenso en ${v}: ${e.message}`); } }
+  // 2. la duración: 45 s en diez planos, la suma de los planos y la pista de la música
+  chk(SHOTS.length === 10, `hay ${SHOTS.length} planos`); chk(TOTAL === 45, `la intro dura ${TOTAL} s`);
+  chk(SHOTS.map(s => s.dur).join() === '6,3,5,6,4,8,5,3,1,4', 'las duraciones no son las de intro.md');
+  chk(SND.MUSIC['music.intro'].len === 45, 'music.intro no dura 45 s');
+  const buf = await AUD.ready; chk(Math.abs(buf.duration - 45) < 1e-3, `la música renderizada dura ${buf.duration} s`);
+  chk(Math.abs(AUD.dbuf.duration - 4.6) < 1e-3, `music.descent dura ${AUD.dbuf.duration} s`);
+  // 3. saltar: soltar a los 4,9 s no salta; mantener 5 s salta, la música se corta en 0,4 s y se cae en la pantalla de inicio
+  { const S = ST, dt = 1 / 60; Object.assign(S, {t: 10, playing: true, cut: null, lift: 0, landed: false, ng: null, hold: 0, show: 0}); AUD.src = null;
+    S.keys.Enter = true; for (let i = 0; i < Math.round(4.9 / dt); i++) stepLive(dt); chk(S.cut == null && !S.landed, 'saltó antes de los 5 s');
+    S.keys.Enter = false; stepLive(dt); chk(S.hold === 0, 'soltar no vacía el anillo');
+    S.keys.Escape = true; for (let i = 0; i < Math.round(4.9 / dt); i++) stepLive(dt); chk(S.cut == null, 'el anillo no empezó de cero al volver a mantener');
+    for (let i = 0; i < 8; i++) stepLive(dt); chk(S.cut != null, 'mantener Esc 5 s no salta');
+    for (let i = 0; i < Math.round(.42 / dt); i++) stepLive(dt); chk(S.landed && S.t >= TOTAL && S.t < TOTAL + .1 && S.cut == null, `tras saltar no cae en la pantalla de inicio en 0,4 s (t ${S.t})`);
+    S.keys.Escape = false; for (let i = 0; i < Math.round(.45 / dt); i++) stepLive(dt); chk(S.lift === 0, 'el inicio no sale del negro en 0,4 s');
+    chk(diffPx(shotPixels(S.t), shotPixels(S.t, {})) === 0 && S.t >= TOTAL, 'lo que se ve tras saltar no es la pantalla de inicio');
+    S.keys.Enter = true; S.hold = 0; for (let i = 0; i < Math.round(5.5 / dt); i++) stepLive(dt); chk(S.cut == null && S.hold === 0, 'en la pantalla de inicio, mantener Enter vuelve a saltar'); S.keys.Enter = false; }
+  // 3b. el corte de la música: de lo que sonaba a silencio en 0,4 s (render sin conexión con el mismo corte, en mitad del plano 4)
+  { const SR = SND.SR, c = new OfflineAudioContext(2, 19 * SR, SR), s = c.createBufferSource(), g = c.createGain(); s.buffer = buf; s.connect(g); g.connect(c.destination); s.start(0, 0); cutMusic(g, s, 15.5);
+    const r = await c.startRendering(), d = r.getChannelData(0), rms = (a, b) => { let q = 0, m = 0; for (let i = Math.round(a * SR); i < Math.round(b * SR); i++) { q += d[i] * d[i]; m++; } return Math.sqrt(q / m); };
+    const before = rms(15.1, 15.48), mid = rms(15.7, 15.88), after = rms(15.92, 17);
+    chk(before > .005, `antes del corte no suena (${before})`); chk(mid < before * .8 && mid > 0, 'a la mitad del corte no baja'); chk(after < 1e-5, `después de 0,4 s sigue sonando (${after})`); }
+  // 4. la tarjeta: una sola clave, cinematic.intro.card; el idioma la cambia; las de 2026-09-30 están retiradas
+  { const key = 'cinematic.intro.card', t = SH(7).t0 + 3.5; lang = 'es'; const es = shotPixels(t), sEs = tr(key); lang = 'en'; const en = shotPixels(t), sEn = tr(key);
+    chk(sEs === 'Akeris, tienes que salvar el mundo. Entra al templo del tiempo.' && sEn === 'Akeris, you have to save the world. Enter the Temple of Time.', `${key}: el texto no es el de intro.md`);
+    chk(diffPx(es, en) > 200, `${key}: el dibujo no cambia con el idioma`);
+    lang = 'es'; const pre = shotPixels(SH(7).t0 + CARD7 - .02), post = shotPixels(SH(7).t0 + CARD7 + .02); chk(diffPx(pre, post) > 2000, 'la tarjeta no aparece de golpe sobre el último cuadro');
+    chk(!('cinematic.intro.card1' in TXT) && !('cinematic.intro.card2' in TXT), 'card1 y card2 siguen en uso');
+    chk(SHOTS.filter(s => s.text && s.text.startsWith('cinematic.')).length === 1 && SH(7).text === key, 'la tarjeta no está (solo) en el plano 7'); }
+  lang = keepLang;
+  // 5. nada tiembla: cada plano (principio, cuartos, mitad, final), los huecos de estática, el inicio y el descenso, dos veces y tras saltar a otro instante
+  for (const s of SHOTS) for (const u of [0, s.dur * .25, s.dur / 2, s.dur * .75, s.dur - .001]) { const r = stillCheck(s.t0 + u); chk(r.same, `plano ${s.n} en ${fmt(u)} s tiembla (${r.diff} px)`); }
+  for (const t of [9.05, 9.75, 11.1, 13.95, 32.05, 32.65, 33.8]) { const r = stillCheck(t); chk(r.same, `la estática de ${fmt(t)} s tiembla (${r.diff} px)`); }
+  for (const t of [26, 27.7, 29.4, 30.6]) { const r = stillCheck(t); chk(r.same, `el temblor de ${fmt(t)} s no es función del tiempo (${r.diff} px)`); }
+  { const r = stillCheck(TOTAL + 2); chk(r.same, 'la pantalla de inicio tiembla'); }
+  for (const v of [.2, 1.6, 3.4]) { const r = stillCheck(TOTAL, v); chk(r.same, `el descenso en ${fmt(v)} s tiembla`); }
+  // 6. el sueño: borroso de verdad (el mismo cuadro, con y sin el velo, difiere) y los cortes duran 0,2–0,6 s con estática entre ellos
+  { DREAM.raw = true; const a = shotPixels(17); DREAM.raw = false; const b = shotPixels(17); chk(diffPx(a, b) > 20000, 'el sueño no se ve borroso ni lavado'); }
+  chk([...C3.cuts, ...C7.cuts.slice(0, -1)].every(d => d >= .2 && d <= .6 + 1e-9) && C3.cuts.length >= 6 && C3.cuts.length <= 8, 'los cortes no duran 0,2–0,6 s o no son 6–8');
+  // 7. la estela: roja antes de tomar el reloj, morada después, desde el ojo; roja la del futuro (rota) y la del despertar
+  { const box = [0, 0, 1920, 1080], t5 = SH(5).t0, a = streakPx(t5 + W5.take - .2, box), m = streakPx(t5 + W5.take + .45, box), b = streakPx(t5 + 3.9, box);
+    chk(a.red > 30 && a.pur === 0, `antes de tomarlo la estela no es roja (${a.red} rojos, ${a.pur} morados)`);
+    chk(m.red > 5 && m.pur > 5, `a medio cambio no hay rojo y morado a la vez (${m.red}, ${m.pur})`);
+    chk(b.pur > 30 && b.red === 0, `después de tomarlo la estela no es morada (${b.red} rojos, ${b.pur} morados)`);
+    streakFront = .3; const nearE = purpleAt(0), farE = purpleAt(1); streakFront = null; chk(nearE === 1 && farE === 0, 'el morado no empieza en el ojo');
+    const s4 = streakPx(SH(4).t0 + 2, box); chk(s4.red > 20 && s4.pur === 0, 'en la cámara la estela no es roja');
+    const f7 = streakPx(SH(7).t0 + .3, box); chk(f7.red > 10 && f7.pur === 0, 'la estela del Akeris del futuro no es roja');
+    const b8 = [0, 0, 1000, 1080], w8 = streakPx(SH(8).t0 + 1.5, b8), s8 = streakPx(SH(8).t0 + .1, b8); chk(w8.red > 20 && w8.pur === 0, `al despertar la estela no es roja (${w8.red})`); chk(s8.red === 0, 'dormido, la estela ya brilla');
+    const r10 = streakPx(SH(10).t0 + 3, box); chk(r10.red > 20 && r10.pur === 0, 'ante la boca la estela no es roja'); }
+  // 8. el aspecto que cambia al tomar el reloj: la capa más oscura, la espalda derecha, el contorno más duro
+  { const p0 = pose5(1), p1 = pose5(3.9); chk(p1.lean < p0.lean - 15, 'la espalda no se endereza'); chk(W5.change[1] <= SH(5).dur && W5.hard[1] <= SH(5).dur, 'el cambio no acaba dentro del plano 5');
+    const {p, x} = pose4(W4.strike); void p; chk(x === x4(W4.strike), 'pose4');
+    const J = skeleton(pose5(W5.reach[1]), {x: 0, y: 0}, 1), hx = X5 + J.hand.x * CH.sc, hy = CH.gy + J.hand.y * CH.sc; chk(Math.hypot(hx - D5_TARGET.x, hy - D5_TARGET.y) < 3, `la mano no llega al reloj (${hx.toFixed(1)}, ${hy.toFixed(1)})`); }
+  // 9. el Guardián: está antes del golpe; cae y se rompe; después no queda nada de él
+  { const has = u => { DREAM.raw = true; let d; try { const {c, g} = offscreen(640, 360); withG(g, () => { G.save(); g.setTransform(640 / 1920, 0, 0, 640 / 1920, 0, 0); G.fillStyle = '#fff'; G.fillRect(0, 0, 1920, 1080); guardian(u); G.restore(); }); d = g.getImageData(0, 0, 640, 360).data; } finally { DREAM.raw = false; }
+      let k = 0; for (let i = 0; i < d.length; i += 4) if (d[i] < 60) k++; return k; };
+    const a = has(3.9), b = has(W4.brk + .3), c = has(SH(4).dur - .01); chk(a > 2000, 'el Guardián no está antes del golpe'); chk(b > 0 && b < a, 'el Guardián no se rompe en trozos'); chk(c === 0, 'quedan trozos del Guardián al final del plano 4'); }
+  // 10. el plano 6: todo tiembla de una pieza (función del tiempo); el rayo cae; el mundo se borra hasta el papel
+  { const a = shake6(4), b = shake6(4), mx = Math.max(...[1, 2, 3.7, 4.2, 6].map(u => Math.hypot(shake6(u).x, shake6(u).y)));
+    chk(a.x === b.x && a.y === b.y, 'el temblor no es función del tiempo'); chk(mx > 3, 'el mundo no tiembla'); chk(Math.hypot(shake6(SH(6).dur).x, shake6(SH(6).dur).y) < .01, 'el temblor no se calma al final');
+    const W = world6(), vis = u => W.S.filter(s => visible6(s.c, u)).length;
+    chk(vis(4.9) === W.S.length && W.S.length > 150, 'el mundo no está entero antes del borrado'); chk(vis(6.2) > 0 && vis(6.2) < W.S.length, 'el borrado no va trazo a trazo'); chk(vis(SH(6).dur - .01) === 0, 'queda mundo al final del plano 6');
+    const near1 = W.S.reduce((m, s) => Math.min(m, Math.hypot(s.c.x - HIT.x, s.c.y - HIT.y)), 1e9), u0 = W.S.find(s => Math.hypot(s.c.x - HIT.x, s.c.y - HIT.y) === near1); chk(!visible6(u0.c, 5.2), 'lo más cerca del impacto no se borra primero');
+    chk(W6.clockGone < SH(6).dur, 'el reloj del cielo no se va'); }
+  // 11. la carrera acaba donde el inicio pone a Akeris, en su reposo; el último cuadro es la pantalla de inicio
+  { const u = SH(10).dur, s = pose10(u); chk(x10(u) === TS.hx, `la carrera no acaba en x ${TS.hx} (${x10(u)})`); chk(KEYS.every(k => s.p[k] === breatheAt(POSE.idle, 0)[k]), 'al acabar no está en su reposo');
+    chk(x10(0) + 120 < 0, 'no llega desde fuera, por la izquierda');
+    const W = 960, H = 540, k = W / 1920, a = shotPixels(TOTAL - .001, {}, W, H), b = shotPixels(TOTAL + HOME, {}, W, H);
+    const {c, g} = offscreen(W, H); withG(g, () => { G.save(); G.lineCap = 'round'; G.lineJoin = 'round'; G.beginPath(); G.rect(0, 0, 1920, 1080); G.clip(); ttScene(1920); ttLogo(); titleMenu(); G.restore(); }); const ref = g.getImageData(0, 0, W, H).data;
+    const mask = (x, y) => x > 760 * k && x < 1210 * k && y > 500 * k && y < 940 * k;
+    let d1 = 0, d2 = 0; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { if (mask(x, y)) continue; const i = (y * W + x) * 4; if (a[i] !== ref[i] || a[i + 1] !== ref[i + 1] || a[i + 2] !== ref[i + 2]) d1++; if (b[i] !== ref[i] || b[i + 1] !== ref[i + 1] || b[i + 2] !== ref[i + 2]) d2++; }
+    chk(d1 === 0, `el final del plano 10 y la pantalla de inicio (ttScene, ttLogo, ttMain) difieren en ${d1} píxeles`); chk(d2 === 0, `la pantalla de inicio difiere de la de 06-ui en ${d2} píxeles`); }
+  // 12. los instantes que comparten la imagen y la música (07-audio/sandbox, marks)
+  { const M = MK(), same = (a, b) => a.length === b.length && a.every((v, i) => near(v, b[i]));
+    chk(same(cutStarts(C3, SH(3).t0), M.cuts3), 'los cortes del plano 3 no van con la música');
+    { const g = []; let t = SH(3).t0; g.push(t); t += C3.lead; C3.cuts.forEach(d => { t += d; g.push(+t.toFixed(4)); t += C3.gap; }); chk(same(g, M.gaps3), 'la estática del plano 3 no va con la música'); }
+    chk(same(cutStarts(C7, SH(7).t0), M.cuts7), 'los cortes del plano 7 no van con la música'); chk(near(SH(7).t0 + CARD7, M.card7), 'la tarjeta no va con la música');
+    { const st = []; let prev = null; for (let i = 0; i <= 4000; i++) { const u = i / 1000; const q = Math.floor(2 * (x4(u) - X4_0) / CYC4 + 1e-9); if (q !== prev && u <= W4.stop + .1) st.push(SH(4).t0 + u); prev = q; } chk(same(st, M.steps4), `los pasos del plano 4 no van con la música (${st.map(x => x.toFixed(2))})`); }
+    chk(near(SH(4).t0 + W4.strike, M.strike4) && near(SH(5).t0 + W5.take, M.take5) && near(SH(6).t0 + W6.strike, M.strike6) && near(SH(6).t0 + W6.bolt, M.bolt6), 'el golpe, el reloj tomado o el rayo no van con la música');
+    chk(near(SH(8).t0 + .15, M.wake8), 'el aliento del despertar no va con la imagen');
+    chk(same(runContacts().map(u => SH(10).t0 + u), M.run10), `los pasos de la carrera no van con la música (${runContacts()})`);
+    chk(M.stop10 > M.run10[M.run10.length - 1] && M.stop10 < SH(10).t0 + RUN.stop + RUN.dec, 'la parada no suena mientras frena'); }
+  // 13. Nueva partida: el descenso empieza en la composición del inicio, cada pie pisa con un paso de music.descent, Akeris se pierde en lo oscuro y luego negro
+  { const s = state6(0); chk(s.x === TS.hx && s.y === TS.fy, 'el descenso no empieza con Akeris donde lo pone el inicio');
+    const steps = SND.MUSIC['music.descent'].marks.steps; let worst = 0;
+    steps.forEach((t, k) => { chk(near(t, DESC.start + DESC.blend + k * DESC.step, 1e-6), `el paso ${k} de music.descent no va con la imagen`); const q = (x6(t) - X6) / CYC, ph = ((q + (k % 2 ? .5 : 0)) % 1 + 1) % 1; worst = Math.max(worst, Math.min(ph, 1 - ph)); });
+    chk(worst < .01, `los pies no van con los pasos (${worst})`);
+    chk(x6(DESC.black[0]) - 200 >= TS.ax + TS.r || state6(DESC.black[0]).y - TS.fy > 170, 'Akeris no se ha perdido en lo oscuro antes del negro');
+    chk(DESC.black[1] > 3.5 && DESC.black[1] < 5, 'el descenso no dura unos 4 s');
+    const a = shotPixels(TOTAL, {ng: DESC.black[1] + .02}); let dark = 0; for (let i = 0; i < a.length; i += 4) if (a[i] < 40) dark++; chk(dark > a.length / 4 * .9, 'tras el descenso no hay negro'); }
+  Object.assign(ST, keep); lang = keepLang;
+  return {ok: fails.length === 0, fails, n};
+}
+window.ciTests = ciTests; window.stillCheck = stillCheck; window.drawFrame = drawFrame; window.ST = ST; window.SHOTS = SHOTS; window.newGame = newGame;
+
+/* ======================================================================
+   EXPORTAR (#exportar): la hoja del guion (01-story/cinematics/intro-sheet.png: los diez planos y, aparte, el descenso de
+   Nueva partida), una captura por plano y fotogramas intermedios (sandbox/captures/), el Akeris que toma el reloj
+   (03-characters/corrupted-akeris/sprites/) y el Akeris del futuro del cortocircuito (03-characters/future-akeris/sprites/)
+   ====================================================================== */
+const CAPS = [                                             // [archivo, t] — uno por plano, en su momento más claro
+  ['intro-1-ruinas', 5.2], ['intro-2-sueno', 6 + 2.8], ['intro-3-cortocircuitos', 9 + 4.5], ['intro-4-camara', 14 + 3.3], ['intro-5-reloj', 20 + 3.7],
+  ['intro-6-fin-del-mundo', 24 + 4.1], ['intro-7-el-que-volvio', 32 + 3.6], ['intro-8-despertar', 37 + 1.4], ['intro-9-negro', 40.5], ['intro-10-templo', 44.99],
+];
+const BETWEEN = [                                          // fotogramas intermedios: los cortes, el golpe, la toma, el rayo, el borrado, la tarjeta, la parada
+  ['intro-2-blanco', 6 + 1.0], ['intro-3-hojas', 9.4], ['intro-3-estatica', 9.75], ['intro-3-escudo', 10.05], ['intro-3-estela', 10.7], ['intro-3-cornisa', 11.35], ['intro-3-sombra', 12.0], ['intro-3-capa', 12.75],
+  ['intro-4-llega', 14 + 1.2], ['intro-4-golpe', 14 + 4.02], ['intro-4-cae', 14 + 4.6], ['intro-4-se-rompe', 14 + 5.2],
+  ['intro-5-toma', 20 + 1.3], ['intro-5-se-vuelve-morada', 20 + 2.0],
+  ['intro-6-reloj-se-forma', 24 + 1.6], ['intro-6-golpea', 24 + 3.45], ['intro-6-rayo', 24 + 3.75], ['intro-6-borrado', 24 + 6.0], ['intro-6-papel', 24 + 7.9],
+  ['intro-7-futuro', 32 + .3], ['intro-7-espada', 32 + .9], ['intro-7-cabeza', 32 + 1.5], ['intro-7-nos-mira', 32 + 2.05],
+  ['intro-8-se-incorpora', 37 + .45], ['intro-8-mira', 37 + 2.2],
+  ['intro-10-carrera', 41 + .9], ['intro-10-se-para', 41 + 2.0], ['intro-10-titulo', 41 + 2.9],
+];
+const NG_CAPS = [['intro-nueva-partida-1-anda', 1.2], ['intro-nueva-partida-2-escalera', 3.0], ['intro-nueva-partida-3-zona-1', 5.6]];
+function capture(t, o = {}, w = 1280, h = 720) { const {c, g} = offscreen(w, h); drawFrame(g, t, o); return c; }
+function storySheet() {                                    // diez cuadros con su número, su tiempo, su texto y su sonido; el undécimo, el descenso
+  const cols = 4, cw = 520, ch = 293, pad = 30, capH = 128, head = 96, rows = 3, W = cols * cw + (cols + 1) * pad, H = head + rows * (ch + capH + pad) + 10;
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+  withG(g, () => {
+    G.fillStyle = PAPER; G.fillRect(0, 0, W, H); G.lineCap = 'round'; G.lineJoin = 'round';
+    hudText(`La intro — diez planos, ${TOTAL} s (01-story/cinematics/intro.md, segunda versión del guion, 2026-10-13)`, pad, 44, 40); hudText('sin voz · el sonido es music.intro · cada cuadro, en el instante de su captura · el 11, aparte: Nueva partida (music.descent)', pad, 78, 24, 'left', 'rgba(26,23,21,.7)');
+    const cells = [...SHOTS.map((s, i) => ({s, t: CAPS[i][1]})), {ng: 1.6}];
+    cells.forEach((cell, i) => {
+      const x = pad + (i % cols) * (cw + pad), y = head + Math.floor(i / cols) * (ch + capH + pad);
+      g.save(); g.setTransform(cw / 1920, 0, 0, cw / 1920, x, y); drawFrame(g, cell.ng != null ? TOTAL : cell.t, cell.ng != null ? {ng: cell.ng} : {}); g.restore(); G = g;
+      seed(49000 + i); poly([{x, y}, {x: x + cw, y}, {x: x + cw, y: y + ch}, {x, y: y + ch}], null, 2.6, .8);
+      if (cell.ng != null) {
+        hudText('11 · Nueva partida: el descenso', x, y + ch + 26, 28); hudText(`${fmt(DESC.black[1])} s, después del inicio`, x + cw, y + ch + 26, 22, 'right', 'rgba(26,23,21,.7)');
+        hudText('no es parte de la intro: lo pone Nueva partida', x, y + ch + 56, 20, 'left', INK);
+        hudText('anda al arco y baja la escalera a lo oscuro; luego la zona 1', x, y + ch + 82, 17, 'left', 'rgba(26,23,21,.65)');
+        hudText(`sonido: music.descent, pasos que se alejan · en el cuadro: ${fmt(cell.ng)} s`, x, y + ch + 104, 16, 'left', 'rgba(26,23,21,.5)'); return;
+      }
+      const s = cell.s;
+      hudText(`${s.n} · ${s.name}`, x, y + ch + 26, 28); hudText(`${fmt(s.t0)}–${fmt(s.t1)} s · ${s.dur} s`, x + cw, y + ch + 26, 22, 'right', 'rgba(26,23,21,.7)');
+      const txt = s.text ? (s.text === 'ui.title.logo' ? `el título: ${TXT[s.text].en}` : `«${TXT[s.text].es}»`) : 'sin texto';
+      hudText(txt, x, y + ch + 56, s.text && s.text !== 'ui.title.logo' ? 17 : 20, 'left', INK);
+      if (s.text && s.text !== 'ui.title.logo') hudText(`“${TXT[s.text].en}”`, x, y + ch + 78, 16, 'left', 'rgba(26,23,21,.75)');
+      hudText(`sonido: ${s.snd}`, x, y + ch + (s.text && s.text !== 'ui.title.logo' ? 100 : 82), 15, 'left', 'rgba(26,23,21,.65)');
+      hudText(`en el cuadro: ${fmt(cell.t)} s`, x, y + ch + 120, 15, 'left', 'rgba(26,23,21,.5)');
+    });
+  });
+  return c;
+}
+function crop(t, o, box) {                                  // box en hu (1920 × 1080); sin el velo del sueño: el dibujo, nítido
+  const {c} = offscreen(1920, 1080); DREAM.raw = true; try { drawFrame(c.getContext('2d'), t, o); } finally { DREAM.raw = false; }
+  const out = document.createElement('canvas'); out.width = box[2]; out.height = box[3]; out.getContext('2d').drawImage(c, box[0], box[1], box[2], box[3], 0, 0, box[2], box[3]); return out;
+}
+function takenSprite() {                                    // el Akeris del sueño tras tomar el reloj: estela morada, capa oscura, derecho, contorno duro
+  const sx = x => 960 + (x - CAM5.x) * CAM5.z, sy = y => 540 + (y - CAM5.y) * CAM5.z;
+  const x0 = sx(X5 - 210), y0 = sy(CH.gy - 400), x1 = sx(CH.clock.x + 140), y1 = sy(CH.gy + 24);
+  return crop(SH(5).t0 + 3.9, {}, [Math.round(x0), Math.round(y0), Math.round(x1 - x0), Math.round(y1 - y0)]);
+}
+function futureSprite() {                                   // el Akeris del futuro, su primer cuadro del cortocircuito
+  return crop(SH(7).t0 + .3, {}, [560, 300, 760, 640]);
+}
+async function ciExportAll() {
+  await fontsReady; await AUD.ready;
+  const out = [], put = (p, c) => out.push(p + ' ' + c.toDataURL('image/png')), C0 = '01-story/cinematics/', CAP = C0 + 'sandbox/captures/', keepLang = lang;
+  lang = 'es';
+  put(C0 + 'intro-sheet.png', storySheet());
+  for (const [f, t] of CAPS) put(CAP + f + '.png', capture(t));
+  for (const [f, t] of BETWEEN) put(CAP + f + '.png', capture(t));
+  for (const [f, v] of NG_CAPS) put(CAP + f + '.png', capture(TOTAL, {ng: v}));
+  put(CAP + 'intro-inicio.png', capture(TOTAL + 2));
+  put(CAP + 'intro-saltar.png', capture(24 + 1.2, {skip: {hold: 3.1, show: 1, cut: null, onDark: false}}));
+  put(CAP + 'intro-saltar-negro.png', capture(3.4, {skip: {hold: 3.1, show: 1, cut: null, onDark: true}}));
+  lang = 'en'; put(CAP + 'intro-7-tarjeta-en.png', capture(32 + 3.6)); lang = 'es';
+  put('03-characters/corrupted-akeris/sprites/intro-dream.png', takenSprite());
+  put('03-characters/future-akeris/sprites/intro-short-circuit.png', futureSprite());
+  lang = keepLang; return out;
+}
+window.ciExportAll = ciExportAll;
+
+/* ---------- arranque ---------- */
+const fontsReady = document.fonts ? document.fonts.load(`44px 'Patrick Hand'`).then(() => document.fonts.ready) : Promise.resolve();
+const HASH = location.hash.slice(1);
+if (/^\d+(\.\d+)?$/.test(HASH)) ST.t = +HASH;               // «#17.5»: abre en ese instante
+if (HASH === 'prueba-bucle') {                              // desde una carga limpia: el bucle de verdad reproduce la intro entera
+  window.__errors = []; window.addEventListener('error', e => window.__errors.push(String(e.message)));
+  AUD.ready.then(() => play(true));
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

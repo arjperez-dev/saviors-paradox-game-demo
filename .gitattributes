@@ -1,0 +1,4 @@
+# The repository is authored on Windows. Normalise every text file to LF in git, as the
+# factory repository does, so the harness files and the scripts carry no carriage returns.
+* text=auto eol=lf
+*.wav filter=lfs diff=lfs merge=lfs -text
