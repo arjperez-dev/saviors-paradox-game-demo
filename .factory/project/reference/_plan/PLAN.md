@@ -155,7 +155,7 @@ Con D6 (2026-10-14) no hay commit de borrado: el repositorio nuevo empieza solo 
 
 ## Fase 5: arrancar la fábrica
 
-- [ ] 5.1 Translator, sesión `revision`:
+- [x] 5.1 Translator, sesión `revision`:
   - la visión apunta a `reference/`;
   - pasa a `VISION.md` las decisiones G1–G15 de `00-game/controls.md` §5: salto alto con W, contraataque solo con bloqueo justo cuerpo a cuerpo, proyectiles devueltos y sin «partir» (también en el gólem), pociones solo con F, rueda y 1–5 solo para armas, y la mano libre en la argolla;
   - pasa a `VISION.md` los ataques de hielo (G16): solo el escudo de hielo los bloquea sin daño, como el de fuego con el fuego; y que el proyectil devuelto daña al lanzador, y con el escudo de hielo o de fuego además lo congela o lo quema 0,5 s;
@@ -790,3 +790,4 @@ Herramientas del sandbox de Akeris que se reutilizan: el trazo estático con sem
   - **Más suave (operador, «muy buen trabajo»):** la tarjeta «Continuará…» dura 8 s (`outro.md`: el plano 11 y el total, 43,5 s); la cola del bajo del tic se apaga sola (≈ 9 s) y desde 39,5 s entra `music.title` debajo (4 s, Re menor como el bajo); el inicio sale del negro en 1,2 s; al final (operador: «me encantó todo»), «Continuará…» se desvanece de 40,6 a 43,3 s con la música del inicio entrando y, tras 0,2 s de negro, sale el inicio. Sin el hueco de 70 ms: la carga se dispara (tono y filtro) con el soplo del tic y entra sin corte en el golpe (`swell10`); el golpe, igual de fuerte (−4,2 dBFS RMS). Unión con la música del inicio: sin silencio (mínimo −30,8 dB, el nivel propio del principio de `music.title`). Capturas y hoja reexportadas.
   - Aprobado por el operador el 2026-10-14 («me encantó todo»), commit `e7d36c1`.
 - **2026-10-14:** **fase 4 cerrada con D6** (operador): en vez del commit de borrado, un repositorio nuevo, `saviors-paradox-game-demo`, con un único commit (la fábrica, `VISION.md` con el registro del translator y `reference/` tal como quedó en `e7d36c1`). El repositorio anterior y sus `logs/` se archivan en `trabajo/planificaciones/`. Siguiente: 5.1, el translator en sesión `revision`.
+- **2026-10-14:** **5.1 cerrada**: el translator, en sesión `revision`, pasa a `VISION.md` las decisiones (D) de `reference/` y responde sus preguntas abiertas (rondas 07–09 del registro, commit `f44653c`). Siguiente: 5.2, el architect en sesión `project`.
