@@ -1,0 +1,26 @@
+name: saviors_paradox
+description: A dark, hand-drawn 2D side-view roguelike action-platformer — the demo.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.5
+  flutter: ">=3.47.7"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flame: 1.38.2
+  flutter_soloud: 5.2.1
+  path_provider: 2.1.6
+  window_manager: 0.5.2
+
+dev_dependencies:
+  flame_test: 2.3.1
+  flutter_lints: 6.0.0
+  flutter_test:
+    sdk: flutter
+  mocktail: 1.0.5
+
+flutter:
+  uses-material-design: false
