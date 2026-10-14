@@ -85,21 +85,21 @@ Twenty features, fixed by the architect in step 5.2 (2026-10-14) and listed as m
 | `combat` | 1 | hits, blocks, counters, reflects, damage, status effects, hitstop; the registry of combatants | `Engagement` (one exchange of attacks), `StatusEffects` |
 | `akeris` | 2 | movement, postures, health, the resolved loadout, noise, death | `Akeris` |
 | `chain` | 2 | the chain blades: throw, hook, swing, climb, anchor, snatch; what they do to Akeris's body (`ChainPull`) | `ChainPair` |
-| `hazards` | 3 | what a biome does to those in it: chasms, poison pools, webs, wind, spores, the torch of zone 4 | `Hazard` |
+| `hazards` | 3 | what hurts, hinders or breaks in a zone: black water, open graves, poison pools, floor webs and web curtains, rotten roots, cracked stalactites, tombstones, merlons, the torch of zone 4 | `Hazard` |
 | `enemies` | 3 | the twenty normal enemies, their brains, spawns and defeats | `Enemy` |
 | `bosses` | 3 | the five bosses, their parts, phases and stage changes | `Boss` |
 | `arsenal` | 3 | weapons, shields, their levels, breaks and repairs; XP, because only it spends XP | `Arsenal` |
 | `inventory` | 3 | potions, scrolls, the cursed challenge, rage, taking from altars | `Satchel` |
 | `abilities` | 4 | the ten abilities, the three equipped slots, the choice after a boss, revival | `AbilitySet` |
 | `run` | 5 | the incursion as a **process manager**: zones in order, scaling, coins, the way down, death, victory; it credits XP drops to `arsenal` | `Run` |
-| `narrative` | 5 | spirits, dialogue, the memory of past runs | `SpiritMemory`, `Dialogue` |
+| `narrative` | 5 | spirits, dialogue, the dialogue sheet, the memory of past runs | `SpiritMemory`, `Dialogue` |
 | `settings` | 6 | volumes, language | `Settings` |
 | `audio` | 6 | music per zone, sound effects, spirit voices | `Soundscape` |
 | `cinematics` | 6 | the intro and the outro: their shots, cards and cues | `Cinematic` |
 | `pause` | 6 | the pause menu: resume, the full inventory, manual save, quit to title | — (presentation) |
 | `map` | 6 | the zone map on M and the minimap: what has been explored, kept with the run | `ZoneMap` |
 | `save` | 6 | the three save slots, autosave, manual save; the **caretaker** of every feature's memento | `SaveSlot` |
-| `hud` | 6 | health, shields, potions, abilities, boss health, dialogue boxes on screen | — (presentation) |
+| `hud` | 6 | health, shields, potions, abilities, boss health on screen | — (presentation) |
 | `home` | 6 | the home screen, slot selection, new game, the locked shop | — (presentation) |
 
 Against version 1 (2026-09-30): `hazards`, `map`, `pause` and `cinematics` are features of their own
