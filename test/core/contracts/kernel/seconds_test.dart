@@ -28,13 +28,25 @@ void main() {
     });
 
     test('clamps a duration to a maximum', () {
-      expect(const Seconds(0.5).atMost(const Seconds(0.25)), const Seconds(0.25));
-      expect(const Seconds(0.1).atMost(const Seconds(0.25)), const Seconds(0.1));
+      expect(
+        const Seconds(0.5).atMost(const Seconds(0.25)),
+        const Seconds(0.25),
+      );
+      expect(
+        const Seconds(0.1).atMost(const Seconds(0.25)),
+        const Seconds(0.1),
+      );
     });
 
     test('clamps a duration to a minimum', () {
-      expect(const Seconds(0.1).atLeast(const Seconds(0.25)), const Seconds(0.25));
-      expect(const Seconds(0.5).atLeast(const Seconds(0.25)), const Seconds(0.5));
+      expect(
+        const Seconds(0.1).atLeast(const Seconds(0.25)),
+        const Seconds(0.25),
+      );
+      expect(
+        const Seconds(0.5).atLeast(const Seconds(0.25)),
+        const Seconds(0.5),
+      );
     });
   });
 }
