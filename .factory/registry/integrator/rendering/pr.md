@@ -1,0 +1,64 @@
+---
+factory_version: 4.3.0
+---
+
+# PR — rendering
+
+- **Date:** 2026-10-15
+- **Outcome:** `rendering: The pencil-art stroke kit generates once from a seed and paints every frame without allocating`
+- **Decisions:** named the Scrutinise section's two risks from reading the diff as one whole — the pool's oldest-active eviction under a burst, and the kit standing unwired from any feature so far — since a task at a time could not show either.
+- **Deviations:** none.
+- **Evidence:**
+
+```text
+## Summary
+
+Builds `lib/core/rendering/`'s pencil-art stroke kit end to end: domain generators
+(`StrokeRandom`, `LineStroke`, `CircleStroke`, `PolygonStroke`, `Hatching`, `ChainLinks`,
+`MasonryStone`, `MasonryWall`, `PaperOverlay`, `PuffShape`, `InkPuff`, `InkHole`,
+`InkDissolve`, `Pool<T>`, the colour `Palette`) each generated once from a fixed seed, and
+the presentation layer that paints them every frame without allocating (`StrokePaths`,
+`Pencil`, `MasonryPainter`, `PaperOverlayPainter`, `InkDissolvePainter`) into cached
+`Picture`s. It deliberately wires none of this into a zone or feature yet — that is for
+later waves to consume through `lib/core/contracts/`.
+
+## Tasks
+
+| id | title | type |
+|---|---|---|
+| T015 | draw random numbers from a stroke's seed | feat |
+| T016 | generate a pencil line once from its seed | feat |
+| T017 | generate a pencil circle once from its seed | feat |
+| T018 | generate a jittered polygon once from its seed | feat |
+| T019 | generate hatching over a box once from its seed | feat |
+| T020 | lay chain links along a sagging curve | feat |
+| T021 | cut one masonry stone from its seed | feat |
+| T023 | scatter the paper overlay from a seed | feat |
+| T024 | reuse short-lived objects from a fixed pool | feat |
+| T022 | lay masonry over a rectangle from its seed | feat |
+| T025 | shape a puff of ink smoke from its seed | feat |
+| T027 | name the palette's colours | feat |
+| T026 | dissolve a defeated body into ink smoke | feat |
+| T031 | paint the paper overlay once per resize | feat |
+| T028 | trace the kit's strokes into a reusable path | feat |
+| T029 | draw the kit's strokes with one reused pencil | feat |
+| T032 | paint the ink dissolve over a body's drawing | feat |
+| T030 | paint a masonry wall into a cached picture | feat |
+| T033 | test the pencil kit from seed to picture | test |
+
+## Testing evidence
+
+- Every task passed `verify-task`, and every merge ran the whole suite green.
+- `flutter test`: All tests passed! (165 tests)
+- Manual tests: none
+
+## Scrutinise
+
+- `Pool<T>.acquire()` (T024) falls back to recycling the oldest active item once none is
+  free, which `InkDissolve`'s puffs and every later effect (sparks, dust, afterimages,
+  projectiles) will share — worth checking that a burst large enough to hit that fallback
+  reclaims an item still visibly in flight without a visible pop.
+- The whole kit stands unconsumed: no feature imports `lib/core/rendering/` yet, so its only
+  exerciser is T033's integration test — a reviewer should judge the kit on that test's
+  seed-to-picture path, not on any in-game screen, since none draws from it yet.
+```
