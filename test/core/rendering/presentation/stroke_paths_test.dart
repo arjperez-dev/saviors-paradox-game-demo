@@ -10,13 +10,13 @@ import 'package:saviors_paradox/core/rendering/domain/stroke_random.dart';
 import 'package:saviors_paradox/core/rendering/presentation/stroke_paths.dart';
 
 List<Vec2> _circlePoints(Vec2 centre, double radius, int count) => [
-      for (var i = 0; i < count; i++)
-        centre +
-            Vec2(
-              math.cos(i / count * 2 * math.pi) * radius,
-              math.sin(i / count * 2 * math.pi) * radius,
-            ),
-    ];
+  for (var i = 0; i < count; i++)
+    centre +
+        Vec2(
+          math.cos(i / count * 2 * math.pi) * radius,
+          math.sin(i / count * 2 * math.pi) * radius,
+        ),
+];
 
 void main() {
   group('StrokePaths', () {
