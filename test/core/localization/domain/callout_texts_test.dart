@@ -29,7 +29,8 @@ void main() {
     // 02-art-direction/fx/callouts/callouts.md §1
     test("holds each callout's English text", () {
       final english = {
-        for (final entry in calloutTexts.entries) entry.key: entry.value.english,
+        for (final entry in calloutTexts.entries)
+          entry.key: entry.value.english,
       };
 
       expect(english, {
@@ -51,7 +52,8 @@ void main() {
     // 02-art-direction/fx/callouts/callouts.md §1
     test("holds each callout's Spanish text", () {
       final spanish = {
-        for (final entry in calloutTexts.entries) entry.key: entry.value.spanish,
+        for (final entry in calloutTexts.entries)
+          entry.key: entry.value.spanish,
       };
 
       expect(spanish, {
