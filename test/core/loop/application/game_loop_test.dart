@@ -1,9 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:saviors_paradox/core/contracts/events/ability_chosen.dart';
 import 'package:saviors_paradox/core/contracts/events/game_event.dart';
 import 'package:saviors_paradox/core/contracts/events/hitstop_started.dart';
+import 'package:saviors_paradox/core/contracts/events/map_closed.dart';
+import 'package:saviors_paradox/core/contracts/events/map_opened.dart';
 import 'package:saviors_paradox/core/contracts/events/pause_closed.dart';
 import 'package:saviors_paradox/core/contracts/events/pause_opened.dart';
+import 'package:saviors_paradox/core/contracts/kernel/ability_id.dart';
 import 'package:saviors_paradox/core/contracts/kernel/seconds.dart';
+import 'package:saviors_paradox/core/contracts/ports/event_sink.dart';
 import 'package:saviors_paradox/core/loop/application/event_queue.dart';
 import 'package:saviors_paradox/core/loop/application/game_loop.dart';
 import 'package:saviors_paradox/core/loop/domain/step_clock.dart';
@@ -158,6 +163,271 @@ void main() {
 
       expect(pingReceived, isTrue);
       expect(stepped, isEmpty);
+    });
+
+    test('holds the world while any halt cause stands', () {
+      final stepped = <String>[];
+      void stepA(Seconds dt) => stepped.add('a');
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+      );
+      queue.publish(const PauseOpened());
+      queue.publish(const MapOpened());
+      loop.advance(const Seconds(1 / 60));
+
+      queue.publish(const PauseClosed());
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, isEmpty);
+
+      queue.publish(const MapClosed());
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, ['a']);
+    });
+
+    test('a resume with no matching halt leaves the world halted', () {
+      final stepped = <String>[];
+      void stepA(Seconds dt) => stepped.add('a');
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+      );
+      queue.publish(const MapOpened());
+      queue.publish(
+        const AbilityChosen(ability: AbilityId.web, slotIndex: 0),
+      );
+
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, isEmpty);
+    });
+
+    test('a repeated halt is ended by one resume', () {
+      final stepped = <String>[];
+      void stepA(Seconds dt) => stepped.add('a');
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+      );
+      queue.publish(const PauseOpened());
+      queue.publish(const PauseOpened());
+      queue.publish(const PauseClosed());
+
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, ['a']);
+    });
+
+    test('steps the interface systems after the world systems', () {
+      final order = <String>[];
+      late Seconds interfaceDt;
+      void stepA(Seconds dt) => order.add('a');
+      void stepB(Seconds dt) {
+        order.add('b');
+        interfaceDt = dt;
+      }
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+        interfaceSystems: [stepB],
+      );
+
+      loop.advance(const Seconds(1 / 60));
+
+      expect(order, ['a', 'b']);
+      expect(interfaceDt.value, closeTo(1 / 60, 1e-9));
+    });
+
+    test('steps the interface systems while the world is halted', () {
+      final stepped = <String>[];
+      late Seconds interfaceDt;
+      void stepA(Seconds dt) => stepped.add('a');
+      void stepB(Seconds dt) {
+        stepped.add('b');
+        interfaceDt = dt;
+      }
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+        interfaceSystems: [stepB],
+      );
+      queue.publish(const MapOpened());
+
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, ['b']);
+      expect(interfaceDt.value, closeTo(1 / 60, 1e-9));
+    });
+
+    test('steps the interface systems through a hitstop', () {
+      final stepped = <String>[];
+      late Seconds interfaceDt;
+      void stepA(Seconds dt) => stepped.add('a');
+      void stepB(Seconds dt) {
+        stepped.add('b');
+        interfaceDt = dt;
+      }
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+        interfaceSystems: [stepB],
+      );
+      queue.publish(const HitstopStarted(duration: Seconds(0.05)));
+
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, ['b']);
+      expect(interfaceDt.value, closeTo(1 / 60, 1e-9));
+    });
+
+    test('gives the interface systems the clamped step', () {
+      late Seconds interfaceDt;
+      void stepA(Seconds dt) {}
+      void stepB(Seconds dt) => interfaceDt = dt;
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+        interfaceSystems: [stepB],
+      );
+
+      loop.advance(const Seconds(0.5));
+
+      expect(interfaceDt.value, closeTo(1 / 30, 1e-9));
+    });
+
+    test(
+      'delivers what an interface system publishes before the next one steps',
+      () {
+        final order = <String>[];
+        void stepA(Seconds dt) {
+          order.add('a');
+          queue.publish(const _Ping());
+        }
+
+        void stepB(Seconds dt) => order.add('b');
+
+        final loop = GameLoop(
+          queue: queue,
+          clock: clock,
+          systems: [],
+          interfaceSystems: [stepA, stepB],
+        );
+        queue.subscribe<_Ping>((event) => order.add('ping'));
+
+        loop.advance(const Seconds(1 / 60));
+
+        expect(order, ['a', 'ping', 'b']);
+      },
+    );
+
+    test('drains the commands before any system steps', () {
+      final order = <String>[];
+      void drain(EventSink events, Seconds dt) {
+        order.add('drain');
+        events.publish(const _Ping());
+      }
+
+      void stepA(Seconds dt) => order.add('a');
+      void stepB(Seconds dt) => order.add('b');
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+        interfaceSystems: [stepB],
+        drain: drain,
+      );
+      queue.subscribe<_Ping>((event) => order.add('ping'));
+
+      loop.advance(const Seconds(1 / 60));
+
+      expect(order, ['drain', 'ping', 'a', 'b']);
+    });
+
+    test('hands the drain the clamped step', () {
+      late EventSink receivedEvents;
+      late Seconds receivedDt;
+      void drain(EventSink events, Seconds dt) {
+        receivedEvents = events;
+        receivedDt = dt;
+      }
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: const [],
+        drain: drain,
+      );
+
+      loop.advance(const Seconds(0.5));
+
+      expect(receivedEvents, same(queue));
+      expect(receivedDt.value, closeTo(1 / 30, 1e-9));
+    });
+
+    test('drains the commands while the world is halted', () {
+      final stepped = <String>[];
+      var drainCalls = 0;
+      var pingReceived = false;
+      void drain(EventSink events, Seconds dt) {
+        drainCalls++;
+        events.publish(const _Ping());
+      }
+
+      void stepA(Seconds dt) => stepped.add('a');
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+        drain: drain,
+      );
+      queue.subscribe<_Ping>((event) => pingReceived = true);
+      queue.publish(const PauseOpened());
+
+      loop.advance(const Seconds(1 / 60));
+
+      expect(drainCalls, 1);
+      expect(pingReceived, isTrue);
+      expect(stepped, isEmpty);
+    });
+
+    test('a halt drained this frame holds the world this frame', () {
+      final stepped = <String>[];
+      void drain(EventSink events, Seconds dt) => events.publish(
+        const MapOpened(),
+      );
+
+      void stepA(Seconds dt) => stepped.add('a');
+      void stepB(Seconds dt) => stepped.add('b');
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+        interfaceSystems: [stepB],
+        drain: drain,
+      );
+
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, ['b']);
     });
   });
 }

@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:saviors_paradox/core/contracts/events/halt_cause.dart';
 import 'package:saviors_paradox/core/contracts/kernel/seconds.dart';
 import 'package:saviors_paradox/core/loop/domain/step_clock.dart';
+import 'package:saviors_paradox/core/loop/domain/world_halts.dart';
 
 void main() {
   group('StepClock', () {
@@ -28,21 +30,23 @@ void main() {
       expect(step.value, closeTo(0.1, 1e-9));
     });
 
-    test('holds every step while paused', () {
-      final clock = StepClock();
+    test('holds every step while the world is halted', () {
+      final halts = WorldHalts();
+      final clock = StepClock(halts: halts);
 
-      clock.pause();
+      halts.halt(HaltCause.dialogue);
       final step = clock.advance(const Seconds(1 / 60));
 
       expect(step, Seconds.zero);
       expect(clock.isHeld, isTrue);
     });
 
-    test('steps again after resuming', () {
-      final clock = StepClock();
+    test('steps again once the world resumes', () {
+      final halts = WorldHalts();
+      final clock = StepClock(halts: halts);
 
-      clock.pause();
-      clock.resume();
+      halts.halt(HaltCause.dialogue);
+      halts.resume(HaltCause.dialogue);
       final step = clock.advance(const Seconds(1 / 60));
 
       expect(step.value, closeTo(1 / 60, 1e-9));
@@ -74,19 +78,59 @@ void main() {
       expect(second, Seconds.zero);
     });
 
-    test('a hitstop waits while the game is paused', () {
-      final clock = StepClock();
+    test('a hitstop waits while the world is halted', () {
+      final halts = WorldHalts();
+      final clock = StepClock(halts: halts);
 
       clock.holdFor(const Seconds(0.05));
-      clock.pause();
-      final whilePaused = clock.advance(const Seconds(1 / 30));
-      clock.resume();
+      halts.halt(HaltCause.map);
+      final whileHalted = clock.advance(const Seconds(1 / 30));
+      halts.resume(HaltCause.map);
       final firstAfterResume = clock.advance(const Seconds(1 / 30));
       final secondAfterResume = clock.advance(const Seconds(1 / 30));
 
-      expect(whilePaused, Seconds.zero);
+      expect(whileHalted, Seconds.zero);
       expect(firstAfterResume, Seconds.zero);
       expect(secondAfterResume.value, closeTo(1 / 60, 1e-9));
     });
+
+    test('keeps halts of its own when given none', () {
+      final clock = StepClock();
+
+      clock.halts.halt(HaltCause.cinematic);
+      final step = clock.advance(const Seconds(1 / 60));
+
+      expect(step, Seconds.zero);
+    });
+
+    test(
+      'clamps a frame for the interface without spending the hitstop',
+      () {
+        // StepClock.clamp never spends the hitstop StepClock.advance does.
+        final clock = StepClock();
+
+        clock.holdFor(const Seconds(0.05));
+        final clamped = clock.clamp(const Seconds(0.5));
+        final first = clock.advance(const Seconds(1 / 30));
+        final second = clock.advance(const Seconds(1 / 30));
+
+        expect(clamped.value, closeTo(1 / 30, 1e-9));
+        expect(first, Seconds.zero);
+        expect(second.value, closeTo(1 / 60, 1e-9));
+      },
+    );
+
+    test(
+      'clamps a frame for the interface while the world is halted',
+      () {
+        final halts = WorldHalts();
+        final clock = StepClock(halts: halts);
+
+        halts.halt(HaltCause.map);
+        final clamped = clock.clamp(const Seconds(1 / 60));
+
+        expect(clamped.value, closeTo(1 / 60, 1e-9));
+      },
+    );
   });
 }
