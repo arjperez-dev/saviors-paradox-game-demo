@@ -43,10 +43,8 @@ void main() {
 
       puff.step(const Seconds(0.1));
 
-      final expectedX =
-          afterFirst.x + shape.velocity.x * 0.1 * math.exp(-0.4);
-      final expectedY =
-          afterFirst.y + shape.velocity.y * 0.1 * math.exp(-0.3);
+      final expectedX = afterFirst.x + shape.velocity.x * 0.1 * math.exp(-0.4);
+      final expectedY = afterFirst.y + shape.velocity.y * 0.1 * math.exp(-0.3);
       expect(puff.position.x, closeTo(expectedX, 1e-9));
       expect(puff.position.y, closeTo(expectedY, 1e-9));
     });
