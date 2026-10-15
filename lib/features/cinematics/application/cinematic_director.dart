@@ -9,5 +9,6 @@ final class CinematicDirector implements CinematicPlayer {
   void play(CinematicId cinematic) {}
 
   @override
-  CinematicState get state => const CinematicState(playing: null, hasFinished: false);
+  CinematicState get state =>
+      const CinematicState(playing: null, hasFinished: false);
 }

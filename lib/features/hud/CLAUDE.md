@@ -16,6 +16,14 @@ What is on screen while playing: portrait and health bar, XP and coins, the quic
 | `state/run_state` | consumes | — |
 | `events/dialogue_opened` | consumes | — |
 | `events/dialogue_closed` | consumes | — |
+| `events/pause_opened` | consumes | — |
+| `events/pause_closed` | consumes | — |
+| `events/map_opened` | consumes | — |
+| `events/map_closed` | consumes | — |
+| `events/cinematic_started` | consumes | — |
+| `events/cinematic_ended` | consumes | — |
+| `ports/world_camera` | consumes | — |
+| `ports/ui_scale` | consumes | — |
 
 ## Roots
 

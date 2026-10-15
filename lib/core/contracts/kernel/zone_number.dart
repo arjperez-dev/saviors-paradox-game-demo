@@ -11,8 +11,7 @@ final class ZoneNumber implements Comparable<ZoneNumber> {
   int compareTo(ZoneNumber other) => value.compareTo(other.value);
 
   @override
-  bool operator ==(Object other) =>
-      other is ZoneNumber && other.value == value;
+  bool operator ==(Object other) => other is ZoneNumber && other.value == value;
 
   @override
   int get hashCode => value.hashCode;

@@ -27,7 +27,10 @@ final class WorldBox {
       other.top < bottom;
 
   bool contains(Vec2 point) =>
-      point.x >= left && point.x <= right && point.y >= top && point.y <= bottom;
+      point.x >= left &&
+      point.x <= right &&
+      point.y >= top &&
+      point.y <= bottom;
 
   WorldBox translated(Vec2 offset) => WorldBox(
     centre: centre + offset,

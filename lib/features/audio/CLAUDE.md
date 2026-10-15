@@ -16,6 +16,10 @@ The `Soundscape` facade over music, sound effects and spirit voices.
 | `events/boss_defeated` | consumes | — |
 | `events/pause_opened` | consumes | — |
 | `events/pause_closed` | consumes | — |
+| `events/map_opened` | consumes | — |
+| `events/map_closed` | consumes | — |
+| `events/dialogue_opened` | consumes | — |
+| `events/dialogue_closed` | consumes | — |
 | `events/spirit_whispered` | consumes | — |
 | `events/run_ended` | consumes | — |
 

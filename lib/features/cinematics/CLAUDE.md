@@ -10,8 +10,11 @@ The intro, the descent and the outro, and skipping them.
 |---|---|---|
 | `ports/cinematic_player` | implements | `lib/features/cinematics/application/cinematic_director.dart` |
 | `state/cinematic_state` | owns | `lib/features/cinematics/application/cinematic_director.dart` |
+| `events/cinematic_started` | emits | `lib/features/cinematics/application/cinematic_director.dart` |
+| `events/cinematic_ended` | emits | `lib/features/cinematics/application/cinematic_director.dart` |
 | `ports/soundscape` | consumes | — |
 | `events/player_command` | consumes | — |
+| `ports/event_sink` | consumes | — |
 
 ## Roots
 

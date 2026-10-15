@@ -2,7 +2,7 @@
 
 ## What it is
 
-The spirits: dialogue, one new fragment per spirit and run, and their memory across deaths.
+The spirits: dialogue, one new fragment per spirit and run, and their memory across deaths. It implements `core/input`'s `InputContext` in `presentation/`: Enter or a left click anywhere advances, W/S or the arrows move between the two choices, Esc closes only a replay (`.factory/project/reference/06-ui/dialogue/dialogue.md` §5; `.factory/project/reference/08-engineering/design-patterns.md` §5).
 
 ## Contracts
 

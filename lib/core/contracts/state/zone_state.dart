@@ -2,6 +2,7 @@ import 'package:saviors_paradox/core/contracts/kernel/biome.dart';
 import 'package:saviors_paradox/core/contracts/kernel/entity_id.dart';
 import 'package:saviors_paradox/core/contracts/kernel/seed.dart';
 import 'package:saviors_paradox/core/contracts/kernel/vec2.dart';
+import 'package:saviors_paradox/core/contracts/kernel/world_box.dart';
 import 'package:saviors_paradox/core/contracts/kernel/zone_number.dart';
 import 'package:saviors_paradox/core/contracts/state/altar_snapshot.dart';
 import 'package:saviors_paradox/core/contracts/state/room_snapshot.dart';
@@ -13,6 +14,7 @@ final class ZoneState {
     required this.zone,
     required this.biome,
     required this.seed,
+    required this.bounds,
     required this.rooms,
     required this.spawns,
     required this.altars,
@@ -26,6 +28,7 @@ final class ZoneState {
   final ZoneNumber zone;
   final Biome biome;
   final Seed seed;
+  final WorldBox bounds;
   final List<RoomSnapshot> rooms;
   final List<SpawnPoint> spawns;
   final List<AltarSnapshot> altars;

@@ -13,8 +13,7 @@ final class TileCoord {
   final int column;
   final int row;
 
-  Vec2 toWorld() =>
-      Vec2(column * worldUnitsPerTile, row * worldUnitsPerTile);
+  Vec2 toWorld() => Vec2(column * worldUnitsPerTile, row * worldUnitsPerTile);
 
   Vec2 centreInWorld() => Vec2(
     (column + 0.5) * worldUnitsPerTile,

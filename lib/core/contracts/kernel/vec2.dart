@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-
 final class Vec2 {
   const Vec2(this.x, this.y);
 

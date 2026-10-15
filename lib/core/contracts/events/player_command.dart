@@ -1,5 +1,7 @@
 import 'package:saviors_paradox/core/contracts/events/game_event.dart';
 import 'package:saviors_paradox/core/contracts/kernel/facing.dart';
+import 'package:saviors_paradox/core/contracts/kernel/screen_vec2.dart';
+import 'package:saviors_paradox/core/contracts/kernel/seconds.dart';
 import 'package:saviors_paradox/core/contracts/kernel/shield_id.dart';
 import 'package:saviors_paradox/core/contracts/kernel/vec2.dart';
 import 'package:saviors_paradox/core/contracts/kernel/weapon_id.dart';
@@ -44,22 +46,16 @@ final class StopCrouch extends PlayerCommand {
   const StopCrouch();
 }
 
-final class Aim extends PlayerCommand {
-  const Aim({
-    required this.point,
-  });
-
-  final Vec2 point;
-}
-
 final class StartAttack extends PlayerCommand {
   const StartAttack({
     required this.aim,
+    required this.pointerStillFor,
     required this.isUpHeld,
     required this.isDownHeld,
   });
 
   final Vec2 aim;
+  final Seconds pointerStillFor;
   final bool isUpHeld;
   final bool isDownHeld;
 }
@@ -67,17 +63,21 @@ final class StartAttack extends PlayerCommand {
 final class ReleaseAttack extends PlayerCommand {
   const ReleaseAttack({
     required this.aim,
+    required this.pointerStillFor,
   });
 
   final Vec2 aim;
+  final Seconds pointerStillFor;
 }
 
 final class RaiseShield extends PlayerCommand {
   const RaiseShield({
     required this.aim,
+    required this.pointerStillFor,
   });
 
   final Vec2 aim;
+  final Seconds pointerStillFor;
 }
 
 final class LowerShield extends PlayerCommand {
@@ -133,15 +133,29 @@ final class PanMap extends PlayerCommand {
     required this.delta,
   });
 
-  final Vec2 delta;
+  final ScreenVec2 delta;
+}
+
+final class StartPanning extends PlayerCommand {
+  const StartPanning({
+    required this.direction,
+  });
+
+  final ScreenVec2 direction;
+}
+
+final class StopPanning extends PlayerCommand {
+  const StopPanning();
 }
 
 final class ZoomMap extends PlayerCommand {
   const ZoomMap({
     required this.steps,
+    required this.anchor,
   });
 
   final int steps;
+  final ScreenVec2? anchor;
 }
 
 final class MoveFocus extends PlayerCommand {

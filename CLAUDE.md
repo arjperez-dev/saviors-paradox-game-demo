@@ -38,6 +38,7 @@
 | rendering | shared | `lib/core/rendering/`, `test/core/rendering/`, `assets/images/`, `assets/fonts/` |
 | input | shared | `lib/core/input/`, `test/core/input/` |
 | localization | shared | `lib/core/localization/`, `test/core/localization/` |
+| ui | shared | `lib/core/ui/`, `test/core/ui/` |
 | dungeon | feature | `lib/features/dungeon/`, `test/features/dungeon/` |
 | combat | feature | `lib/features/combat/`, `test/features/combat/` |
 | chain | feature | `lib/features/chain/`, `test/features/chain/` |
@@ -66,7 +67,7 @@
 - `lib/core/` imports no feature and holds no game rule. (`.factory/project/reference/08-engineering/architecture.md` §1, §2.2)
 - `domain/` and `application/` import no Flutter, Flame, `dart:io` or `dart:ui`; `domain/` imports no `dart:async`. (`.factory/project/reference/08-engineering/architecture.md` §3)
 - `infrastructure/` and `presentation/` never import each other. (`.factory/project/reference/08-engineering/architecture.md` §3)
-- No code outside `lib/core/loop/` reads a clock; logic receives `dt` as `Seconds`. (`.factory/project/reference/08-engineering/coding-standards.md` §8)
+- No code outside `lib/core/loop/` reads a clock; logic receives `dt` as `Seconds`; a widget's own animation changes no game state. (`.factory/project/reference/08-engineering/coding-standards.md` §8)
 - Every random choice comes from a `Seed` passed in; never `Random()` unseeded. (`.factory/project/reference/08-engineering/coding-standards.md` §8)
 - Every player-visible string goes through the translator by key. (`.factory/project/reference/08-engineering/coding-standards.md` §8)
 - Tile ↔ world conversion only through `TileCoord`; one tile is 32 world units and y grows downward. (`.factory/project/reference/08-engineering/coding-standards.md` §8)
