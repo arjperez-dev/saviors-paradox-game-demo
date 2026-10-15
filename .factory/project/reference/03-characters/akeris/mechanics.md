@@ -81,7 +81,7 @@ Proposed in this step and approved by the operator as proposed. The translator m
 | P4 | A hit while hanging from a ring | He never lets go: blocked or not, the swing is pushed away from the attacker. Only Space (or dying) lets go |
 | P5 | Which forearm takes the shield when the free hand is the front one? | The shield goes to **whichever hand is free**; the free hand's hook blade goes to the belt |
 | P6 | After the hanging counter | The free hand takes the shield back, as before the counter |
-| P7 | The free hand's throw when the mouse has not moved | Forward and down (37° below the horizontal), toward what he usually fights from a ring |
+| P7 | The free hand's throw when the mouse has not moved (in the last 4 s, `weapons/hook-blades.md`; operator 2026-10-15) | Forward and down (37° below the horizontal), toward what he usually fights from a ring |
 | P8 | Can he change weapon while levitating? | Yes (the wheel works), so he can take the chain blades and anchor |
 
 ## 4. Rules the tester checks

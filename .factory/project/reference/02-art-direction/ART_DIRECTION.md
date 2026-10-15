@@ -1,6 +1,6 @@
 # Art direction
 
-- **Status:** approved 2026-09-30
+- **Status:** approved 2026-09-30 · 2026-10-15: §3, the scale the architect fixed in `change-02`
 - **Sources:** `VISION.md` §Art direction, §Client constraints, §Risks · `../00-game/pillars.md` §1, §5 ·
   `../00-game/tone.md` §2 · the approved Akeris sandbox (2026-09-29, six iterations)
 - **Read by:** every task that draws anything. This file holds the rules every drawing obeys and says
@@ -55,8 +55,9 @@ the game, multiply it by **k = Akeris's standing height in world units ÷ 192**;
 lengths, stroke widths, offsets and speeds alike.
 
 - **On-screen size:** Akeris is **≈ 26 % of the screen height** (192 su in a 750 su view, the
-  sandbox's "medio" zoom). How the game reaches that ratio (camera height or world size) is the
-  architect's choice; the ratio is what was approved.
+  sandbox's "medio" zoom). The architect fixed how the game reaches it (architect `change-02`, operator 2026-10-15): **k = 1** — one su is one
+  world unit, so a tile of 32 su is 32 world units — and the camera's view is **750 world units tall**,
+  its width following the screen's aspect with no letterbox (about 1333 at 16:9). Akeris is 25.6 %.
 - **Crouching and rolling:** in the sandbox the crouch pose's head top is ≈ 136 su and the roll ball
   has a radius of 55 su. If the game's crouching height is lower, the drawn crouch and roll are
   lowered to fit it; they keep their character (the head up, the kneeling back leg, the curled

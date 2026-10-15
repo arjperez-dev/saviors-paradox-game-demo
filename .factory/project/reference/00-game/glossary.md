@@ -1,6 +1,7 @@
 # Glossary
 
-- **Status:** approved 2026-10-14 (step 5.2: adds the architect's terms *Combatant*, *WorldBox*, *HookPoint*,
+- **Status:** approved 2026-10-15 (architect `change-02`: §5's *su* fixed at one world unit, and §9, the
+  input, halt, coordinate, camera and interface-kit terms; step 5.2: adds the architect's terms *Combatant*, *WorldBox*, *HookPoint*,
   *RaisedShield*, *StageChange*, *ChainPull* and *Snapshot*, and corrects *ability drop*; before, approved
   2026-09-30, step 3.6 changed *special shield* and added *altar*, *broken shield* and *repair*)
 - **Sources:** `VISION.md` (every section) · `08-engineering/architecture.md` §2 (the features and their
@@ -122,7 +123,7 @@ operator before using it in a contract.
 | afterimage | — | the fading copies Akeris leaves during a counter | imagen residual |
 | ink smoke | — | what a defeated enemy dissolves into | humo de tinta |
 | blade trail | — | the arc a blade leaves during a strike | estela de hoja |
-| su | — | sandbox unit: Akeris standing is 192 su (`02-art-direction/ART_DIRECTION.md` §3) | — |
+| su | — | sandbox unit: Akeris standing is 192 su (`02-art-direction/ART_DIRECTION.md` §3). In the game one su is one world unit (k = 1, (architect `change-02`, operator 2026-10-15)) | — |
 | map, minimap | — | the zone map on M, revealed as explored; the circular minimap in the HUD | mapa, minimapa |
 
 ## 6. Places (`dungeon`, `hazards`)
@@ -188,3 +189,33 @@ operator before using it in a contract.
 | Term | Code name | Meaning | Español |
 |---|---|---|---|
 | snapshot | `…Snapshot` | the suffix of a companion part of a `state/` contract: `ShieldSnapshot`, `WeaponSlotSnapshot`, `AbilitySlotSnapshot`, `AltarSnapshot`, `RoomSnapshot`, `SpiritSnapshot`. A feature's whole published state is `…State`; each immutable piece a reader may hold alone is a `…Snapshot`. Both are built once per step and never modified (`08-engineering/architecture.md` §4, §6) | instantánea |
+
+## 9. Input, time and the screen (`core/input`, `core/loop`, `core/rendering`, `core/ui`)
+
+Added by the architect in `change-02` and approved by the operator, 2026-10-15.
+
+| Term | Code name | Meaning | Español |
+|---|---|---|---|
+| input context | `InputContext` | the bindings of one situation — playing, a menu, the zone map, a dialogue: what each key and click sends as a `PlayerCommand` there. `core/input` keeps a stack of them; a feature with bindings of its own implements its context in its `presentation/` (`08-engineering/design-patterns.md` §5) | contexto de entrada |
+| world halt, world resume | `WorldHalted`, `WorldResumed` | what stops every world system and every timer until its matching resume — the pause menu, the zone map, a dialogue, the ability choice, a cinematic. Not the hitstop, which is a timed hold | mundo detenido, mundo reanudado |
+| halt cause | `HaltCause` | which of the five halts a world halt or resume is: `pauseMenu`, `map`, `dialogue`, `abilityChoice`, `cinematic` | causa de la detención |
+| map opened, map closed | `MapOpened`, `MapClosed` | the zone map's halt and resume | mapa abierto, mapa cerrado |
+| cinematic started, cinematic ended | `CinematicStarted`, `CinematicEnded` | a cinematic's halt and resume | cinemática iniciada, cinemática terminada |
+| world step, interface step | — | the loop's two steps each frame: the world step, which a world halt or a hitstop holds, and the interface step, which never halts (the map's panning, the dialogue's writing, the skip ring, the pause menu's breathing) | paso del mundo, paso de interfaz |
+| pan the map | `StartPanning`, `StopPanning`, `PanMap` | move the zone map's view: held keys start and stop it, a drag moves it 1:1 with the cursor | desplazar el mapa |
+| pointer stillness | `pointerStillFor` | the time since the mouse last moved, carried by a click; a weapon aims straight ahead once it reaches 4 s (`03-characters/akeris/weapons/hook-blades.md`) | quietud del puntero |
+| screen point | `ScreenVec2` | a point or displacement in logical pixels, y downward | punto de pantalla |
+| UI point | `UiVec2` | a point or displacement in hu | punto de interfaz |
+| hu | — | the UI unit: the 1920 × 1080 reference frame, scaled by screen height ÷ 1080 (`06-ui/ui.md` §3) | — |
+| UI scale | `UiScale` | the conversion between screen points and UI points | escala de la interfaz |
+| world camera | `WorldCamera`, `FollowCamera` | the conversion between screen points and world points; the camera follows Akeris, 750 world units tall, its width following the screen | cámara del mundo |
+| paper sheet | `PaperSheet` | the paper a menu or screen is drawn on, with its seeded pencil border | hoja de papel |
+| ink frame | `InkFrame` | the pencil frame of a box or button; focused, the thick ink frame with an inner line | marco de tinta |
+| key cap | `KeyCap` | a key drawn on screen, such as `Esc` beside *Resume* | tecla dibujada |
+| key-cap button | `KeyCapButton` | a button carrying a key cap; clicking it is pressing its key | botón con tecla dibujada |
+| hold ring | `HoldRing` | the ring that fills while a key or a click is held, as on *Skip* | anillo de mantener |
+| menu button | `MenuButton` | a menu's button: brightens under the pointer, the hand cursor over it | botón de menú |
+| focus group | `FocusGroup` | the boxes and buttons the keys move the focus through | grupo de foco |
+| confirm question | `ConfirmQuestion` | the question asked before spending or losing something, with the focus on the safe answer — never called a dialogue, which is a spirit's | pregunta de confirmación |
+| hint footer | `HintFooter` | the line of keys at the foot of a screen | pie de ayuda |
+| ink theme | `InkTheme` | the colours, strokes and lettering every widget takes | tema de tinta |

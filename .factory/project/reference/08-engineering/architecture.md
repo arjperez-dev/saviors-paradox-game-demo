@@ -1,6 +1,7 @@
 # Architecture
 
-- **Status:** approved 2026-10-15 (operator: §1 and §2.2 add the fifth shared module, `core/ui`; step 5.2: §2.1 lists the twenty features the architect fixed, §2.3 is
+- **Status:** approved 2026-10-15 (operator: §1 and §2.2 add the fifth shared module, `core/ui`; §2.3 and §5
+  carry the architect's `change-02`, the halts, the input contexts and the two steps; step 5.2: §2.1 lists the twenty features the architect fixed, §2.3 is
   the acyclic context map by rings, §2.4 adds `WorldBox` and the shared ids; before, approved 2026-09-30,
   version 1)
 - **Sources:** `VISION.md` §Client constraints (OOP, DDD, Clean Code, Decorator, Flyweight, optimal
@@ -161,7 +162,7 @@ hears its `events/`, calls a port it offers, or implements a port it declares �
   calls each one's `capture()` and `restore()`, and stores the parts without knowing their inside.
   No feature gathers the others' state (`design-patterns.md` §11).
 
-**Two families that cross the rings without an edge.**
+**Three families that cross the rings without an edge.**
 
 - `PlayerCommand` is emitted by `core/input`; `pause` emits the same family for its menu. The
   features that act on it — `akeris`, `abilities`, `arsenal`, `dungeon`, `hazards`, `map`,
@@ -169,6 +170,12 @@ hears its `events/`, calls a port it offers, or implements a port it declares �
 - `SoundEffectCued` is emitted by every feature that makes a sound, with an id of
   `07-audio/sfx/sfx.md` and a position; only `audio` hears it. `HitstopStarted`, `PauseOpened` and
   `PauseClosed` are heard by `core/loop`, which holds or resumes the step.
+- The **halts** extend two bases, `WorldHalted` and `WorldResumed`, each naming its `HaltCause`:
+  `PauseOpened`/`PauseClosed` (`pause`), `MapOpened`/`MapClosed` (`map`), `DialogueOpened`/
+  `DialogueClosed` (`narrative`), `AbilityChoiceOffered`/`AbilityChosen` (`abilities`) and
+  `CinematicStarted`/`CinematicEnded` (`cinematics`). `core/loop` hears the bases to hold the world
+  step; `core/input` hears them to move its stack of input contexts; `hud` and `audio` hear the halts
+  their references name. Hearing a halt creates no edge (architect `change-02`, operator 2026-10-15).
 
 **The edges, feature by feature.** What each one knows, and through what. Each feature also
 publishes `SoundEffectCued` where its reference gives a sound, and every feature that acts
@@ -187,14 +194,14 @@ subscribes through `EventSource` and publishes through `EventSink`, both impleme
 | `inventory` | `akeris`, `arsenal`, `enemies`, `combat`, `dungeon` | implements `LoadoutModifierSource` (`AttackBoost`, `Rage`, `Curse`), `PotionSupply`; calls `AkerisHealth`, `ShieldRepairs`, `Altars`; hears `PotionDrunk`, `EnemyDefeated`, `ShieldRepairRequested`, `HitLanded`, `ItemTaken`, `ZoneEntered`; owns `SatchelState`; emits `ScrollRead`, `CurseStarted`, `CurseProgressed`, `CurseFulfilled`, `RageStarted`, `RageEnded` |
 | `abilities` | `akeris`, `bosses`, `combat` | implements `Combatant` (its conjured bodies), `LoadoutModifierSource` (`VenomEdgeActive`, `StoneOrbitActive`), `RevivalSource`; calls `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`; reads `AkerisState`; hears `BossDefeated`, `FastDescentLanded`; owns `AbilitySetState`; emits `AbilityChoiceOffered`, `AbilityChosen`, `AbilityTriggered` |
 | `run` | `dungeon`, `akeris`, `arsenal`, `enemies`, `bosses`, `abilities` | calls `ZoneGenerator`, `BossRoomSeal`, `XpAccount`; reads `AkerisState`, `ArsenalState`; hears `WayDownReached`, `AkerisDied`, `EnemyDefeated`, `BossDefeated`, `AbilityChosen`; owns `RunState`; offers `RunStarter`; emits `RunStarted`, `RunEnded` |
-| `narrative` | `run`, `akeris`, `dungeon` | hears `RunStarted`; reads `AkerisState`, `ZoneState`; emits `DialogueOpened`, `DialogueClosed`, `SpiritWhispered` |
+| `narrative` | `run`, `akeris`, `dungeon` | hears `RunStarted`; reads `AkerisState`, `ZoneState`; implements its own `InputContext`; emits `DialogueOpened`, `DialogueClosed`, `SpiritWhispered` |
 | `settings` | — | owns `SettingsState`, read by `audio`, `home` and `core/localization` |
-| `audio` | `settings`, and every feature that sounds | reads `SettingsState`; hears `SoundEffectCued`, `BossWoke`, `BossDefeated`, `ZoneEntered`, `RunEnded`, `SpiritWhispered`, `PauseOpened`, `PauseClosed`; offers `Soundscape` |
-| `cinematics` | `audio` | calls `Soundscape`; offers `CinematicPlayer`; owns `CinematicState` |
+| `audio` | `settings`, and every feature that sounds | reads `SettingsState`; hears `SoundEffectCued`, `BossWoke`, `BossDefeated`, `ZoneEntered`, `RunEnded`, `SpiritWhispered`, `PauseOpened`, `PauseClosed`, `MapOpened`, `MapClosed`, `DialogueOpened`, `DialogueClosed`; offers `Soundscape` |
+| `cinematics` | `audio` | calls `Soundscape`; offers `CinematicPlayer`; owns `CinematicState`; emits `CinematicStarted`, `CinematicEnded` |
 | `pause` | `akeris`, `arsenal`, `inventory`, `abilities` | reads `AkerisState`, `ArsenalState`, `SatchelState`, `AbilitySetState`; declares `ManualSave`; emits `PauseOpened`, `PauseClosed`, `QuitToTitleRequested` and its menu's `PlayerCommand`s |
-| `map` | `dungeon`, `akeris` | reads `ZoneState`, `AkerisState`; hears `RoomEntered`; implements `RunMementoSource` |
+| `map` | `dungeon`, `akeris` | reads `ZoneState`, `AkerisState`; hears `RoomEntered`; implements `RunMementoSource` and its own `InputContext`; calls `UiScale`; emits `MapOpened`, `MapClosed` |
 | `save` | `pause`, `map`, `run`, `arsenal`, `dungeon` and every other originator | calls every `RunMementoSource` (`abilities`, `akeris`, `arsenal`, `dungeon`, `enemies`, `hazards`, `inventory`, `map`, `run`); implements `ManualSave`; reads `RunState`, `ArsenalState`; hears `BossRoomEntered`, `RunEnded`, `QuitToTitleRequested`; offers `SaveSlots` |
-| `hud` | `akeris`, `arsenal`, `inventory`, `abilities`, `bosses`, `run`, `narrative` | reads `AkerisState`, `ArsenalState`, `SatchelState`, `AbilitySetState`, `BossState`, `RunState`; hears `DialogueOpened`, `DialogueClosed` |
+| `hud` | `akeris`, `arsenal`, `inventory`, `abilities`, `bosses`, `run`, `narrative` | reads `AkerisState`, `ArsenalState`, `SatchelState`, `AbilitySetState`, `BossState`, `RunState`; calls `WorldCamera`, `UiScale`; hears `DialogueOpened`, `DialogueClosed`, `PauseOpened`, `PauseClosed`, `MapOpened`, `MapClosed`, `CinematicStarted`, `CinematicEnded` |
 | `home` | `save`, `run`, `cinematics`, `pause`, `settings` | calls `SaveSlots`, `RunStarter`, `CinematicPlayer`; reads `SettingsState`; hears `RunEnded`, `QuitToTitleRequested` |
 
 Against version 1 (2026-09-30): the two-way edges `akeris ⇄ combat`, `enemies ⇄ combat` and
@@ -298,6 +305,11 @@ final class DrinkPotion {
 core/input → PlayerCommand → use cases and systems step(dt) → aggregates → events + snapshots
                                                                         ↘ presentation draws them
 ```
+
+**Each frame** (architect `change-02`, operator 2026-10-15): `core/loop` clamps Flame's `dt`; has `core/input` drain the frame's commands
+into the queue, whatever halts the world; steps the **world systems** in their order unless a world
+halt or a hitstop holds them; then steps the **interface systems** in their order, which never halt.
+The world camera steps with the world.
 
 - **One clock.** Only `core/loop/` reads time, from Flame's `update(dt)`. It passes `dt` as `Seconds`
   to every system; no other code reads a clock.

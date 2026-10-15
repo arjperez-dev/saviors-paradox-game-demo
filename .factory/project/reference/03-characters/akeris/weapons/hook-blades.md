@@ -42,7 +42,8 @@ The two blades **alternate hands on every throw.** Each blade has its own chain 
 hand. A blade flies tip-first on a cubic ease-out (0.15–0.16 s), stays hooked, and comes back on a
 quadratic ease-in (0.2 s), turning to the hand's angle.
 
-- **Ranged strike:** aimed at the mouse (or straight ahead if it has not moved), range 340. One
+- **Ranged strike:** aimed at the mouse (or straight ahead if it has not moved **in the last 4 s**, as
+  the sandboxes' `mouseWorld` measures it; operator 2026-10-15), range 340. One
   blade flies while the other stays in hand. Since 2026-10-06 its hits never interrupt an enemy (§6, C1).
 - **Ring:** caught from the ground (the ring above him) or **in mid-jump** (also level with him or a little below: up to 90 su under the shoulder), always within reach; if the mouse aims, the ring nearest the aim (G19; frames [`../sprites/sheet-jump-ring.png`](../sprites/sheet-jump-ring.png)). The hook passes over the ring and hangs down the far side; its grip sits 15 past the ring
   toward the throw and 37 below it. The body swings as a pendulum about the ring, reeling in to a
