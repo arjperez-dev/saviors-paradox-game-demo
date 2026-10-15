@@ -1,6 +1,6 @@
 import 'package:saviors_paradox/core/contracts/events/hitstop_started.dart';
-import 'package:saviors_paradox/core/contracts/events/pause_closed.dart';
-import 'package:saviors_paradox/core/contracts/events/pause_opened.dart';
+import 'package:saviors_paradox/core/contracts/events/world_halted.dart';
+import 'package:saviors_paradox/core/contracts/events/world_resumed.dart';
 import 'package:saviors_paradox/core/contracts/kernel/seconds.dart';
 import 'package:saviors_paradox/core/loop/application/event_queue.dart';
 import 'package:saviors_paradox/core/loop/domain/step_clock.dart';
@@ -18,9 +18,10 @@ final class GameLoop {
   }) : _queue = queue,
        _clock = clock,
        _systems = List.unmodifiable(systems) {
+    final halts = clock.halts;
     queue
-      ..subscribe<PauseOpened>((_) => clock.pause())
-      ..subscribe<PauseClosed>((_) => clock.resume())
+      ..subscribe<WorldHalted>((event) => halts.halt(event.cause))
+      ..subscribe<WorldResumed>((event) => halts.resume(event.cause))
       ..subscribe<HitstopStarted>((event) => clock.holdFor(event.duration));
   }
 

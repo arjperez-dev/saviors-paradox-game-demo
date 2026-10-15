@@ -1,22 +1,23 @@
 import 'package:saviors_paradox/core/contracts/kernel/seconds.dart';
+import 'package:saviors_paradox/core/loop/domain/world_halts.dart';
 
 /// Turns the time a frame took into the step the systems receive.
 final class StepClock {
-  StepClock({this._maxStep = defaultMaxStep});
+  StepClock({this._maxStep = defaultMaxStep, WorldHalts? halts})
+    : halts = halts ?? WorldHalts();
 
   /// The longest step a system ever receives, so that a stall never
   /// tunnels a body through a wall (architecture.md §5).
   static const Seconds defaultMaxStep = Seconds(1 / 30);
 
   final Seconds _maxStep;
+
+  /// The causes holding the world step; the clock only asks them.
+  final WorldHalts halts;
+
   Seconds _hitstopLeft = Seconds.zero;
-  bool _isPaused = false;
 
-  bool get isHeld => _isPaused || _hitstopLeft > Seconds.zero;
-
-  void pause() => _isPaused = true;
-
-  void resume() => _isPaused = false;
+  bool get isHeld => halts.isHalted || _hitstopLeft > Seconds.zero;
 
   /// Holds the step for [duration]; a shorter hitstop never shortens a
   /// longer one already running.
@@ -26,11 +27,11 @@ final class StepClock {
     }
   }
 
-  /// The step for a frame of [frame] seconds: zero while paused or while a
-  /// hitstop lasts, what is left of the frame when the hitstop ends inside
-  /// it, and never more than the maximum step.
+  /// The world step for a frame of [frame] seconds: zero while the world
+  /// is halted or while a hitstop lasts, what is left of the frame when the
+  /// hitstop ends inside it, and never more than the maximum step.
   Seconds advance(Seconds frame) {
-    if (_isPaused) {
+    if (halts.isHalted) {
       return Seconds.zero;
     }
     final clamped = frame.atMost(_maxStep);
