@@ -13,8 +13,8 @@ steps are numbered continuously and are not comparable with the steps of another
 
 ## The work
 
-4. Read every path in the task's `references`, and
-   `.factory/project/reference/08-engineering/checklist.md`, in the main checkout. Then read each `Test file` the acceptance criteria name, in the worktree,
+4. Read every path in the task's `references`, and every approved piece of
+   `.factory/project/reference/08-engineering/`, `checklist.md` included, in the main checkout. Then read each `Test file` the acceptance criteria name, in the worktree,
    and the code it exercises.
 5. For each criterion: does its test, under its `Test name`, assert what the `Assertion` states? A
    test that references the right symbols and asserts something else is the case nothing mechanical

@@ -46,7 +46,8 @@ worth reporting.
     adaptation of the `Implementation` and every file touched.
 21. When you stop, write the blocked file, then set your task `blocked`, and end the session —
     `docs/APPROVAL_PROTOCOL.md` §5.5, with `needs` from `docs/TASK_FILE_SPEC.md` §7.3.
-22. Read every path in `references` before you write a line, in the main checkout. Where the code
+22. Read every approved piece of `08-engineering/` and every path in `references` before you write
+    a line, in the main checkout. Where the code
     the task asks for contradicts a cited reference, the reference wins: build what it says, and
     record the difference as a deviation — `docs/TASK_FILE_SPEC.md` §2.8.
 23. Where a cited reference is ambiguous on something you must decide, or contradicts an `exports`
@@ -55,7 +56,7 @@ worth reporting.
 
 ## 3. Must-nots
 
-24. Never read a reference your task file does not cite, and never write under
+24. Never read a reference your task file does not cite, `08-engineering/` aside, and never write under
     `.factory/project/reference/` — `docs/CONTEXT_POLICY.md` §2.2, §3.1.
 25. Never open, edit or add to a shared file, and never write under `contracts/`. What a shared file
     needs is the integrator's, from `shared_file_notes`.

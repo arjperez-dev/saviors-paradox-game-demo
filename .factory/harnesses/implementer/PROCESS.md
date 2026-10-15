@@ -19,7 +19,8 @@ continuously and are not comparable with the steps of another harness.
 
 ## The work
 
-5. Read the contracts in `depends_on_contract`, every path in `references`, and `VISION.md` if you
+5. Read every approved piece of `.factory/project/reference/08-engineering/`, the contracts in
+   `depends_on_contract`, every path in `references`, and `VISION.md` if you
    need to know what the thing is for. The root and module `CLAUDE.md` files are already loaded. A
    cited reference that is ambiguous on something you must decide, or that contradicts an `exports`
    row or a criterion, stops you with `needs: planner` — `docs/TASK_FILE_SPEC.md` §7.3.

@@ -41,7 +41,7 @@ everything nobody thought of.
 | `docs/` | ○ cited sections | ○ cited sections | ○ cited sections | ○ cited sections | ○ cited sections | ○ cited sections |
 | `.factory/FACTORY_VERSION` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | [`VISION.md`](GLOSSARY.md#vision-visionmd) | ✓ writes it | ✓ | ✓ | ✓ | ✓ | ✓ |
-| [references](GLOSSARY.md#reference), `.factory/project/reference/` | ✓ approved pieces | ✓ approved pieces | ✓ approved pieces | ○ its task's `references` | ○ its task's `references`, and `08-engineering/checklist.md` | ✗ |
+| [references](GLOSSARY.md#reference), `.factory/project/reference/` | ✓ approved pieces | ✓ approved pieces | ✓ approved pieces | ○ every approved piece of `08-engineering/`, and its task's `references` | ○ every approved piece of `08-engineering/`, and its task's `references` | ✗ |
 | `contracts/` | — | ✓ writes it | ✓ | ✓ | ✓ | ✓ |
 | every `CLAUDE.md` | — | ✓ writes them | ✓ | ✓ | ✓ | ✓ |
 | [task files](GLOSSARY.md#task-file) | — | ✓ | ✓ writes them | ○ its task's | ○ its task's | ○ its task's |
@@ -80,9 +80,10 @@ thing being built is for. Where the two contradict each other the agent stops ra
 holds what the vision cannot say in prose: the engineering standards, the art direction, the
 contract of each character, zone, item and piece of UI, their pose sheets and their playable
 sandboxes. The translator, the architect and the planner read it as a standing grant: the vision
-is kept faithful to it, and the module map, the code rules and every task are derived from it. The implementer and the tester read exactly the paths
-their task file lists in `references` ([`TASK_FILE_SPEC.md`](TASK_FILE_SPEC.md) §2.2) — the tester
-also `08-engineering/checklist.md`, which it holds every task against. **Only a piece that
+is kept faithful to it, and the module map, the code rules and every task are derived from it. The implementer and the tester read every approved piece of
+`08-engineering/` — how all code is written, whatever the task — and, beyond it, exactly the paths
+their task file lists in `references` ([`TASK_FILE_SPEC.md`](TASK_FILE_SPEC.md) §2.2); the tester
+holds every task against `08-engineering/checklist.md`. **Only a piece that
 `reference/README.md` marks approved exists for an agent**: the translator, the architect and the
 planner read that index first, and a task file that cites an unapproved piece is malformed. Where a cited reference and
 the code disagree, the reference wins; where a reference is ambiguous, the agent stops rather than

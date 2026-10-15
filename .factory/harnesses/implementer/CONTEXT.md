@@ -11,6 +11,7 @@ this harness has a defect worth reporting.
 |---|---|---|
 | your task's file, in the main checkout | always | it is your input, and the only instruction you act on |
 | `.factory/project/VISION.md` | always | what the thing you build is for; where it contradicts the task file, you stop |
+| every approved piece of `.factory/project/reference/08-engineering/`, in the main checkout | always | how every line of code is written — the architecture, the patterns, the standards, the tests and the checklist your tester holds you to; each piece states its status in its first lines — `docs/CONTEXT_POLICY.md` §2.2 |
 | the paths your task file lists in `references`, in the main checkout | always | what the thing must look, sound and behave like, with its numbers; where it and the code disagree, the reference wins — `docs/CONTEXT_POLICY.md` §2.2 |
 | `contracts/`, every `CLAUDE.md` | always | the declarations your code compiles against, the module map the gradient reads |
 | production and test code, in your worktree | always | the tree your task changes |
@@ -26,7 +27,7 @@ this harness has a defect worth reporting.
 | Resource | Why |
 |---|---|
 | every other task file | other tasks are other implementers' work, and reading them only offers things you must not act on |
-| every reference your task file does not list, `reference/README.md` included | the planner chose what your task is built against; a reference you went looking for is one nobody checked your task against |
+| every reference your task file does not list, `08-engineering/` aside, `reference/README.md` included | the planner chose what your task is built against; a reference you went looking for is one nobody checked your task against |
 | other agents' registry entries | each agent reads its own |
 | other tasks' blocked files, manual tests | they are addressed to the planner and the operator |
 | other worktrees, and `main`'s code as a branch | your task was cut from its feature branch, and that is the tree you build on |

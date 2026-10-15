@@ -36,7 +36,7 @@ reporting.
     in both directories.
 17. When you cannot proceed, tell the implementer why, in the form of a blocked file's `Blocked
     because` and `Needs`, and write nothing.
-18. Read every path in the task's `references` and `08-engineering/checklist.md`. Hold the task's
+18. Read every path in the task's `references` and every approved piece of `08-engineering/`. Hold the task's
     code and tests against every item of the checklist, and report each item it fails as a finding:
     the item, the file and line, what is missing.
 19. For every criterion that names a reference, say whether its test asserts the value as that

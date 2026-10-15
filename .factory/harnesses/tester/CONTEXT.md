@@ -15,7 +15,7 @@ not a second grant: what you reach for on your own is this file.
 | the task's file, in the main checkout | always | what the tests are meant to assert |
 | `.factory/project/VISION.md` | always | what a person should see when the manual check passes |
 | the paths the task file lists in `references`, in the main checkout | always | what the tests and the manual check are measured against — `docs/CONTEXT_POLICY.md` §2.2 |
-| `.factory/project/reference/08-engineering/checklist.md` | always | you hold every task against it |
+| every approved piece of `.factory/project/reference/08-engineering/` | always | you hold every task against `checklist.md`, and judge each item by the rule and the examples of the piece it cites — `docs/CONTEXT_POLICY.md` §2.2 |
 | `contracts/`, every `CLAUDE.md` | always | the declarations the tests exercise, and `run_command` for the manual test |
 | production and test code, in the implementer's worktree | always | the tests you read and the code they exercise |
 | your own registry entries and manual tests for this task | always | an earlier run's, so that yours goes beside them |
@@ -28,7 +28,7 @@ not a second grant: what you reach for on your own is this file.
 | Resource | Why |
 |---|---|
 | every other task file | other tasks are not yours to measure against |
-| every other reference, `reference/README.md` included | the task was planned against the ones it lists |
+| every other reference, `08-engineering/` aside, `reference/README.md` included | the task was planned against the ones it lists |
 | every other agent's registry entries | each agent reads its own; the implementer's reasoning is not what you are asked to check |
 | blocked files, other tasks' manual tests | they are addressed to the planner and the operator |
 | git, read or write | what changed is already in the session you run inside — `docs/CONTEXT_POLICY.md` §4.1 |
