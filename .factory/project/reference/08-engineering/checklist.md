@@ -1,6 +1,6 @@
 # Engineering checklist
 
-- **Status:** approved 2026-09-30 · 2026-10-15: C11, F1–F9 and G1's widget-animation clause (operator)
+- **Status:** approved 2026-09-30 · 2026-10-15: C11, F1–F9, G1's widget-animation clause and P8's input-context exception (operator)
 - **Sources:** `architecture.md` · `design-patterns.md` · `coding-standards.md` · `testing.md`
 - **Read by:** the tester, on every task, against the files the task wrote or changed. Each item it
   fails goes to the implementer as a finding: the item's id, the file and line, what is missing.
@@ -31,7 +31,7 @@ the rule and its examples are.
 - [ ] **P5** No `switch` or `if` chain over a kind, ability or weapon id picks behaviour. [patterns §2, standards §6]
 - [ ] **P6** Postures and boss phases are state objects; transitions live in them. [patterns §3]
 - [ ] **P7** Data shared by a kind is one flyweight, referenced, never copied into instances. [patterns §4]
-- [ ] **P8** Features receive `PlayerCommand`s, never keys or mouse events. [patterns §5]
+- [ ] **P8** Features receive `PlayerCommand`s, never keys or mouse events; the one exception is a feature's `InputContext`, in its `presentation/`, which turns `core/input`'s key and pointer types into commands and holds no game rule. [patterns §5]
 - [ ] **P9** Short-lived per-frame objects come from a pool. [patterns §8]
 - [ ] **P10** No singleton, static mutable state, service locator or class that knows every feature. [patterns §14]
 

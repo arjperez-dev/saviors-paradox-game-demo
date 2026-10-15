@@ -1,6 +1,6 @@
 # Architecture
 
-- **Status:** approved 2026-10-14 (step 5.2: §2.1 lists the twenty features the architect fixed, §2.3 is
+- **Status:** approved 2026-10-15 (operator: §1 and §2.2 add the fifth shared module, `core/ui`; step 5.2: §2.1 lists the twenty features the architect fixed, §2.3 is
   the acyclic context map by rings, §2.4 adds `WorldBox` and the shared ids; before, approved 2026-09-30,
   version 1)
 - **Sources:** `VISION.md` §Client constraints (OOP, DDD, Clean Code, Decorator, Flyweight, optimal
@@ -30,6 +30,7 @@ lib/
     rendering/                the static pencil kit: seeded strokes, hatching, paper, ink smoke
     input/                    keyboard and mouse → player commands
     localization/             the translator, English and Spanish texts
+    ui/                       the interface kit: reusable widgets — sheets, frames, key caps, buttons, the theme
   features/
     <feature>/
       domain/                 aggregates, entities, value objects, domain events, policies
@@ -49,11 +50,11 @@ be mostly `presentation/`. An empty layer folder is not created.
 
 **`lib/core/` holds no game rules.** It holds what several features need and no feature owns: how
 the game starts, the contracts, the shared kernel, how a stroke is drawn, how a key becomes a
-command, how a text is translated. A rule about Akeris, an enemy or a zone in `core/` is in the wrong
+command, how a text is translated, which widgets every screen is built from. A rule about Akeris, an enemy or a zone in `core/` is in the wrong
 place.
 
 **How the factory sees this tree.** Each folder under `lib/features/` is a module of kind `feature`;
-`core/loop`, `core/rendering`, `core/input` and `core/localization` are modules of kind `shared` —
+`core/loop`, `core/rendering`, `core/input`, `core/localization` and `core/ui` are modules of kind `shared` —
 importable by every feature, holding no game rule, and built early so their code is on `main` before
 any feature imports it (`docs/CONTRACT_SPEC.md` §4.1). `core/contracts/` is the contracts root
 (`contracts_root` in the root `CLAUDE.md`; `docs/CONTRACT_SPEC.md` §2 shows `lib/contracts/` only as its
@@ -112,7 +113,7 @@ Against version 1 (2026-09-30): `hazards`, `map`, `pause` and `cinematics` are f
 |---|---|
 | **A feature never imports another feature.** | the factory builds features in parallel; an import is a dependency on behaviour that may not exist yet (`docs/CONTRACT_SPEC.md` §4) |
 | **Features meet through `lib/core/contracts/`**: an integration event, a published state, or a port | the contracts are the **published language** between contexts |
-| **A feature may import `core/contracts/` and the shared modules** — `core/loop`, `core/rendering`, `core/input`, `core/localization` — once their code is on `main`; never `core/app/`. `lib/core/` never imports a feature | the shared parts point inward (`docs/CONTRACT_SPEC.md` §4.1) |
+| **A feature may import `core/contracts/` and the shared modules** — `core/loop`, `core/rendering`, `core/input`, `core/localization`, `core/ui` — once their code is on `main`; never `core/app/`. `lib/core/` never imports a feature | the shared parts point inward (`docs/CONTRACT_SPEC.md` §4.1) |
 | **Each feature translates contract types into its own model at its edge**, in `application/` | this is its **anti-corruption layer**: a change in another context's language stops there |
 | **Only `lib/core/app/` knows every feature** | the composition root builds each feature and connects its ports; its files are shared files, edited by the integrator |
 

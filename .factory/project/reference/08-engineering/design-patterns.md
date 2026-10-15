@@ -1,6 +1,6 @@
 # Design patterns
 
-- **Status:** approved 2026-10-14 (step 5.2: §11, the memento is captured per originator and `save` is
+- **Status:** approved 2026-10-15 (operator: §5 input contexts, and the §14 row on keys; step 5.2: §11, the memento is captured per originator and `save` is
   the caretaker; before, approved 2026-09-30, version 1)
 - **Sources:** `VISION.md` §Client constraints (Decorator, Flyweight, DDD tactical patterns, optimal
   performance), §Mechanics, §Bosses, §Abilities, §Content scope · `architecture.md` ·
@@ -256,6 +256,15 @@ copies a kind's data**; it holds a reference.
 `ThrowChain(aim)`, `UseAbility(slot)`, `DrinkPotion`, `SwapWeapon(slot)`, `Talk`, `Pause`. The
 command type is a contract; each feature's use cases take commands, never keys.
 
+**Input contexts.** The same key means different things by context — playing, a menu, the zone map,
+a dialogue (`00-game/controls.md` §1–§4). `core/input` declares the abstraction a context
+implements, `InputContext`, keeps a stack of contexts driven by contract events, and implements the
+contexts no feature owns. A feature whose screen has bindings of its own implements `InputContext`
+in its `presentation/`, and that class is **the only place in a feature that sees keys**: it reads
+`core/input`'s key and pointer types, never Flutter's, translates them into `PlayerCommand`s and
+holds no game rule — an adapter at the edge (§13). The composition root registers it; `core/input`
+names no feature (operator, 2026-10-15).
+
 A command is data, so a test can script a sequence of commands over N steps and a bug can be
 replayed from its seed and its command log.
 
@@ -390,6 +399,6 @@ A rule that answers yes or no about something is a `Spec<T>` with `isSatisfiedBy
 | a `switch` over a kind id, an ability id or a weapon id to pick behaviour | Strategy (§2) |
 | `if` chains over the posture or phase spread through the code | State (§3) |
 | copying a kind's data into each instance | Flyweight (§4) |
-| reading keys inside a feature | Command (§5) |
+| reading keys inside a feature, anywhere but its input context | Command (§5) |
 | a `GameManager`, `World` or `Engine` class that knows every feature | the composition root wires; features own their rules |
 | a pattern with a single implementation and no second in sight | a plain class; the pattern arrives with the second case |
