@@ -27,6 +27,11 @@ final class StepClock {
     }
   }
 
+  /// The step the interface systems receive for a frame of [frame]
+  /// seconds: the frame, never more than the maximum step. Neither a halt
+  /// nor a hitstop changes it.
+  Seconds clamp(Seconds frame) => frame.atMost(_maxStep);
+
   /// The world step for a frame of [frame] seconds: zero while the world
   /// is halted or while a hitstop lasts, what is left of the frame when the
   /// hitstop ends inside it, and never more than the maximum step.
@@ -34,7 +39,7 @@ final class StepClock {
     if (halts.isHalted) {
       return Seconds.zero;
     }
-    final clamped = frame.atMost(_maxStep);
+    final clamped = clamp(frame);
     if (clamped <= _hitstopLeft) {
       _hitstopLeft = _hitstopLeft - clamped;
       return Seconds.zero;
