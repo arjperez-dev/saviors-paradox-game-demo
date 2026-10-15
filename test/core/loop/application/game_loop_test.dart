@@ -1,8 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:saviors_paradox/core/contracts/events/ability_chosen.dart';
 import 'package:saviors_paradox/core/contracts/events/game_event.dart';
 import 'package:saviors_paradox/core/contracts/events/hitstop_started.dart';
+import 'package:saviors_paradox/core/contracts/events/map_closed.dart';
+import 'package:saviors_paradox/core/contracts/events/map_opened.dart';
 import 'package:saviors_paradox/core/contracts/events/pause_closed.dart';
 import 'package:saviors_paradox/core/contracts/events/pause_opened.dart';
+import 'package:saviors_paradox/core/contracts/kernel/ability_id.dart';
 import 'package:saviors_paradox/core/contracts/kernel/seconds.dart';
 import 'package:saviors_paradox/core/loop/application/event_queue.dart';
 import 'package:saviors_paradox/core/loop/application/game_loop.dart';
@@ -158,6 +162,67 @@ void main() {
 
       expect(pingReceived, isTrue);
       expect(stepped, isEmpty);
+    });
+
+    test('holds the world while any halt cause stands', () {
+      final stepped = <String>[];
+      void stepA(Seconds dt) => stepped.add('a');
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+      );
+      queue.publish(const PauseOpened());
+      queue.publish(const MapOpened());
+      loop.advance(const Seconds(1 / 60));
+
+      queue.publish(const PauseClosed());
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, isEmpty);
+
+      queue.publish(const MapClosed());
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, ['a']);
+    });
+
+    test('a resume with no matching halt leaves the world halted', () {
+      final stepped = <String>[];
+      void stepA(Seconds dt) => stepped.add('a');
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+      );
+      queue.publish(const MapOpened());
+      queue.publish(
+        const AbilityChosen(ability: AbilityId.web, slotIndex: 0),
+      );
+
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, isEmpty);
+    });
+
+    test('a repeated halt is ended by one resume', () {
+      final stepped = <String>[];
+      void stepA(Seconds dt) => stepped.add('a');
+
+      final loop = GameLoop(
+        queue: queue,
+        clock: clock,
+        systems: [stepA],
+      );
+      queue.publish(const PauseOpened());
+      queue.publish(const PauseOpened());
+      queue.publish(const PauseClosed());
+
+      loop.advance(const Seconds(1 / 60));
+
+      expect(stepped, ['a']);
     });
   });
 }
