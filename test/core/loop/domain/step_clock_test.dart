@@ -102,5 +102,35 @@ void main() {
 
       expect(step, Seconds.zero);
     });
+
+    test(
+      'clamps a frame for the interface without spending the hitstop',
+      () {
+        // StepClock.clamp never spends the hitstop StepClock.advance does.
+        final clock = StepClock();
+
+        clock.holdFor(const Seconds(0.05));
+        final clamped = clock.clamp(const Seconds(0.5));
+        final first = clock.advance(const Seconds(1 / 30));
+        final second = clock.advance(const Seconds(1 / 30));
+
+        expect(clamped.value, closeTo(1 / 30, 1e-9));
+        expect(first, Seconds.zero);
+        expect(second.value, closeTo(1 / 60, 1e-9));
+      },
+    );
+
+    test(
+      'clamps a frame for the interface while the world is halted',
+      () {
+        final halts = WorldHalts();
+        final clock = StepClock(halts: halts);
+
+        halts.halt(HaltCause.map);
+        final clamped = clock.clamp(const Seconds(1 / 60));
+
+        expect(clamped.value, closeTo(1 / 60, 1e-9));
+      },
+    );
   });
 }
