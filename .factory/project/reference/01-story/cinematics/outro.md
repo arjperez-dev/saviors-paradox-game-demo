@@ -75,5 +75,5 @@ Then the home screen (`06-ui/title/title.md`): the run's slot is kept, marked wo
 | # | Question | Decided |
 |---|---|---|
 | S6 | What happens to the save slot after the outro? | it is kept, marked as won, and can no longer be continued; the home screen offers a new game (operator, 2026-09-30) |
-| S7 | Can the outro be skipped? | yes, always, from the first time, with the same key as the intro: holding Enter or Esc for 5 s (S4) (operator, 2026-09-30). (D): a control, moved into `VISION.md` in step 5.1 |
+| S7 | Can the outro be skipped? | yes, always, from the first time, with the same key as the intro: holding Enter or Esc for 5 s (S4) (operator, 2026-09-30). (D): a control, moved into `VISION.md` in step 5.1. The same *Skip* button as the intro's S4 (operator, 2026-10-15) |
 | S8 | What does the outro tell? | the operator's second 2026-10-14 script above; it plays in the Dragon room after the ability choice (CI3, operator 2026-10-13) |

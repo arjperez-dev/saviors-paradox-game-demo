@@ -84,6 +84,6 @@ game's logo, the same in both languages (`06-ui/title/title.md`).
 
 | # | Question | Decided |
 |---|---|---|
-| S4 | Can the intro be skipped? With which key? | yes, holding Enter or Esc for 5 s (operator, 2026-09-30). (D): a control, moved into `VISION.md` in step 5.1 |
+| S4 | Can the intro be skipped? With which key? | yes, holding Enter or Esc for 5 s (operator, 2026-09-30). (D): a control, moved into `VISION.md` in step 5.1. Also a *Skip* button with an `Esc` key cap, bottom right, labelled with `cinematic.skip`; holding a click on it for 5 s skips as the keys do, and the ring fills on it (operator, 2026-10-15; `06-ui/ui.md` §3) |
 | S5 | Does the intro play again after a death? | no (operator, 2026-09-30). After a death the run starts at zone 1 directly. With the 2026-10-13 version the intro plays when the game opens, and a new game plays the descent |
 | S6 | What does the intro tell? | the operator's 2026-10-13 script above (second version) |

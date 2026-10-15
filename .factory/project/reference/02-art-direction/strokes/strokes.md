@@ -36,7 +36,7 @@ Lines use round caps and round joins.
 | foot | 2.7 |
 | masonry: top edge | 3 |
 | masonry: exposed sides | 2.4 |
-| stone polygons | 1.8 |
+| stone polygons | 1.25 (the sandbox's `stone`; 1.8 before, operator 2026-10-15) |
 | chain links | 1.4–1.5 |
 | hatching | 1 |
 

@@ -45,7 +45,9 @@ outro ───► title (the slot is kept, marked as won)
 - **Look.** Paper sheets with a seeded pencil border, `Patrick Hand` lettering, ink and `paper` from
   the palette. Nothing trembles: every box, rule and letter has its seed.
 - **Focus.** The focused box or button takes the thick ink frame with an inner line; the mouse
-  brightens what it points at and acts with a click.
+  brightens what it points at and acts with a click. What is clickable shows the hand cursor, the
+  rest the arrow. A button that carries a key cap does exactly what its key does: clicking *Resume*
+  [`Esc`] is pressing Esc (operator, 2026-10-15).
 - **Keys.** W A S D or the arrows move the focus, Enter chooses, Esc goes back (G10,
   `00-game/controls.md`). Spending or losing something takes two steps or a question with the focus
   on the safe answer.

@@ -45,7 +45,8 @@ The same sheet as the pause menu, centred; on wider screens only the wash grows.
 | wash | whole screen | — | `vignette` ink (`rgba(14,11,9,.62)`) over the frozen game | — |
 | sheet | centre | x 120–1800, y 60–1020 | the pause menu's sheet (`pause-menu.md` §3) with one rule under the header (y 167) and one over the legend (y 903) | — |
 | zone name | sheet, top left | (170, 116), 64 px | `Suspended Sanctuary` | zone |
-| zone number | sheet, top right | right edge 1750, y 120, 32 px | `Zone 1` | zone |
+| zone number | sheet, top right | right edge 22 left of the close button, y 120, 32 px | `Zone 1` | zone |
+| close button | sheet, top right | a button 56 tall with an `Esc` key cap, right edge 1750, y 92–148 (U28) | `Close` | — |
 | view | sheet | x 170–1750, y 190–880 (1580 × 690), a faint pencil frame | the zone as a sketch of rooms (§3.3), only where revealed (§4), with its marks (§3.4) | zone layout, revealed cells, marks |
 | zoom marks | view, bottom right | three dots of 5, 18 apart, centre y 860 | filled up to the current level | zoom level |
 | legend | sheet, bottom | one row at y 936 from x 186: each mark at 28 hu and its name 28 px, 34 apart | the eight marks of §3.4 | — |
@@ -116,7 +117,7 @@ The marks never say what an altar holds or what a spirit will say: the map says 
 | Input (as `VISION.md` and `controls.md` name it) | Effect |
 |---|---|
 | M (playing) | opens the map, at the near level, centred on Akeris |
-| M or Esc (map open) | closes it (G11); Esc does not open the pause menu |
+| M or Esc (map open), or a click on *Close* | closes it (G11); Esc does not open the pause menu |
 | W / A / S / D or the arrows (held) | move the view, 760 hu per second (U19) |
 | mouse: drag with the left button | moves the view with the paper |
 | mouse wheel | zoom in or out one level, keeping the point under the pointer still |
@@ -136,6 +137,7 @@ The minimap takes no input.
 | `zone.rottingCanopy.name` | Rotting Canopy | Dosel Podrido | map title | 26 |
 | `zone.dragonBattlements.name` | Dragon Battlements | Almenas del Dragón | map title | 26 |
 | `ui.map.zone` | Zone {n} | Zona {n} | map, top right | 10 |
+| `ui.map.close` | Close | Cerrar | map, top right, beside the `Esc` key cap | 12 |
 | `ui.map.legend.akeris` | Akeris | Akeris | legend | 14 |
 | `ui.map.legend.altar` | Altar | Altar | legend | 14 |
 | `ui.map.legend.altarEmpty` | Taken | Tomado | legend | 14 |
@@ -212,6 +214,7 @@ spirits, the boss door and the way down, and passages not explored. **All approv
 | U22 | Do the marks say *what*? | No: an altar shows that it holds something, not what; a spirit shows that it has something new. The world tells the rest |
 | U23 | Where is the minimap and how big? | Top right, a disc of radius 110 hu at 0.09 hu per su (about 1,200 su around Akeris), north up, with the `M` key cap; it fades behind Akeris like the HUD's groups |
 | U24 | Does the minimap rotate or zoom? | Neither: always north up, one scale |
+| U28 | Can the map be closed with the mouse? | **Yes** (operator, 2026-10-15): a *Close* button with an `Esc` key cap at the top right, the same button as the pause menu's *Resume*; clicking it is pressing Esc. `map.png` and the map captures are exported again from the sandbox when the map is built |
 | U25 | Is the map kept across deaths or zones? | No: it is part of the run (saved in its slot); death wipes it and every new zone starts blank, because its layout is new |
 | U26 | What happens to the map when the boss dies? | The padlock opens and the bars go; nothing else changes |
 | U27 | Is there a title card, a legend? | The zone's name and number at the top, and a legend of the eight marks at the bottom, always shown |

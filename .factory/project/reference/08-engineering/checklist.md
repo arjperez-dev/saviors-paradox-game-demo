@@ -1,6 +1,6 @@
 # Engineering checklist
 
-- **Status:** approved 2026-09-30
+- **Status:** approved 2026-09-30 · 2026-10-15: C11, F1–F9 and G1's widget-animation clause (operator)
 - **Sources:** `architecture.md` · `design-patterns.md` · `coding-standards.md` · `testing.md`
 - **Read by:** the tester, on every task, against the files the task wrote or changed. Each item it
   fails goes to the implementer as a finding: the item's id, the file and line, what is missing.
@@ -37,7 +37,7 @@ the rule and its examples are.
 
 ## The rules of this game
 
-- [ ] **G1** No code outside `lib/core/loop/` reads a clock; logic receives `dt` as `Seconds`. [standards §8]
+- [ ] **G1** No code outside `lib/core/loop/` reads a clock; logic receives `dt` as `Seconds`; a widget's own animation changes no game state. [standards §8]
 - [ ] **G2** No unseeded `Random()`; every random choice comes from a `Seed` passed in. [standards §8]
 - [ ] **G3** Every player-visible string goes through the translator by key. [standards §8]
 - [ ] **G4** Tile ↔ world conversion only through `TileCoord`; no stray `* 32`. [standards §8]
@@ -56,6 +56,19 @@ the rule and its examples are.
 - [ ] **C8** No empty or untyped `catch`; expected failures are a sealed result; platform exceptions stay in `infrastructure/`. [standards §7]
 - [ ] **C9** Comments say why; ports, decorator bases and strategy interfaces have `///` docs; no commented-out code; no `TODO` without a task id. [standards §9]
 - [ ] **C10** `dart format` leaves the files unchanged and `flutter analyze --fatal-infos` is clean; every `// ignore:` says why. [standards §10]
+- [ ] **C11** No knowledge is written twice: a rule, a reference's number, a conversion or a widget has one home that every use calls. [standards §4]
+
+## Flutter widgets
+
+- [ ] **F1** Each widget has one job; `build()` obeys the size limits; no helper method returns a `Widget`. [standards §11]
+- [ ] **F2** `const` constructors and `const` call sites wherever they compile. [standards §11]
+- [ ] **F3** Stateless unless it owns ephemeral state; no widget changes domain state. [standards §11, architecture §5]
+- [ ] **F4** Only the subtree that shows a value rebuilds; nothing costly under a per-frame parent; static paint behind a `RepaintBoundary`; `shouldRepaint` exact. [standards §11]
+- [ ] **F5** Controllers and subscriptions are disposed; nothing asynchronous starts in `build`. [standards §11]
+- [ ] **F6** No colour, font size or stroke width inside a widget; all come from the theme. [standards §11]
+- [ ] **F7** Sizes in the UI frame, read from `LayoutBuilder` or `MediaQuery`; no fixed pixel size. [standards §11, 06-ui/ui.md §3]
+- [ ] **F8** A widget two screens need is shared and reused, never copied. [standards §4, §11]
+- [ ] **F9** Clickable shows the hand cursor; a key-cap button does what its key does. [standards §11, 06-ui/ui.md §3]
 
 ## Tests
 

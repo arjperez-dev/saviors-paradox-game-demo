@@ -1,10 +1,11 @@
 # Coding standards
 
-- **Status:** approved 2026-09-30
+- **Status:** approved 2026-09-30 · 2026-10-15: §4.6 (don't repeat yourself), the widget-animation row of
+  §8 and §11 (Flutter widgets), asked by the operator
 - **Sources:** `VISION.md` §Client constraints (OOP, DDD, Clean Code) · `architecture.md` ·
   `design-patterns.md`
-- **Read by:** every task that writes code cites this file. The tester checks it through
-  `checklist.md`.
+- **Read by:** the implementer and the tester, whole, on every task (`docs/CONTEXT_POLICY.md` §2.2);
+  every task that writes code cites it. The tester checks it through `checklist.md`.
 
 How each line of the game is written, in Dart 3: object-oriented, SOLID, Clean Code. Every rule has a
 **Do** and a **Don't**. Where a rule and the linter disagree, the stricter one wins.
@@ -137,6 +138,11 @@ the rest.
 4. **No primitive obsession.** A value with rules or a unit is a type.
 5. **Law of Demeter.** Talk to what you hold, not to what it holds: `akeris.canClimb(wall)`, not
    `akeris.body.hands.first.grip > wall.height`.
+6. **Don't repeat yourself.** Each piece of knowledge — a rule, a number from a reference, a
+   conversion, a widget — has one home, and every other use calls it. Two blocks that differ only in
+   their values are one function, one widget or one type with those values as parameters. Two values
+   that merely happen to be equal, each fixed by its own reference, are not repetition: each keeps
+   its source.
 
 ```dart
 // Do — the rule lives with the data
@@ -268,6 +274,7 @@ These are the root `CLAUDE.md` rules; each has one form in code.
 | Rule | Do | Don't |
 |---|---|---|
 | Game logic never reads the clock | `void step(Seconds dt)` | `DateTime.now()`, `Stopwatch`, `Timer` outside `core/loop/` |
+| A widget's own animation is presentation only | a Flutter implicit animation or `AnimationController` for a fade or a flash a reference gives | a ticker or `Timer` that changes game state, or times anything the game's `dt` measures |
 | Randomness comes from a seed | `Random(seed.forRoom(index).value)` | `Random()`, `Random.secure()`, `shuffle()` without a `Random` |
 | Flutter and Flame only in the outer layers | `presentation/`, `infrastructure/`, `core/app/`, `core/loop/` | `import 'package:flame/…'` in `domain/` or `application/` |
 | Features never import features | contracts, events, ports | `import 'package:saviors_paradox/features/combat/…'` from `akeris` |
@@ -289,3 +296,51 @@ These are the root `CLAUDE.md` rules; each has one form in code.
   clean. Code that needs `// ignore:` has a comment saying why on the same line.
 - Imports: `dart:` first, then `package:`, then relative, each group sorted. Across folders, import
   with `package:saviors_paradox/…`; relative imports only inside one layer of one feature.
+
+## 11. Flutter widgets
+
+Every screen, menu and overlay is built from small widgets. Each rule has its Do and its Don't, as
+everywhere in this file.
+
+1. **One widget, one job.** A `build()` obeys §3 like any function: when it grows, extract a widget
+   class — never a helper method returning `Widget`, which Flutter cannot skip on rebuild.
+2. **`const` wherever it compiles.** A `const` constructor on every widget that can have one, and
+   `const` at every call site that can take it, so Flutter skips the subtree.
+3. **Stateless by default.** A `StatefulWidget` holds only the ephemeral state it owns — focus,
+   hover, its own animation. Game state arrives as a snapshot or a published state; a widget never
+   changes domain state (`architecture.md` §5: drawing never changes the game).
+4. **Rebuild only what changes.** A `ValueListenableBuilder` (or another listenable) wraps the
+   smallest subtree that shows the value; nothing costly sits under a parent that rebuilds every
+   frame; a static painted part sits behind a `RepaintBoundary`; a `CustomPainter`'s `shouldRepaint`
+   compares exactly what it draws.
+5. **Lifecycle.** Controllers and subscriptions are created in `initState` and released in
+   `dispose`; nothing asynchronous starts in `build`.
+6. **One theme.** Colours, lettering and stroke widths come from one theme built from
+   `02-art-direction/palette/palette.md` and `strokes/strokes.md`; no `Color(…)` or font size is
+   written inside a widget.
+7. **Independent of the screen.** Sizes and positions are in the UI frame of `06-ui/ui.md` §3 (hu,
+   scaled by screen height ÷ 1080); a widget reads its space from `LayoutBuilder` or `MediaQuery`,
+   never from a fixed pixel size.
+8. **Shared, not copied.** A widget two screens need is written once, in shared code, and reused
+   with parameters (§4.6); a screen never copies another's widget.
+9. **Pointer and keys meet in one place.** What is clickable shows the hand cursor; a button that
+   carries a key cap does exactly what its key does (`06-ui/ui.md` §3).
+10. **Tested as a widget.** Each widget has a widget test of what it shows and what it sends —
+    geometry and choices, not pixels (`testing.md` §5).
+
+```dart
+// Do — small, const, the value scoped to the subtree that shows it
+final class CoinCount extends StatelessWidget {
+  const CoinCount({required this.coins, super.key});
+  final ValueListenable<int> coins;
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<int>(
+    valueListenable: coins,
+    builder: (context, value, _) => InkLabel('$value'),
+  );
+}
+
+// Don't — a helper method, a hard-coded colour, the whole screen rebuilt for one number
+Widget _coins() => Text('$coins', style: const TextStyle(color: Color(0xFF1A1715)));
+```

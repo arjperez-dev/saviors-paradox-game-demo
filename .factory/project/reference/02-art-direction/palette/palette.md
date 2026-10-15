@@ -20,7 +20,7 @@ or the element of a shield or effect. Alpha values are part of the colour.
 | `paper` | `#d4ccbe` | the page; fills of heads and pale shapes |
 | `paperLight` | `#efe6d6` | callout fill |
 | `graphite` | `ink` at 0.14–0.35 alpha | hatching |
-| `grain` | `rgba(60–110, 50–90, 40, ≤ 0.09)` | the paper grain, 1–2 su specks |
+| `grain` | `rgba(60–110, 50–90, 40, ≤ 0.09)` | the paper grain, 0–2 su specks (the sandbox's `buildLayers`; 1–2 before, operator 2026-10-15) |
 | `stain` | `rgba(90,70,45, 0.04–0.09)` | the paper stains, radial |
 | `vignette` | `rgba(14,11,9,.62)` at the edges | the edge vignette of the paper overlay |
 
