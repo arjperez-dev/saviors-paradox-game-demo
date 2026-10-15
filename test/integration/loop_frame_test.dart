@@ -1,9 +1,17 @@
 import 'package:flame/game.dart';
 import 'package:flame_test/flame_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:saviors_paradox/core/contracts/events/ability_chosen.dart';
+import 'package:saviors_paradox/core/contracts/events/dialogue_closed.dart';
+import 'package:saviors_paradox/core/contracts/events/dialogue_opened.dart';
+import 'package:saviors_paradox/core/contracts/events/game_event.dart';
 import 'package:saviors_paradox/core/contracts/events/hitstop_started.dart';
+import 'package:saviors_paradox/core/contracts/events/map_closed.dart';
+import 'package:saviors_paradox/core/contracts/events/map_opened.dart';
 import 'package:saviors_paradox/core/contracts/events/pause_closed.dart';
 import 'package:saviors_paradox/core/contracts/events/pause_opened.dart';
+import 'package:saviors_paradox/core/contracts/kernel/ability_id.dart';
+import 'package:saviors_paradox/core/contracts/kernel/entity_id.dart';
 import 'package:saviors_paradox/core/contracts/kernel/seconds.dart';
 import 'package:saviors_paradox/core/contracts/ports/event_sink.dart';
 import 'package:saviors_paradox/core/loop/application/event_queue.dart';
@@ -11,17 +19,51 @@ import 'package:saviors_paradox/core/loop/application/game_loop.dart';
 import 'package:saviors_paradox/core/loop/domain/step_clock.dart';
 import 'package:saviors_paradox/core/loop/presentation/loop_component.dart';
 
-/// A Flame game, mounted and ready, stepped by [systems] through a
-/// [GameLoop] subscribed to [queue].
+/// A Flame game, mounted and ready, stepped by [systems] — and, each frame,
+/// by [interfaceSystems] and [drain] — through a [GameLoop] subscribed to
+/// [queue].
 Future<FlameGame> gameStepping(
   EventQueue queue,
-  List<SystemStep> systems,
-) async {
-  final loop = GameLoop(queue: queue, clock: StepClock(), systems: systems);
+  List<SystemStep> systems, {
+  List<SystemStep> interfaceSystems = const [],
+  CommandDrain? drain,
+}) async {
+  final loop = GameLoop(
+    queue: queue,
+    clock: StepClock(),
+    systems: systems,
+    interfaceSystems: interfaceSystems,
+    drain: drain ?? (events, dt) {},
+  );
   final game = await initializeGame(FlameGame.new);
   await game.add(LoopComponent(loop));
   await game.ready();
   return game;
+}
+
+/// Calls `game.update(dt)` [frames] times.
+void updateFrames(FlameGame game, int frames, [double dt = 1 / 60]) {
+  for (var i = 0; i < frames; i++) {
+    game.update(dt);
+  }
+}
+
+/// Asserts [steps] holds [count] values, each within 1e-9 of [seconds].
+void expectSteps(List<Seconds> steps, int count, double seconds) {
+  expect(steps.length, count);
+  expect(steps.map((dt) => dt.value), everyElement(closeTo(seconds, 1e-9)));
+}
+
+/// A [CommandDrain] that publishes [event] on its [call]th invocation and
+/// does nothing on every other frame.
+CommandDrain publishOnCall(int call, GameEvent event) {
+  var calls = 0;
+  return (events, dt) {
+    calls++;
+    if (calls == call) {
+      events.publish(event);
+    }
+  };
 }
 
 void main() {
@@ -98,5 +140,88 @@ void main() {
         expect(first[i].value, closeTo(second[i].value, 1e-9));
       }
     });
+
+    test(
+      'the interface steps on while the map halts the world',
+      () async {
+        final queue = EventQueue();
+        final EventSink sink = queue;
+        var worldSteps = 0;
+        final interfaceDts = <Seconds>[];
+        final game = await gameStepping(
+          queue,
+          [(dt) => worldSteps++],
+          interfaceSystems: [interfaceDts.add],
+        );
+
+        sink.publish(const MapOpened());
+        updateFrames(game, 3);
+        expect(worldSteps, 0);
+        expectSteps(interfaceDts, 3, 1 / 60);
+
+        sink.publish(const MapClosed());
+        game.update(1 / 60);
+
+        expect(worldSteps, 1);
+        expect(interfaceDts.length, 4);
+      },
+    );
+
+    test('two halts hold the world until both end', () async {
+      final queue = EventQueue();
+      final EventSink sink = queue;
+      var worldSteps = 0;
+      final game = await gameStepping(queue, [(dt) => worldSteps++]);
+
+      sink.publish(const PauseOpened());
+      sink.publish(const DialogueOpened(spirit: EntityId(1)));
+      game.update(1 / 60);
+      expect(worldSteps, 0);
+
+      sink.publish(const PauseClosed());
+      game.update(1 / 60);
+      expect(worldSteps, 0);
+
+      sink.publish(const DialogueClosed(spirit: EntityId(1)));
+      game.update(1 / 60);
+      expect(worldSteps, 1);
+    });
+
+    test('an unmatched resume never frees the world', () async {
+      final queue = EventQueue();
+      final EventSink sink = queue;
+      var worldSteps = 0;
+      final game = await gameStepping(queue, [(dt) => worldSteps++]);
+
+      sink.publish(const MapOpened());
+      sink.publish(const AbilityChosen(ability: AbilityId.web, slotIndex: 0));
+      for (var i = 0; i < 3; i++) {
+        game.update(1 / 60);
+      }
+
+      expect(worldSteps, 0);
+    });
+
+    test(
+      'a command drained during a pause frees the world that frame',
+      () async {
+        final queue = EventQueue();
+        final EventSink sink = queue;
+        var worldSteps = 0;
+        final game = await gameStepping(
+          queue,
+          [(dt) => worldSteps++],
+          drain: publishOnCall(3, const PauseClosed()),
+        );
+
+        sink.publish(const PauseOpened());
+        game.update(1 / 60);
+        expect(worldSteps, 0);
+        game.update(1 / 60);
+        expect(worldSteps, 0);
+        game.update(1 / 60);
+        expect(worldSteps, 1);
+      },
+    );
   });
 }
