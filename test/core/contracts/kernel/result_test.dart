@@ -19,8 +19,8 @@ void main() {
     });
 
     test('a success never equals a failure', () {
-      const success = Success<int, int>(1);
-      const failure = Failure<int, int>(1);
+      const Result<int, int> success = Success(1);
+      const Result<int, int> failure = Failure(1);
 
       expect(success == failure, isFalse);
     });
