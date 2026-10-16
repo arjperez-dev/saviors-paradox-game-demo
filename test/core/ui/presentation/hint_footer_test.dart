@@ -9,7 +9,10 @@ void main() {
     const button0Key = Key('button0');
     const button1Key = Key('button1');
 
-    Future<void> pumpFooter(WidgetTester tester, {required double width}) async {
+    Future<void> pumpFooter(
+      WidgetTester tester, {
+      required double width,
+    }) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = const Size(1920, 1080);
       addTearDown(tester.view.reset);

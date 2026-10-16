@@ -43,7 +43,9 @@ Future<void> _setView(WidgetTester tester, Size size) async {
 
 Widget _wrap(Widget child) => Directionality(
   textDirection: TextDirection.ltr,
-  child: InkTheme(child: Align(alignment: Alignment.topLeft, child: child)),
+  child: InkTheme(
+    child: Align(alignment: Alignment.topLeft, child: child),
+  ),
 );
 
 void main() {

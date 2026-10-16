@@ -121,7 +121,9 @@ void main() {
       await _setView(tester);
 
       await tester.pumpWidget(
-        _frame(style: const FrameStyle(seed: Seed(4), look: FrameLook.faint)),
+        _frame(
+          style: const FrameStyle(seed: Seed(4), look: FrameLook.faint),
+        ),
       );
       expect(
         find.byType(InkFrame),
@@ -155,7 +157,9 @@ void main() {
     testWidgets('an empty box paints dashes', (tester) async {
       await _setView(tester);
       await tester.pumpWidget(
-        _frame(style: const FrameStyle(seed: Seed(4), look: FrameLook.dashed)),
+        _frame(
+          style: const FrameStyle(seed: Seed(4), look: FrameLook.dashed),
+        ),
       );
 
       // 06-ui/sandbox/sandbox.html hudBox: setLineDash([7, 6]).
@@ -165,8 +169,8 @@ void main() {
         off: 6,
       ).dashes.length;
 
-      var expected =
-          paints..path(color: InkThemeData.dashedFill, style: PaintingStyle.fill);
+      var expected = paints
+        ..path(color: InkThemeData.dashedFill, style: PaintingStyle.fill);
       for (var i = 0; i < dashCount; i++) {
         expected = expected
           ..path(
@@ -199,8 +203,8 @@ void main() {
         off: 6,
       ).dashes.length;
 
-      var expected =
-          paints..path(color: InkThemeData.dashedFill, style: PaintingStyle.fill);
+      var expected = paints
+        ..path(color: InkThemeData.dashedFill, style: PaintingStyle.fill);
       for (var i = 0; i < dashCount; i++) {
         expected = expected
           ..path(
