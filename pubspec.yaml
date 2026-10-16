@@ -24,3 +24,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: false
+  fonts:
+    - family: Patrick Hand
+      fonts:
+        - asset: assets/fonts/Patrick_Hand/PatrickHand-Regular.ttf
+  assets:
+    - assets/fonts/Patrick_Hand/OFL.txt
