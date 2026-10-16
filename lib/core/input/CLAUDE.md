@@ -10,6 +10,7 @@ Keyboard and mouse turned into `PlayerCommand`s through a stack of `InputContext
 |---|---|---|
 | `events/player_command` | emits | `lib/core/input/application/translate_input.dart` |
 | `ports/event_sink` | consumes | — |
+| `ports/event_source` | consumes | — |
 | `ports/world_camera` | consumes | — |
 | `events/world_halted` | consumes | — |
 | `events/world_resumed` | consumes | — |

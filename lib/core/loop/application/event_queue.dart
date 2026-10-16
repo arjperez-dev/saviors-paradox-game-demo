@@ -1,6 +1,7 @@
 import 'package:saviors_paradox/core/contracts/events/game_event.dart';
 import 'package:saviors_paradox/core/contracts/ports/event_sink.dart';
 import 'package:saviors_paradox/core/contracts/ports/event_source.dart';
+import 'package:saviors_paradox/core/contracts/ports/event_subscription.dart';
 
 /// The one queue every feature publishes to (design-patterns.md §7).
 ///
@@ -15,8 +16,13 @@ final class EventQueue implements EventSink, EventSource {
   void publish(GameEvent event) => _pending.add(event);
 
   @override
-  void subscribe<E extends GameEvent>(void Function(E event) handler) =>
-      _subscriptions.add(_Subscription<E>(handler));
+  EventSubscription subscribe<E extends GameEvent>(
+    void Function(E event) handler,
+  ) {
+    final subscription = _Subscription<E>(handler);
+    _subscriptions.add(subscription);
+    return subscription;
+  }
 
   /// Delivers every event published before this call. An event published
   /// while delivering waits for the next call: no handler is re-entered.
@@ -39,7 +45,7 @@ final class EventQueue implements EventSink, EventSource {
   }
 }
 
-final class _Subscription<E extends GameEvent> {
+final class _Subscription<E extends GameEvent> implements EventSubscription {
   const _Subscription(this._handler);
 
   final void Function(E event) _handler;
@@ -49,4 +55,9 @@ final class _Subscription<E extends GameEvent> {
       _handler(event);
     }
   }
+
+  // Not implemented yet: this does not release the handler. The release is
+  // the planner's next loop task (change-03).
+  @override
+  void cancel() {}
 }

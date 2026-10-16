@@ -10,6 +10,7 @@ The game loop and the event queue every feature publishes to. Each frame it read
 |---|---|---|
 | `ports/event_sink` | implements | `lib/core/loop/application/event_queue.dart` |
 | `ports/event_source` | implements | `lib/core/loop/application/event_queue.dart` |
+| `ports/event_subscription` | implements | `lib/core/loop/application/event_queue.dart` |
 | `events/hitstop_started` | consumes | — |
 | `events/world_halted` | consumes | — |
 | `events/world_resumed` | consumes | — |

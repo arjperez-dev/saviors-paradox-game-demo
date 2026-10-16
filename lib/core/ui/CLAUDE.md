@@ -2,7 +2,7 @@
 
 ## What it is
 
-The interface kit: `PaperSheet`, `InkFrame`, `KeyCap`, `KeyCapButton`, `HoldRing`, `MenuButton`, `FocusGroup`, `ConfirmQuestion`, `HintFooter` and `InkTheme`, the reusable widgets every screen is built from, drawn with `core/rendering` and lettered through `core/localization`, holding no game rule. Sizes are in hu through `UiScale`; what is clickable shows the hand cursor; a `KeyCapButton` hands its key's press and release to `core/input`'s active context; a `HoldRing` shows the fraction its owner gives it; `InkTheme` takes the palette, the strokes and the Patrick Hand family from `core/rendering`.
+The interface kit: `PaperSheet`, `InkFrame`, `KeyCap`, `KeyCapButton`, `HoldRing`, `MenuButton`, `FocusGroup`, `ConfirmQuestion`, `HintFooter` and `InkTheme`, the reusable widgets every screen is built from, drawn with `core/rendering`, lettering the already-translated strings its caller hands it — it imports no `core/localization` — and holding no game rule. Sizes are in hu through `UiScale`; what is clickable shows the hand cursor; a `KeyCapButton` hands its key's press and release to `core/input`'s active context; a `HoldRing` shows the fraction its owner gives it; `InkTheme` takes the palette, the strokes and the Patrick Hand family from `core/rendering`.
 
 ## Contracts
 
