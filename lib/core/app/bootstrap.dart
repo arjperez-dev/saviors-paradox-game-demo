@@ -1,6 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/widgets.dart';
 import 'package:saviors_paradox/core/app/saviors_paradox_game.dart';
+import 'package:saviors_paradox/core/input/presentation/input_listener.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// Opens the window fullscreen and runs the game (VISION.md §Target platform).
@@ -12,5 +13,6 @@ Future<void> bootstrap() async {
   );
   await windowManager.show();
   await windowManager.focus();
-  runApp(GameWidget(game: SaviorsParadoxGame()));
+  final game = SaviorsParadoxGame();
+  runApp(InputListener(onInput: game.input.receive, child: GameWidget(game: game)));
 }
