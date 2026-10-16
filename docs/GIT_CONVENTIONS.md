@@ -427,7 +427,9 @@ committed on `main`, not here.
 
 **`Scrutinise` is the section that earns the pull request.** It is the first time the feature is seen
 as one diff, and what belongs there is what a task at a time could not show: an interaction between
-two tasks, a pattern repeated in three, a shared file that grew in a direction nobody planned.
+two tasks, a pattern repeated in three, a shared file that grew in a direction nobody planned. It
+also lists every `Open finding:` of the feature's implementer entries — a tester finding no task could
+close inside its own bounds — so the reviewer sees what the planner's next session must answer.
 
 ### 5.4 Merging
 

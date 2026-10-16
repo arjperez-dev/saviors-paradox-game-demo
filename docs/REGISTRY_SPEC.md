@@ -190,7 +190,10 @@ blocked file sits beside the first.
 
 **The implementer's `Deviations` and `Evidence` are what the rest of the factory reads.** The
 integrator takes the commit's *why* from them, and the planner writes the next wave against them: the
-record of every adaptation an implementer made is how the tree actually came to be what it is.
+record of every adaptation an implementer made is how the tree actually came to be what it is. A
+tester finding the implementer could fix only outside its task's bounds is a `Deviations` line
+opening `Open finding:`; the integrator lists it in the feature's pull request, and the planner's
+next session plans it or declines it in a registry decision, so none is lost.
 
 ### 3.5 When an entry is written
 

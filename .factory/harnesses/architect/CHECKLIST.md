@@ -7,7 +7,7 @@ report at gate 1 covers the `Work` block only.
 ## Work — verified before gate 1
 
 - [ ] Every tool in the stack has a version confirmed on the web today, with its source, and none was chosen from a technical preference the vision stated on the client's behalf.
-- [ ] The commands include `install_command`, `test_command` and `lint_command`, and `run_command` if the game can be run; `source_root`, `test_root` and `contracts_root` are set.
+- [ ] The commands include `install_command`, `test_command` and `lint_command`, and `run_command` if the game can be run; if the stack has a formatter, `format_command`, and `lint_command` fails on a file it would change; `source_root`, `test_root` and `contracts_root` are set.
 - [ ] Every module has every root it owns, no two roots overlap, `contracts/` is nobody's root, and `tooling` is not in the map.
 - [ ] A module exists for the tests that exercise several modules, with its root under `test_root`.
 - [ ] No module needs another module's code: everything one takes from another is a contract.

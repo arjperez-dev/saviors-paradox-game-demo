@@ -17,6 +17,7 @@ report at gate 1 covers the `Work` block only.
 - [ ] Every task that imports a `shared` module uses only code already on `main`, and says so in `Preconditions`.
 - [ ] Every feature has a task whose tests exercise several modules together.
 - [ ] Every `Implementation` was written against the code as it stands, after reading the implementers' deviations.
+- [ ] Every `Open finding:` in an implementer's entry since my last session is planned in a task that names it, or declined in a registry decision that says why.
 - [ ] Every `Manual check` names something only a person can judge.
 - [ ] Every `exports` row names its `Building block`, each type is exactly one block, and every aggregate root's task states its invariants and the domain events it records.
 - [ ] Every task lists in `references` exact paths of approved pieces only, and every task that writes code cites `08-engineering/coding-standards.md`.

@@ -30,8 +30,9 @@ are not comparable with the steps of another harness.
    stop.
 8. If the merge or a note changed the package manifest, run `install_command`, and stage by path each
    file it rewrote. A failure is a stop.
-9. Run `test_command` — the whole suite, not the task's tests. A failure is a stop. Keep the command
-   and its summary line for your entry.
+9. If the root `CLAUDE.md` has a `format_command`, run it, and stage by path each note's `file` it
+   rewrote. Then run `test_command` — the whole suite, not the task's tests — and `lint_command`. A
+   failure is a stop. Keep the commands and the suite's summary line for your entry.
 10. Run `git diff --name-only`. It must print nothing: a path it prints is a change your commit would
     leave out. If it prints a note's `file`, stage it by path and run it again; any other path is a
     stop.
@@ -60,7 +61,8 @@ are not comparable with the steps of another harness.
     commit's type, subject and `Task:` footer, and the task commits' subjects for each task's title.
     List the names of `.factory/manual-tests/<feature>/`, without opening them. Run `test_command`
     once for the summary line.
-18. Write the pull request body from `templates/pr-body.md` — `docs/GIT_CONVENTIONS.md` §5.3 — and
+18. Write the pull request body from `templates/pr-body.md` — `docs/GIT_CONVENTIONS.md` §5.3 —
+    listing in `Scrutinise` every `Open finding:` line of the feature's implementer entries, and
     its title, `<feature>: <summary>`, one line saying what the feature delivers — §5.2.
 
 ## Write — a feature close

@@ -37,7 +37,10 @@ worth reporting.
     `contracts/`, stop — `docs/TASK_FILE_SPEC.md` §3.2 and §7.3.
 17. Start the `tester` once, by name, after the task's tests pass and before `verify-task`, and close
     every gap it reports in a criterion of this task and every item of
-    `08-engineering/checklist.md` it reports the task's code failing.
+    `08-engineering/checklist.md` it reports the task's code failing — in the task's own files even
+    where that widens the `Implementation`, recorded as an adaptation (rule 13). A finding whose
+    fix needs a file outside the task's bounds is never dropped: write it in `Deviations` as a line
+    opening `Open finding:`, with the checklist item, the files and what the fix needs.
 18. Run `verify-task` with the command your launch prompt gives, fix what it reports, and run it
     again until it passes. The task is finished only when it says `implemented`.
 19. After `verify-task` passes, commit everything in your worktree as one commit on `task/<id>`,

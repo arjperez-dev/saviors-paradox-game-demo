@@ -31,7 +31,8 @@ defect worth reporting.
     `file` by path, and change nothing else in a shared file.
 14. Run `install_command` in the integration worktree when, and only when, the merge or a note
     changed the package manifest.
-15. Run `test_command` — the whole suite — after the notes, and commit only if it passes.
+15. Run `format_command`, if there is one, then `test_command` — the whole suite — and `lint_command`
+    after the notes, and commit only if both pass.
 16. Write the merge message by `docs/GIT_CONVENTIONS.md` §3.2: the type its table gives, the module
     as scope, an imperative subject of at most 72 characters with no `and`, a body saying what
     changed and why — the why taken from the implementer's registry entry — and the one footer

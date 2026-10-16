@@ -11,6 +11,7 @@
 |---|---|
 | `install_command` | `<command>` |
 | `test_command` | `<command>` |
+| `format_command` | `<command>` |
 | `lint_command` | `<command>` |
 | `run_command` | `<command>` |
 | `build_command` | `<command>` |

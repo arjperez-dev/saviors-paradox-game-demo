@@ -33,11 +33,14 @@ continuously and are not comparable with the steps of another harness.
    exactly as the task file spells it.
 9. For every file you write that the task did not list, apply the gradient —
    `docs/TASK_FILE_SPEC.md` §3.2. Inside a root of your module, note it. Anywhere else, stop.
-10. Run `test_command` — the whole suite — and `lint_command`, and work until both pass. A test this
+10. Run `format_command`, if the root `CLAUDE.md` has one, then `test_command` — the whole suite — and
+    `lint_command`, and work until both pass. A test this
     task did not own that now fails is yours to understand, never to weaken.
 11. Start the `tester` as your subagent, by name. Tell it the task id, the path of the task file, the
     main checkout and your worktree. Close every gap it reports in a criterion of this task, and every
     item of `08-engineering/checklist.md` it reports the code failing, and run the suite again.
+    A finding you can fix only outside the task's bounds goes in your entry as an `Open finding:`
+    — rule 17.
 12. Run `verify-task` with the command from your launch prompt. It reports every check; fix what
     fails and run it again. When it passes, it has set the task `implemented`.
 

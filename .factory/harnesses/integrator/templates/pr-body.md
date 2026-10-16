@@ -18,3 +18,4 @@
 ## Scrutinise
 
 - <the one or two things most likely to be wrong, and where a reviewer should look first>
+- <every `Open finding:` of the feature's implementer entries: the task id and the line — or none>

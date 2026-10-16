@@ -263,7 +263,7 @@ Five sections, with these exact headings, in this order:
 | Section | Required | Holds |
 |---|---|---|
 | `Stack` | always | One line per language, framework or tool, **with its version**. Each version is a current stable release, checked against a source the architect names in its registry |
-| `Commands` | always | The commands exactly as typed. `install_command`, `test_command` and `lint_command` are required: the launcher runs the first in every new worktree, and `verify-task` runs the other two; `run_command` is required when the game can be run; `build_command` only on a stack where building is a step separate from testing |
+| `Commands` | always | The commands exactly as typed. `install_command`, `test_command` and `lint_command` are required: the launcher runs the first in every new worktree, and `verify-task` runs the other two; `run_command` is required when the game can be run; `build_command` only on a stack where building is a step separate from testing; `format_command`, which rewrites the files to the formatter's style, is required when the stack has a formatter, and then `lint_command` also fails on any file it would change |
 | `Paths` | always | `source_root`, `test_root` and `contracts_root` (§2), repository-relative, no trailing slash |
 | `Modules` | always | The module map (below) |
 | `Rules` | optional | The few global rules every task must respect. A rule that concerns one module goes in that module's file. Where the game has engineering references (`.factory/project/reference/08-engineering/`), every rule derives from one and ends with its path in parentheses; a rule they do not support is not written |

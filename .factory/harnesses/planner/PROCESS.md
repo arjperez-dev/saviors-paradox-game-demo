@@ -31,7 +31,8 @@ next.
 
 5. Read the state of the plan: every task file's frontmatter under `.factory/tasks/`. Then your own
    registry, and every implementer's and tester's entries since your last session — the deviations
-   are how the tree came to differ from what you predicted.
+   are how the tree came to differ from what you predicted. Every `Open finding:` line among them
+   you either plan, in a task that names it, or decline, in a registry decision that says why.
 6. Read the code the next tasks will touch: on `main` in the main checkout, and on each open feature
    branch in `../wt-feat-<feature>`. Search from `source_root`, never from the repository root.
 7. State to the operator what you found before you write anything. On a `wave-NN` session, which
