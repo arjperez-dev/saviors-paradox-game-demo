@@ -286,5 +286,28 @@ void main() {
         tester.getTopLeft(find.byType(InkFrame)),
       );
     });
+
+    testWidgets('a clickable child inside the frame receives its tap', (
+      tester,
+    ) async {
+      await _setView(tester);
+      var calls = 0;
+      await tester.pumpWidget(
+        _frame(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => calls++,
+            child: const SizedBox.expand(),
+          ),
+        ),
+      );
+
+      // The flash layer sits over the child in the frame's own Stack; at
+      // rest it must not claim the tap meant for the child (ConfirmQuestion:
+      // its answers sit inside their box's own InkFrame).
+      await tester.tap(find.byType(InkFrame));
+
+      expect(calls, 1);
+    });
   });
 }

@@ -282,4 +282,12 @@ final class _InkFrameFlashPainter extends CustomPainter {
   bool shouldRepaint(_InkFrameFlashPainter oldDelegate) =>
       !identical(oldDelegate.strokes, strokes) ||
       oldDelegate.pixelsPerHu != pixelsPerHu;
+
+  // CustomPainter.hitTest defaults to null, which RenderCustomPaint reads
+  // as "claim the tap"; left at that default, this painter — on top of
+  // [widget.child] in the frame's Stack, even unflashed — would swallow
+  // every pointer event meant for a clickable child, such as ConfirmQuestion's
+  // answers.
+  @override
+  bool? hitTest(Offset position) => false;
 }
