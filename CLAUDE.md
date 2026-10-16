@@ -18,7 +18,8 @@
 |---|---|
 | `install_command` | `flutter pub get --enforce-lockfile` |
 | `test_command` | `flutter test` |
-| `lint_command` | `flutter analyze --fatal-infos` |
+| `format_command` | `dart format lib test` |
+| `lint_command` | `dart format --output=none --set-exit-if-changed lib test && flutter analyze --fatal-infos` |
 | `run_command` | `flutter run -d windows` |
 | `build_command` | `flutter build windows --release` |
 
