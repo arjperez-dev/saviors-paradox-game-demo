@@ -1,6 +1,7 @@
 # Architecture
 
-- **Status:** approved 2026-10-15 (operator: §1 and §2.2 add the fifth shared module, `core/ui`; §2.3 and §5
+- **Status:** approved 2026-10-16 (operator: §4 every type is one building block, named in its task's
+  `Interfaces`); 2026-10-15 (operator: §1 and §2.2 add the fifth shared module, `core/ui`; §2.3 and §5
   carry the architect's `change-02`, the halts, the input contexts and the two steps; step 5.2: §2.1 lists the twenty features the architect fixed, §2.3 is
   the acyclic context map by rings, §2.4 adds `WorldBox` and the shared ids; before, approved 2026-09-30,
   version 1)
@@ -272,6 +273,13 @@ own.
 | **Repository** | a collection-like port for aggregates that persist | `SaveSlotStore`, `SpiritMemoryStore` | an interface in `application/ports/`; implemented in `infrastructure/`; loads and saves whole aggregates |
 | **Use case** | one thing the player or the game does | `DrinkPotion`, `EquipShield`, `SwapAbility`, `UpgradeWeapon` | orchestrates: loads, calls the aggregate, publishes events; holds no rule itself |
 | **System** | one step of a continuous process | `StepAkerisMovement`, `StepEnemyBrains`, `StepStatusEffects` | `step(Seconds dt)`; called by the game loop in a fixed order |
+
+**Every type is one block.** Each type a feature's `domain/` or `application/` declares is exactly one
+of the blocks above, and the task that declares it names which in the `Building block` column of its
+`Interfaces`. A type that would be two at once — an aggregate that publishes, a value object with an
+identity, a use case holding a rule — is split. The task that declares an aggregate root states, in
+its description, the invariants the root guards and the domain events it records. `lib/core/` holds
+no game rule (§1), so outside `contracts/kernel/`'s value objects its types are no block.
 
 **Aggregates mutate; values do not.** An aggregate that changes every frame — Akeris's position, a
 chain's segments — changes its own private fields through its methods, which keep its invariants.

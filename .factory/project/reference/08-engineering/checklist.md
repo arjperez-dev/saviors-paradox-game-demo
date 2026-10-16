@@ -1,6 +1,6 @@
 # Engineering checklist
 
-- **Status:** approved 2026-09-30 · 2026-10-15: C11, F1–F9, G1's widget-animation clause and P8's input-context exception (operator)
+- **Status:** approved 2026-09-30 · 2026-10-15: C11, F1–F9, G1's widget-animation clause and P8's input-context exception (operator) · 2026-10-16: A11–A15, the DDD building blocks (operator)
 - **Sources:** `architecture.md` · `design-patterns.md` · `coding-standards.md` · `testing.md`
 - **Read by:** the tester, on every task, against the files the task wrote or changed. Each item it
   fails goes to the implementer as a finding: the item's id, the file and line, what is missing.
@@ -21,6 +21,11 @@ the rule and its examples are.
 - [ ] **A8** Aggregates record domain events; only `application/` publishes integration events. [architecture §4]
 - [ ] **A9** No game rule in `lib/core/`; no shared module in `core/` imports a feature. [architecture §1, §2.4]
 - [ ] **A10** Nothing in the per-frame path of a hot loop allocates. [architecture §6]
+- [ ] **A11** Each value object is immutable (`final` fields, a `const` constructor wherever it compiles), equal by value (`==` and `hashCode`), validates itself in its constructor, and its transitions return a new value. [architecture §4]
+- [ ] **A12** Each entity is equal by its `EntityId` alone and changes only through its own methods; nothing outside its aggregate holds a reference to it. [architecture §4]
+- [ ] **A13** A factory builds its aggregate from data and a `Seed`, never from `Random()`, and never returns an invalid one: an input it cannot build from is a sealed result, not an exception. [architecture §4, standards §8]
+- [ ] **A14** A repository is an interface in `application/ports/`, implemented in `infrastructure/`, and loads and saves whole aggregates, never their parts. [architecture §4]
+- [ ] **A15** Each type in a feature's `domain/` or `application/` is the one building block its task's `Interfaces` names, and keeps that block's rules: a use case holds no rule, a domain service holds no state, a domain event is past tense and immutable. [architecture §4]
 
 ## Design patterns
 
