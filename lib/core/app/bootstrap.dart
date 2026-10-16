@@ -14,5 +14,10 @@ Future<void> bootstrap() async {
   await windowManager.show();
   await windowManager.focus();
   final game = SaviorsParadoxGame();
-  runApp(InputListener(onInput: game.input.receive, child: GameWidget(game: game)));
+  runApp(
+    InputListener(
+      onInput: game.input.receive,
+      child: GameWidget(game: game),
+    ),
+  );
 }
