@@ -34,9 +34,9 @@ created: <YYYY-MM-DD>
 
 ## Interfaces
 
-| File | Symbol | Role | Signature |
-|---|---|---|---|
-| `<path>` | `<symbol>` | uses | `<signature>` |
+| File | Symbol | Role | Building block | Signature |
+|---|---|---|---|---|
+| `<path>` | `<symbol>` | uses | — | `<signature>` |
 
 ## Implementation
 

@@ -37,9 +37,9 @@ created: <YYYY-MM-DD>
 
 ## Interfaces
 
-| File | Symbol | Role | Signature |
-|---|---|---|---|
-| `<path>` | `<symbol>` | <exports \| uses> | `<signature>` |
+| File | Symbol | Role | Building block | Signature |
+|---|---|---|---|---|
+| `<path>` | `<symbol>` | <exports \| uses> | <the building block the engineering references name \| —> | `<signature>` |
 
 ## Implementation
 

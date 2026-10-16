@@ -47,7 +47,10 @@ worth reporting.
     `docs/TASK_FILE_SPEC.md` §6.1.
 20. Give every `implementation` task an `Interfaces` table and at least one acceptance criterion
     with a `Test file` in `files` and a `Test name` exactly as it will appear in that file —
-    `docs/TASK_FILE_SPEC.md` §2.4, §2.6.
+    `docs/TASK_FILE_SPEC.md` §2.4, §2.6. Name in every `exports` row its `Building block`, as the
+    engineering references name it, and design each type as exactly one block; the task that
+    declares an aggregate root states, in its `Description`, the invariants the root guards and
+    the domain events it records.
 21. Keep every path in `files` inside a root of the task's module, `tooling` excepted, and put every
     change to a shared file in `shared_file_notes` as one directed instruction —
     `docs/TASK_FILE_SPEC.md` §3.

@@ -18,6 +18,7 @@ report at gate 1 covers the `Work` block only.
 - [ ] Every feature has a task whose tests exercise several modules together.
 - [ ] Every `Implementation` was written against the code as it stands, after reading the implementers' deviations.
 - [ ] Every `Manual check` names something only a person can judge.
+- [ ] Every `exports` row names its `Building block`, each type is exactly one block, and every aggregate root's task states its invariants and the domain events it records.
 - [ ] Every task lists in `references` exact paths of approved pieces only, and every task that writes code cites `08-engineering/coding-standards.md`.
 - [ ] Every value a cited reference fixes is copied into a criterion as the reference gives it, with its source named; none contradicts a reference.
 - [ ] On a replanning: no `integrated` task file is rewritten, no id is reused, and every blocked task has a decision on its `task/` branch.

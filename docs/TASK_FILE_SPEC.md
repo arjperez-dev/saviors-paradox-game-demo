@@ -178,16 +178,23 @@ for these four, which is the difference from the frontmatter lists.
 ````markdown
 ## Interfaces
 
-| File | Symbol | Role | Signature |
-|---|---|---|---|
-| `src/mechanics/player/jump.ts` | `jump` | exports | `(state: PlayerState, input: JumpInput) => PlayerState` |
-| `contracts/state/PlayerState.ts` | `PlayerState` | uses | `interface PlayerState` |
+| File | Symbol | Role | Building block | Signature |
+|---|---|---|---|---|
+| `src/mechanics/player/jump.ts` | `jump` | exports | use case | `(state: PlayerState, input: JumpInput) => PlayerState` |
+| `contracts/state/PlayerState.ts` | `PlayerState` | uses | — | `interface PlayerState` |
 ````
 
 | Role | Means | Binding? |
 |---|---|---|
 | `exports` | a symbol this task declares or changes, and that another task may compile against | **yes** — §2.8 |
 | `uses` | a symbol that already exists and that this task's tests exercise | no |
+
+**`Building block` names what each `exports` row is in the project's design**, in the words of the
+project's engineering references — for a domain-driven design, the building block (aggregate,
+entity, value object, domain event, domain service, policy, factory, repository, use case, system).
+It is `—` where none applies: a `uses` row, tooling, a widget, a type of a shared module that holds
+no domain rule. The implementer builds the symbol as that block, and the tester holds it to that
+block's rules. A symbol that is two blocks at once is two symbols.
 
 **`Interfaces` is required on every `implementation` task**, because check 4 of `verify-task`
 compares each test file against it (§5.2). Without it that check has nothing to compare against, and
@@ -338,7 +345,7 @@ to write a bug task file (§8.2). The manual test is committed with the rest of 
 |---|---|---|
 | `Acceptance criteria` | **yes** | the task does not pass `verify-task` |
 | `references` | **yes** — above the `Implementation` | where the code the task asks for contradicts a cited reference, the reference wins and the implementer records the deviation; where the reference is ambiguous, or contradicts an `exports` row or a criterion, it stops (§7.3) |
-| `Interfaces`, `exports` rows | **yes** | the implementer stops and writes a blocked file (§7.3) |
+| `Interfaces`, `exports` rows | **yes**, their `Building block` included | the implementer stops and writes a blocked file (§7.3) |
 | `files` | **a gradient** | §3.2 |
 | `Implementation` | no — authoritative | the implementer adapts it and records the deviation |
 | `Interfaces`, `uses` rows | no | they describe what already exists; a wrong one is a finding for the planner, not a stop |
