@@ -46,7 +46,7 @@ everything nobody thought of.
 | every `CLAUDE.md` | — | ✓ writes them | ✓ | ✓ | ✓ | ✓ |
 | [task files](GLOSSARY.md#task-file) | — | ✓ | ✓ writes them | ○ its task's | ○ its task's | ○ its task's |
 | own [registry](GLOSSARY.md#registry) entries | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| other agents' registry entries | ✗ | ✗ | ✓ all | ✗ | ✗ | ○ the implementer's entry for its task |
+| other agents' registry entries | ✗ | ✗ | ✓ all | ✗ | ✗ | ○ the implementer's entry for its task; at a feature close, its feature's implementer entries, for their `Open finding:` lines |
 | [blocked files](GLOSSARY.md#blocked-file) | — | ○ those with `needs: architect` | ✓ | ○ its task's, if relaunched | ✗ | ✗ |
 | [manual tests](GLOSSARY.md#manual-test) | — | ✗ | ✓ | ✗ | ✓ writes its task's | ○ its feature's, names only |
 | production code | — | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -104,7 +104,9 @@ reaches before it makes one.
 against what the previous one actually did, and a replanning is a judgement about what went wrong —
 both live in the implementers' deviations. The integrator reads exactly one other entry, the
 implementer's for the task it is integrating, because that entry holds the *why* its commit message
-needs. Nothing else crosses.
+needs. At a feature close it reads its feature's implementer entries, for their `Open finding:` lines
+only, because `pr.md` must list them ([`GIT_CONVENTIONS.md`](GIT_CONVENTIONS.md) §5.3). Nothing else
+crosses.
 
 **The implementer's registry is no longer closed to the tester.** In `3.x` that was the most
 important line of this document: the tester was a separate session whose whole value was an

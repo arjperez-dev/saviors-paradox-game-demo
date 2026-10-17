@@ -13,6 +13,7 @@ this harness has a defect worth reporting.
 | `.factory/project/VISION.md` | always | where a merge's effect is unclear, what the game is meant to do |
 | `contracts/`, every `CLAUDE.md` | always | the commands you run, and the module that scopes a message |
 | the implementer's registry entry for the task | task integration | the *why* of your message — `docs/REGISTRY_SPEC.md` §5 |
+| the feature's implementer registry entries, their `Open finding:` lines only | feature close | `pr.md` lists every open finding in `Scrutinise` — `docs/GIT_CONVENTIONS.md` §5.3 |
 | your own registry entries | always | an earlier `pr.md`, so a later body goes beside it |
 | the names of the feature's manual tests | feature close | they are listed in the body; their contents are not yours |
 | production and test code, in the integration worktree | always | the merge, the shared files, the suite |
@@ -26,7 +27,7 @@ this harness has a defect worth reporting.
 | Resource | Why |
 |---|---|
 | every other task file | the task you integrate is the only one you act on |
-| every other registry entry | the implementer's entry for this task is the one crossing the factory allows |
+| every other registry entry | the implementer's entry for this task, and at a feature close the `Open finding:` lines of the feature's implementer entries, are the only crossings the factory allows |
 | the contents of manual tests, blocked files | they are addressed to the operator and the planner |
 | the web | your one use of the network is `install_command` |
 

@@ -315,12 +315,15 @@ entry (§3.3). A correction says that what was *recorded* was wrong.
 |---|---|---|
 | any agent | its own entries | freely |
 | `integrator` | the implementer's entry for the task it is integrating | at every integration |
+| `integrator` | the implementer's entries of the feature it closes, for their `Open finding:` lines | at a feature close |
 | `planner` | every entry of every agent | when it plans a wave, and when it replans |
 | any agent | another agent's entries, otherwise | never |
 | human operator | everything | always |
 
 **The integrator reads the implementer's entry, and nothing more of anyone's.** That entry is the
-*why* the commit message needs, already written by the agent that knew it. Until `4.0.0` a
+*why* the commit message needs, already written by the agent that knew it. The one widening is the
+feature close: `pr.md` lists every `Open finding:` of the feature, so the integrator reads its
+feature's implementer entries for those lines, and nothing else in them. Until `4.0.0` a
 prohibition kept agents out of each other's registries to protect the tester's independence; between
 implementer and integrator there is no independence to protect, and the tester — now a subagent
 inside the implementer's session — has none left to lose.
