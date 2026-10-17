@@ -1,29 +1,43 @@
-// Stub: not implemented.
-
-import 'package:saviors_paradox/core/contracts/kernel/biome.dart';
-import 'package:saviors_paradox/core/contracts/kernel/entity_id.dart';
 import 'package:saviors_paradox/core/contracts/kernel/seconds.dart';
-import 'package:saviors_paradox/core/contracts/kernel/seed.dart';
-import 'package:saviors_paradox/core/contracts/kernel/vec2.dart';
-import 'package:saviors_paradox/core/contracts/kernel/world_box.dart';
-import 'package:saviors_paradox/core/contracts/kernel/zone_number.dart';
 import 'package:saviors_paradox/core/contracts/state/zone_state.dart';
+import 'package:saviors_paradox/features/dungeon/application/ports/zone_repository.dart';
+import 'package:saviors_paradox/features/dungeon/application/zone_reading.dart';
+import 'package:saviors_paradox/features/dungeon/domain/zone.dart';
 
+/// Advances the current zone by the world step, and shows its snapshot.
 final class StepZone {
-  ZoneState get state => const ZoneState(
-    zone: ZoneNumber.first,
-    biome: Biome.suspendedSanctuary,
-    seed: Seed(0),
-    bounds: WorldBox(centre: Vec2.zero, halfWidth: 0, halfHeight: 0),
-    rooms: [],
-    spawns: [],
-    altars: [],
-    spirits: [],
-    start: Vec2.zero,
-    wayDown: Vec2.zero,
-    bossRoom: EntityId(0),
-    isBossRoomSealed: false,
-  );
+  StepZone(this._zones);
 
-  void step(Seconds dt) {}
+  final ZoneRepository _zones;
+
+  // A memo of the last snapshot, rebuilt only when the zone or its
+  // revision changes: derived, not game state (architecture.md §4, §6.5).
+  Zone? _shown;
+  int _shownRevision = -1;
+  ZoneState? _state;
+
+  ZoneState get state {
+    final zone = _zones.load();
+    if (zone == null) {
+      throw StateError('no zone has been generated yet');
+    }
+    final shown = _state;
+    if (shown != null &&
+        identical(zone, _shown) &&
+        zone.revision == _shownRevision) {
+      return shown;
+    }
+    _shown = zone;
+    _shownRevision = zone.revision;
+    return _state = readZoneState(zone);
+  }
+
+  void step(Seconds dt) {
+    final zone = _zones.load();
+    if (zone == null) {
+      return;
+    }
+    zone.advance(dt);
+    _zones.save(zone);
+  }
 }
