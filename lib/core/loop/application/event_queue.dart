@@ -7,6 +7,8 @@ import 'package:saviors_paradox/core/contracts/ports/event_subscription.dart';
 ///
 /// Events wait until [deliver]; then each reaches, in the order it was
 /// published, every handler of its type, in the order they subscribed.
+/// A cancelled handler gets nothing more, and its place is released when
+/// the delivery ends.
 final class EventQueue implements EventSink, EventSource {
   final List<_Subscription<GameEvent>> _subscriptions = [];
   List<GameEvent> _pending = [];
@@ -34,6 +36,7 @@ final class EventQueue implements EventSink, EventSource {
       _offer(delivering[i]);
     }
     delivering.clear();
+    _releaseCancelled();
   }
 
   // Indexed loops: no iterator is allocated in the per-frame path
@@ -43,21 +46,37 @@ final class EventQueue implements EventSink, EventSource {
       _subscriptions[i].offer(event);
     }
   }
+
+  // Compacts the list in place, keeping the order: removeWhere would
+  // allocate (architecture.md §6.1). Run only after a delivery, so a
+  // cancel during one never shifts the handlers still to be offered.
+  void _releaseCancelled() {
+    var kept = 0;
+    for (var i = 0; i < _subscriptions.length; i++) {
+      final subscription = _subscriptions[i];
+      if (subscription.isActive) {
+        _subscriptions[kept] = subscription;
+        kept++;
+      }
+    }
+    _subscriptions.length = kept;
+  }
 }
 
 final class _Subscription<E extends GameEvent> implements EventSubscription {
-  const _Subscription(this._handler);
+  _Subscription(this._handler);
 
   final void Function(E event) _handler;
+  bool _isActive = true;
+
+  bool get isActive => _isActive;
 
   void offer(GameEvent event) {
-    if (event is E) {
+    if (_isActive && event is E) {
       _handler(event);
     }
   }
 
-  // Not implemented yet: this does not release the handler. The release is
-  // the planner's next loop task (change-03).
   @override
-  void cancel() {}
+  void cancel() => _isActive = false;
 }
