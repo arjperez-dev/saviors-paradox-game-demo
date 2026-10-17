@@ -4,6 +4,7 @@ import 'package:saviors_paradox/core/contracts/events/hitstop_started.dart';
 import 'package:saviors_paradox/core/contracts/events/pause_closed.dart';
 import 'package:saviors_paradox/core/contracts/events/pause_opened.dart';
 import 'package:saviors_paradox/core/contracts/kernel/seconds.dart';
+import 'package:saviors_paradox/core/contracts/ports/event_subscription.dart';
 import 'package:saviors_paradox/core/loop/application/event_queue.dart';
 
 void main() {
@@ -104,6 +105,101 @@ void main() {
       queue.deliver();
 
       expect(calls, 1);
+    });
+
+    test('a cancelled handler receives no later event', () {
+      var calls = 0;
+      final subscription = queue.subscribe<PauseOpened>((event) => calls++);
+      queue.publish(const PauseOpened());
+      queue.deliver();
+
+      expect(calls, 1);
+
+      subscription.cancel();
+      queue.publish(const PauseOpened());
+      queue.deliver();
+
+      expect(calls, 1);
+    });
+
+    test('cancelling twice changes nothing', () {
+      var firstCalls = 0;
+      var secondCalls = 0;
+      final first = queue.subscribe<PauseOpened>((event) => firstCalls++);
+      queue.subscribe<PauseOpened>((event) => secondCalls++);
+
+      first.cancel();
+      first.cancel();
+      queue.publish(const PauseOpened());
+      queue.deliver();
+
+      expect(firstCalls, 0);
+      expect(secondCalls, 1);
+    });
+
+    test('a cancel during delivery skips no other handler', () {
+      final order = <int>[];
+      late EventSubscription second;
+      queue.subscribe<PauseOpened>((event) {
+        order.add(1);
+        second.cancel();
+      });
+      second = queue.subscribe<PauseOpened>((event) => order.add(2));
+      queue.subscribe<PauseOpened>((event) => order.add(3));
+
+      queue.publish(const PauseOpened());
+      queue.deliver();
+
+      expect(order, [1, 3]);
+
+      queue.publish(const PauseOpened());
+      queue.deliver();
+
+      expect(order, [1, 3, 1, 3]);
+    });
+
+    test('a handler that cancels itself keeps the next one called', () {
+      final order = <int>[];
+      late EventSubscription first;
+      first = queue.subscribe<PauseOpened>((event) {
+        order.add(1);
+        first.cancel();
+      });
+      queue.subscribe<PauseOpened>((event) => order.add(2));
+
+      queue.publish(const PauseOpened());
+      queue.publish(const PauseOpened());
+      queue.deliver();
+
+      expect(order, [1, 2, 2]);
+    });
+
+    test('cancelling one subscription of a handler keeps the other', () {
+      var calls = 0;
+      void handler(PauseOpened event) => calls++;
+      final first = queue.subscribe<PauseOpened>(handler);
+      queue.subscribe<PauseOpened>(handler);
+
+      first.cancel();
+      queue.publish(const PauseOpened());
+      queue.deliver();
+
+      expect(calls, 1);
+    });
+
+    test('a handler subscribed after a cancel is called in order', () {
+      final order = <int>[];
+      final first = queue.subscribe<PauseOpened>((event) => order.add(1));
+      queue.subscribe<PauseOpened>((event) => order.add(2));
+
+      first.cancel();
+      queue.deliver();
+      queue.subscribe<PauseOpened>((event) => order.add(3));
+
+      queue.publish(const PauseOpened());
+      queue.deliver();
+
+      expect(order, [2, 3]);
     });
   });
 }
