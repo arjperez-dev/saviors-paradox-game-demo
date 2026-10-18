@@ -20,8 +20,8 @@ The zone: generation from the run's seed (`BiomeKit`, `ZoneBuilder`, `ZoneValida
 | `ports/boss_room_seal` | implements | `lib/features/dungeon/application/boss_room_doors.dart` |
 | `ports/boss_room_stage` | implements | `lib/features/dungeon/application/boss_room_stage_elements.dart` |
 | `ports/altars` | implements | `lib/features/dungeon/application/zone_altars.dart` |
+| `ports/zone_presence` | implements | `lib/features/dungeon/application/presence_in_zone.dart` |
 | `ports/run_memento_source` | implements | `lib/features/dungeon/infrastructure/zone_memento_source.dart` |
-| `events/player_command` | consumes | — |
 | `ports/event_sink` | consumes | — |
 
 ## Roots

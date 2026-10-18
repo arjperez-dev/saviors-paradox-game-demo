@@ -33,6 +33,8 @@ Akeris: movement, postures, health and the loadout his items decorate.
 | `ports/combatant_registry` | consumes | — |
 | `ports/attack_resolver` | consumes | — |
 | `ports/collision_world` | consumes | — |
+| `ports/zone_presence` | consumes | — |
+| `ports/altars` | consumes | — |
 | `events/zone_entered` | consumes | — |
 | `ports/event_sink` | consumes | — |
 

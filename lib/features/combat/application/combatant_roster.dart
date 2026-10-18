@@ -51,6 +51,7 @@ final class CombatantRoster implements CombatantRegistry {
   @override
   Vec2? positionOf(EntityId combatant) => byId(combatant)?.hurtbox.centre;
 
+  @override
   Combatant? byId(EntityId combatant) {
     final index = _indexOf(combatant);
     return index < 0 ? null : _combatants[index];

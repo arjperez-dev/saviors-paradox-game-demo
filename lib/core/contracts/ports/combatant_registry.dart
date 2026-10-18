@@ -10,4 +10,6 @@ abstract interface class CombatantRegistry {
   Iterable<Combatant> near(Vec2 point, double radius);
 
   Vec2? positionOf(EntityId combatant);
+
+  Combatant? byId(EntityId combatant);
 }
