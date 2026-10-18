@@ -379,6 +379,12 @@ A rule that answers yes or no about something is a `Spec<T>` with `isSatisfiedBy
 `not`: `CanClimb`, `IsGroundedOn(tile)`, `DetectsAkeris` (sight, or hearing for the Blind Ghoul),
 `OpensCounter`. A chain of `if`s over the same object is a specification waiting to be named.
 
+The shared `Spec<T>` with `and`, `or`, `not` arrives with its second case (§14): while a
+specification is the only one over its type and nothing combines it, it is a plain class with
+`isSatisfiedBy`, as `ShieldStops` and `ZoneValidator` are. When one needs combining (likely
+`DetectsAkeris`), the architect decides where `Spec<T>` lives — never `core/contracts/kernel/`,
+which holds values only (architect change-04).
+
 ## 13. Adapter and Facade — the edges
 
 - **Adapter:** every `infrastructure/` class implements a port with a library: `FlameAudioPlayer`

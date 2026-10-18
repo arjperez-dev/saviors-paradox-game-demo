@@ -84,15 +84,15 @@ Twenty features, fixed by the architect in step 5.2 (2026-10-14) and listed as m
 
 | Feature | Ring | Owns | Main aggregates |
 |---|---|---|---|
-| `dungeon` | 1 | zone generation, rooms, altars, boss rooms and their seal and stage, the collision world and its hook points | `Zone` |
+| `dungeon` | 1 | zone generation, rooms, altars and the reach to take from them, boss rooms and their seal and stage, the collision world and its hook points, the rooms Akeris enters | `Zone` |
 | `combat` | 1 | hits, blocks, counters, reflects, damage, status effects, hitstop; the registry of combatants | `Engagement` (one exchange of attacks), `StatusEffects` |
-| `akeris` | 2 | movement, postures, health, the resolved loadout, noise, death | `Akeris` |
+| `akeris` | 2 | movement, postures, health, the resolved loadout, noise, death, the pickup from an altar (G) | `Akeris` |
 | `chain` | 2 | the chain blades: throw, hook, swing, climb, anchor, snatch; what they do to Akeris's body (`ChainPull`) | `ChainPair` |
 | `hazards` | 3 | what hurts, hinders or breaks in a zone: black water, open graves, poison pools, floor webs and web curtains, rotten roots, cracked stalactites, tombstones, merlons, the torch of zone 4 | `Hazard` |
 | `enemies` | 3 | the twenty normal enemies, their brains, spawns and defeats | `Enemy` |
 | `bosses` | 3 | the five bosses, their parts, phases and stage changes | `Boss` |
 | `arsenal` | 3 | weapons, shields, their levels, breaks and repairs; XP, because only it spends XP | `Arsenal` |
-| `inventory` | 3 | potions, scrolls, the cursed challenge, rage, taking from altars | `Satchel` |
+| `inventory` | 3 | potions, scrolls, the cursed challenge, rage, what is taken from altars (heard from `ItemTaken`) | `Satchel` |
 | `abilities` | 4 | the ten abilities, the three equipped slots, the choice after a boss, revival | `AbilitySet` |
 | `run` | 5 | the incursion as a **process manager**: zones in order, scaling, coins, the way down, death, victory; it credits XP drops to `arsenal` | `Run` |
 | `narrative` | 5 | spirits, dialogue, the dialogue sheet, the memory of past runs | `SpiritMemory`, `Dialogue` |
@@ -184,15 +184,15 @@ subscribes through `EventSource` and publishes through `EventSink`, both impleme
 
 | Feature | Knows | Through |
 |---|---|---|
-| `dungeon` | — | offers `CollisionWorld` (with its `HookPoint`s), `ZoneGenerator`, `BossRoomSeal`, `BossRoomStage`, `Altars`; owns `ZoneState`; emits `ZoneEntered`, `RoomEntered`, `BossRoomEntered`, `WayDownReached`, `ItemTaken` |
+| `dungeon` | — | offers `CollisionWorld` (with its `HookPoint`s), `ZoneGenerator`, `BossRoomSeal`, `BossRoomStage`, `Altars`, `ZonePresence`; owns `ZoneState`; emits `ZoneEntered`, `RoomEntered`, `BossRoomEntered`, `WayDownReached`, `ItemTaken` |
 | `combat` | `dungeon` | calls `CollisionWorld`; declares `Combatant`; offers `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`; emits `HitLanded`, `AttackBlocked`, `CounterTriggered`, `ProjectileReflected`, `StatusEffectApplied`, `StatusEffectEnded`, `HitstopStarted` |
-| `akeris` | `combat`, `dungeon` | implements `Combatant`; calls `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`, `CollisionWorld`; hears `HitLanded`, `AttackBlocked`, `CounterTriggered`, `StatusEffectApplied`, `StatusEffectEnded`, `ZoneEntered`; declares `ChainBlades`, `LoadoutModifierSource`, `PotionSupply`, `RevivalSource`; owns `AkerisState`; offers `AkerisHealth`, `AkerisStagger`; emits `AkerisDied`, `AkerisLanded`, `FastDescentLanded`, `NoiseMade`, `PotionDrunk` |
+| `akeris` | `combat`, `dungeon` | implements `Combatant`; calls `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`, `CollisionWorld`, `ZonePresence` (once per step), `Altars` (`takeWithin`, on G); hears `HitLanded`, `AttackBlocked`, `CounterTriggered`, `StatusEffectApplied`, `StatusEffectEnded`, `ZoneEntered`; declares `ChainBlades`, `LoadoutModifierSource`, `PotionSupply`, `RevivalSource`; owns `AkerisState`; offers `AkerisHealth`, `AkerisStagger`; emits `AkerisDied`, `AkerisLanded`, `FastDescentLanded`, `NoiseMade`, `PotionDrunk` |
 | `chain` | `akeris`, `combat`, `dungeon` | implements `ChainBlades` (answers with `ChainPull`); calls `AttackResolver`, `CombatantRegistry`, `CollisionWorld`; hears `HitLanded`; emits `ChainThrown`, `ChainHooked`, `ChainAnchored` |
 | `hazards` | `akeris`, `combat`, `dungeon` | implements `Combatant`, `LoadoutModifierSource` (`CarriedTorch`); calls `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`, `CollisionWorld`; reads `AkerisState`, `ZoneState`; hears `HitLanded`, `NoiseMade`; emits `HazardBroken`, `TorchTaken`, `TorchDropped`, `TorchLaidDown` |
 | `enemies` | `akeris`, `combat`, `dungeon` | implements `Combatant`; calls `AttackResolver`, `CombatantRegistry`, `CollisionWorld`; reads `AkerisState`, `ZoneState`; hears `HitLanded`, `AttackBlocked`, `CounterTriggered`, `StatusEffectApplied`, `NoiseMade`; emits `EnemyDefeated` |
 | `bosses` | `akeris`, `combat`, `dungeon` | implements `Combatant`; calls `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`, `CollisionWorld`, `BossRoomStage` (with a `StageChange`); reads `AkerisState`; hears `HitLanded`, `AttackBlocked`, `BossRoomEntered`; owns `BossState`; emits `BossWoke`, `BossPhaseChanged`, `BossDefeated` |
 | `arsenal` | `akeris`, `combat`, `dungeon` | implements `LoadoutModifierSource` (`HeldWeapon`, `StrappedShield`); calls `AkerisStagger`; hears `AttackBlocked`, `ItemTaken`; owns `ArsenalState`; offers `XpAccount`, `ShieldRepairs`; emits `WeaponUpgraded`, `ShieldBroken`, `ShieldRepairRequested`, `ShieldRepaired` |
-| `inventory` | `akeris`, `arsenal`, `enemies`, `combat`, `dungeon` | implements `LoadoutModifierSource` (`AttackBoost`, `Rage`, `Curse`), `PotionSupply`; calls `AkerisHealth`, `ShieldRepairs`, `Altars`; hears `PotionDrunk`, `EnemyDefeated`, `ShieldRepairRequested`, `HitLanded`, `ItemTaken`, `ZoneEntered`; owns `SatchelState`; emits `ScrollRead`, `CurseStarted`, `CurseProgressed`, `CurseFulfilled`, `RageStarted`, `RageEnded` |
+| `inventory` | `akeris`, `arsenal`, `enemies`, `combat`, `dungeon` | implements `LoadoutModifierSource` (`AttackBoost`, `Rage`, `Curse`), `PotionSupply`; calls `AkerisHealth`, `ShieldRepairs`, `Altars` (`returnTo`); hears `PotionDrunk`, `EnemyDefeated`, `ShieldRepairRequested`, `HitLanded`, `ItemTaken`, `ZoneEntered`; owns `SatchelState`; emits `ScrollRead`, `CurseStarted`, `CurseProgressed`, `CurseFulfilled`, `RageStarted`, `RageEnded` |
 | `abilities` | `akeris`, `bosses`, `combat` | implements `Combatant` (its conjured bodies), `LoadoutModifierSource` (`VenomEdgeActive`, `StoneOrbitActive`), `RevivalSource`; calls `AttackResolver`, `CombatantRegistry`, `StatusEffectControl`; reads `AkerisState`; hears `BossDefeated`, `FastDescentLanded`; owns `AbilitySetState`; emits `AbilityChoiceOffered`, `AbilityChosen`, `AbilityTriggered` |
 | `run` | `dungeon`, `akeris`, `arsenal`, `enemies`, `bosses`, `abilities` | calls `ZoneGenerator`, `BossRoomSeal`, `XpAccount`; reads `AkerisState`, `ArsenalState`; hears `WayDownReached`, `AkerisDied`, `EnemyDefeated`, `BossDefeated`, `AbilityChosen`; owns `RunState`; offers `RunStarter`; emits `RunStarted`, `RunEnded` |
 | `narrative` | `run`, `akeris`, `dungeon` | hears `RunStarted`; reads `AkerisState`, `ZoneState`; implements its own `InputContext`; emits `DialogueOpened`, `DialogueClosed`, `SpiritWhispered` |
@@ -268,7 +268,7 @@ own.
 | **Domain event** | something that happened inside the context | `PotionDrunk`, `WeaponUpgraded`, `PhaseChanged` | past tense, immutable, raised by the aggregate that changed; handled inside the feature |
 | **Integration event** | a domain event another context needs | `HitLanded`, `EnemyDefeated`, `BossDefeated` | declared in `core/contracts/events/`; published by the feature's `application/` after the aggregate raised its domain event |
 | **Domain service** | a rule that belongs to no single aggregate | `CounterWindow`, deciding whether a block was a perfect block | stateless; named for the rule |
-| **Policy / specification** | one question, as an object | `CanClimb`, `IsInBossRoom`, `DetectsRunningAkeris` (the blind ghoul) | composable (`and`, `or`, `not`) instead of `if` chains |
+| **Policy / specification** | one question, as an object | `CanClimb`, `IsInBossRoom`, `DetectsRunningAkeris` (the blind ghoul) | one class instead of `if` chains; composable (`and`, `or`, `not`) through a shared `Spec<T>` once a second specification over the same type needs combining — until then a plain class with `isSatisfiedBy` (design-patterns §12, §14) |
 | **Factory** | builds a valid aggregate | `EnemyFactory`, `ZoneFactory`, `LoadoutFactory` | from data and a `Seed`; never from `Random()`; never returns an invalid aggregate |
 | **Repository** | a collection-like port for aggregates that persist | `SaveSlotStore`, `SpiritMemoryStore` | an interface in `application/ports/`; implemented in `infrastructure/`; loads and saves whole aggregates |
 | **Use case** | one thing the player or the game does | `DrinkPotion`, `EquipShield`, `SwapAbility`, `UpgradeWeapon` | orchestrates: loads, calls the aggregate, publishes events; holds no rule itself |
