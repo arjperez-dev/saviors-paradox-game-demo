@@ -36,6 +36,7 @@ Akeris: movement, postures, health and the loadout his items decorate.
 | `ports/zone_presence` | consumes | — |
 | `ports/altars` | consumes | — |
 | `events/zone_entered` | consumes | — |
+| `state/zone_state` | consumes | — |
 | `ports/event_sink` | consumes | — |
 
 ## Roots

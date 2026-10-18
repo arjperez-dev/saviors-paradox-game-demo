@@ -9,6 +9,7 @@ final class ChainThrow {
     required this.isUpHeld,
     required this.isDownHeld,
     required this.isFromFreeHand,
+    required this.isAirborne,
   });
 
   final Vec2 from;
@@ -17,4 +18,5 @@ final class ChainThrow {
   final bool isUpHeld;
   final bool isDownHeld;
   final bool isFromFreeHand;
+  final bool isAirborne;
 }

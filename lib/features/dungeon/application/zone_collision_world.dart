@@ -30,6 +30,14 @@ final class ZoneCollisionWorld implements CollisionWorld {
   @override
   bool isAbyssAt(Vec2 point) => _zones.load()?.isAbyssAt(point) ?? false;
 
+  // Not implemented.
+  @override
+  bool isStaticSolidAt(Vec2 point) => false;
+
+  // Not implemented.
+  @override
+  Vec2 carry(WorldBox box) => Vec2.zero;
+
   @override
   Iterable<HookPoint> hookPointsNear(Vec2 point, double radius) {
     final zone = _zones.load();
