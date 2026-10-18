@@ -51,7 +51,9 @@ quadratic ease-in (0.2 s), turning to the hand's angle.
   and once it hooks, the first blade lets go.
 - **Wall to wall** (G20): in the air, a throw toward another wall within reach (toward the mouse, or ahead) bites into it at the aimed height; the chain pulls him across in 0.3 s, stretched toward it, and he hangs from the wall (`wallHang`). Frames [`../sprites/sheet-wall-to-wall.png`](../sprites/sheet-wall-to-wall.png).
 - **Wall:** the hook bites into the stone, angled 25° up. Akeris climbs hanging from the chain with
-  his feet walking up the wall, 250 per stretch. **The next stab uses the other hand, and the lower
+  his feet walking up the wall: each stab bites 250 above his feet and the stretch (0.5 s) ends with
+  his feet 200 below the bite, so he rises 50 per stretch (the sandbox's `startWallStab`; operator,
+  2026-10-17). **The next stab uses the other hand, and the lower
   blade then pulls out.** Near the top, the hook catches over the edge, curled toward the wall, and
   he mantles up.
 - **Letting go** (jump or drop) reels both chains in.
