@@ -281,7 +281,7 @@ abstract interface class ChainActionHandler {
 
 // lib/features/chain/domain/chain_resolver.dart
 final class ChainResolver {
-  const ChainResolver(this._handlers); // order: 03-characters/akeris/weapons/chain-blades.md
+  const ChainResolver(this._handlers); // order: below, from the approved akeris sandbox
   final List<ChainActionHandler> _handlers;
 
   ChainAction resolve(ChainSituation situation) {
@@ -294,9 +294,23 @@ final class ChainResolver {
 }
 ```
 
-Handlers: `AnchorWhileLevitating`, `SwingFromRing`, `ClimbWall`, `HookBossPart`, `SnatchObject`,
-`PullEnemy`, `StrikeTowardAim`. A new use of the chain is a new handler, placed in the order its
-reference gives.
+Handlers: `AnchorWhileLevitating`, `SwingFromRing`, `ClimbWall`, `CrossToWall`, `HookBossPart`,
+`SnatchObject`, `PullEnemy`, `StrikeTowardAim` — a list, not an order. A new use of the chain is a
+new handler, placed in the order its reference gives.
+
+**The traversal order** is the approved akeris sandbox's `chainAction`
+(`03-characters/akeris/sandbox/sandbox.html`; operator, 2026-10-17):
+
+1. hanging from a wall, the click climbs on (`ClimbWall`);
+2. a wall beside him, not while swinging: `ClimbWall`;
+3. a ring in reach (G19) and, in the air and not swinging, a wall across a gap (G20): whichever the
+   aim prefers — `CrossToWall` or `SwingFromRing`; with only the ring, `SwingFromRing`;
+4. swinging with no next ring: nothing;
+5. in the air, a wall across a gap with no ring: `CrossToWall`;
+6. otherwise `StrikeTowardAim`.
+
+The fighting handlers (`HookBossPart`, `SnatchObject`, `PullEnemy`, `AnchorWhileLevitating`) take
+their place when the fighting is planned, from their own references.
 
 ## 7. Observer — events
 
